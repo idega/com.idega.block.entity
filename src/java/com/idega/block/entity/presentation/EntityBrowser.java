@@ -107,6 +107,14 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   private String colorForOddRows = null;
   
+  private Text defaultTextProxy = new Text();
+  
+  private Text columnTextProxy = new Text();
+  
+  private int currentRow = -1;
+  
+  private int currentColumn = -1;
+  
   
   public void setDefaultNumberOfRows(int defaultNumberOfRows) {
     this.defaultNumberOfRowsPerPage = defaultNumberOfRows;
@@ -264,7 +272,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
         && (( converter = (EntityToPresentationObjectConverter)
            entityToPresentationConverters.get(path.getSourceEntityClass().getName())) == null )))
       // okay we give up! return default converter
-        return getMyDefaultConverter(); 
+        return getDefaultConverter(); 
     return converter;
   }
 
@@ -280,7 +288,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
     
   public void main(IWContext iwc) throws Exception { 
-
+    super.main(iwc);
     // event model stuff
     EntityBrowserPS state = (EntityBrowserPS) getPresentationState((IWUserContext) iwc);
     this.addActionListener( (IWActionListener) state);
@@ -452,7 +460,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     while (iterator.hasNext())  {
       EntityPath entityPath = (EntityPath) iterator.next();
       String columnName = entityPath.getLocalizedDescription(resourceBundle);
-      add(columnName, xAnchorPosition + i , yAnchorPosition + 1);
+      Text text = (Text) columnTextProxy.clone();
+      text.setText(columnName);               
+      add(text, xAnchorPosition + i , yAnchorPosition + 1);
       i++;
     }
     
@@ -467,16 +477,20 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       int x = 1;
       // fill columns
       while (visibleOrderedEntityPathesIterator.hasNext())  {
+        currentColumn = xAnchorPosition + x;
+        currentRow = yAnchorPosition + y;
         EntityPath path = (EntityPath) visibleOrderedEntityPathesIterator.next();
         EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(path); 
-        PresentationObject presentation = converter.getPresentationObject(genericEntity, path, iwc);
-        add(presentation, xAnchorPosition + x, yAnchorPosition + y);
+        PresentationObject presentation = converter.getPresentationObject(genericEntity, path, this, iwc);
+        add(presentation, currentColumn, currentRow);
         // next column
         x++; 
       }
       // next row
       y++;
     }
+    currentColumn = -1;
+    currentRow = -1;
   }
 
 
@@ -614,8 +628,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
   
   private void setErrorContent(IWResourceBundle resourceBundle)  {
-    String message = resourceBundle.getLocalizedString("Blank table", "Blank table");
-    add(message);
+    // show nothing
+    //// String message = resourceBundle.getLocalizedString("Blank table", "Blank table");
+    //// add(message);
   }
   
   private List getVisibleOrderedEntityPathes(MultiEntityPropertyHandler multiPropertyHandler)  {
@@ -649,36 +664,31 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
   
   
-  private EntityToPresentationObjectConverter getMyDefaultConverter()  {
+  public EntityToPresentationObjectConverter getDefaultConverter()  {
     if (defaultConverter == null) 
-      defaultConverter = EntityBrowser.getDefaultConverter(); 
+      defaultConverter = 
+      new EntityToPresentationObjectConverter() {
+            
+        public PresentationObject getPresentationObject(Object genericEntity, EntityPath path, EntityBrowser browser, IWContext iwc)  {
+          StringBuffer displayValues = new StringBuffer();
+          List list = path.getValues((GenericEntity) genericEntity);
+          Iterator valueIterator = list.iterator();
+          while (valueIterator.hasNext()) {
+            Object object = valueIterator.next();
+            // if there is no entry the object is null
+            object = (object == null) ? "" : object;  
+            displayValues.append(object.toString());
+            // append white space
+            displayValues.append(' ');  
+          }
+          Text text = (Text) defaultTextProxy.clone();
+          text.setText(displayValues.toString());               
+          return text;
+        }
+      }; 
     return defaultConverter;
   }
-    
 
-  public static EntityToPresentationObjectConverter getDefaultConverter() {
-    return new EntityToPresentationObjectConverter() {
-            
-      public PresentationObject getPresentationObject(Object genericEntity, EntityPath path, IWContext iwc)  {
-        StringBuffer displayValues = new StringBuffer();
-        List list = path.getValues((GenericEntity) genericEntity);
-        Iterator valueIterator = list.iterator();
-        while (valueIterator.hasNext()) {
-          Object object = valueIterator.next();
-          // if there is no entry the object is null
-          object = (object == null) ? "" : object;  
-          displayValues.append(object.toString());
-          // append white space
-          displayValues.append(' ');  
-        }          
-        return new Text(displayValues.toString());
-      }
-    };        
-  }
-
-
-  
-  
   /** this method is used for the event model */
   public IWPresentationState getPresentationState(IWUserContext iwuc){
     if(presentationState == null){
@@ -725,6 +735,40 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 	 */
 	public void setShowSettingButton(boolean showSettingButton) {
 		this.showSettingButton = showSettingButton;
+	}
+
+	/**
+	 * Sets the columnTextProxy.
+	 * @param columnTextProxy The columnTextProxy to set
+	 */
+	public void setColumnTextProxy(Text columnTextProxy) {
+		this.columnTextProxy = columnTextProxy;
+	}
+
+	/**
+	 * Sets the defaultTextProxy.
+	 * @param defaultTextProxy The defaultTextProxy to set
+	 */
+	public void setDefaultTextProxy(Text defaultTextProxy) {
+		this.defaultTextProxy = defaultTextProxy;
+	}
+
+	/**
+	 * Returns the currentColumn.
+   * Returns -1 if the browser is not drawing a cell at the moment.
+	 * @return int
+	 */
+	public int getCurrentColumn() {
+		return currentColumn;
+	}
+
+	/**
+	 * Returns the currentRow.
+   * Returns -1 if the browser is not drawing a cell at the moment.
+	 * @return int
+	 */
+	public int getCurrentRow() {
+		return currentRow;
 	}
 
 }
