@@ -954,7 +954,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   	scrollTable.setCellpadding(0);
   	scrollTable.setCellspacing(0);
   	scrollTable.setNumberOfHeaderRows(1);
-	scrollTable.setScrollLayerHeaderRowThickness(47);  // prior 47
+	scrollTable.setScrollLayerHeaderRowThickness(30);  // prior 47
 	scrollTable.setWidth(widthScrollTable);
 	scrollTable.setHeight(heightScrollTable);
   	
