@@ -294,7 +294,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     id = PresentationObject.COMPOUNDID_COMPONENT_DELIMITER + id;
     model.setController(id);
     //////////////////////////////////model.setControlFrameTarget("iwb_top");
-    form.addEventModel(model);
+    form.addEventModel(model, iwc);
     //form.setTarget("iwb_top");
     //form.setTarget("_top");
     //form.setTarget("iwb_main");
