@@ -115,6 +115,7 @@ public class EntityPathValueContainer {
    * @param object
    */
   public void setValue(Object object) {
+    valueIsSet = true;
     value = object;
   }
 
