@@ -20,6 +20,7 @@ import com.idega.presentation.Table;
 import com.idega.presentation.text.Link;
 import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.Form;
+import com.idega.presentation.ui.GenericButton;
 import com.idega.presentation.ui.HiddenInput;
 import com.idega.presentation.ui.IntegerInput;
 import com.idega.presentation.ui.SelectionBox;
@@ -79,7 +80,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     return EntityBrowser.IW_BUNDLE_IDENTIFIER;
   }  
 
-  public static void setParameters(Link link, Collection entityNames, Collection defaultShortKeys, Collection optionShortKeys, int defaultNumberOfRows) {
+  public static void setParameters(GenericButton settingsButton, Collection entityNames, Collection defaultShortKeys, Collection optionShortKeys, int defaultNumberOfRows) {
   	if (optionShortKeys != null) {
   		Iterator iterator = optionShortKeys.iterator();
   		int i = 0;
@@ -87,15 +88,15 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
   			String shortKeyOption = (String) iterator.next();
   			StringBuffer buffer = new StringBuffer(OPTION_SHORT_KEY_KEY_PREFIX);
   			buffer.append(i++);
-  			link.addParameter(buffer.toString(), shortKeyOption);
+  			settingsButton.addParameter(buffer.toString(), shortKeyOption);
   		}
   	}
-  	setParameters(link, entityNames, defaultShortKeys, defaultNumberOfRows);
+  	setParameters(settingsButton, entityNames, defaultShortKeys, defaultNumberOfRows);
   }
   			
   
   
-  public static void setParameters(Link link, Collection entityNames, Collection defaultShortKeys, int defaultNumberOfRows) {
+  public static void setParameters(GenericButton settingsButton, Collection entityNames, Collection defaultShortKeys, int defaultNumberOfRows) {
     if (entityNames != null)  {
       Iterator iterator = entityNames.iterator();
       int i = 0;
@@ -103,7 +104,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
         String entityName = (String) iterator.next();
         StringBuffer buffer = new StringBuffer(ENTITY_NAME_KEY_PREFIX);
         buffer.append(i++);
-        link.addParameter(buffer.toString(), entityName);
+        settingsButton.addParameter(buffer.toString(), entityName);
       }
     }
     if (defaultShortKeys != null) {
@@ -113,10 +114,10 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
         String shortKey = (String) iterator.next();
         StringBuffer buffer = new StringBuffer(DEFAULT_SHORT_KEY_KEY_PREFIX);
         buffer.append(i++);
-        link.addParameter(buffer.toString(), shortKey);
+        settingsButton.addParameter(buffer.toString(), shortKey);
       }
     }
-    link.addParameter(DEFAULT_NUMBER_OF_ROWS_KEY, Integer.toString(defaultNumberOfRows));
+    settingsButton.addParameter(DEFAULT_NUMBER_OF_ROWS_KEY, Integer.toString(defaultNumberOfRows));
   }
  
   public static void setParameters(Form form, Collection entityNames, Collection defaultShortKeys, Collection optionShortKeys, int defaultNumberOfRows) {

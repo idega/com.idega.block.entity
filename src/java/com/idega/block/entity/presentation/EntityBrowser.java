@@ -35,9 +35,11 @@ import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.CheckBox;
 import com.idega.presentation.ui.DropdownMenu;
 import com.idega.presentation.ui.Form;
+import com.idega.presentation.ui.GenericButton;
 import com.idega.presentation.ui.HiddenInput;
 import com.idega.presentation.ui.Parameter;
 import com.idega.presentation.ui.ScrollTable;
+import com.idega.presentation.ui.StyledButton;
 import com.idega.util.SetIterator;
 /**
  *@author     <a href="mailto:thomas@idega.is">Thomas Hilbig</a>
@@ -164,6 +166,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private String colorForEvenRows = null;
   private String colorForOddRows = "#EFEFEF";
   private String colorForHeader= "#DFDFDF";
+  private String colorForButtonTable = "#FFFFFF";
   
   protected Text defaultTextProxy = new Text();
   protected Text columnTextProxy = new Text();
@@ -786,7 +789,11 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     Table table = getAdditionalPresentationObjects();
     panelTable.add(table , 3, 1);
     // now add the table in the row that was created by merging the cells of the last row
-    add(panelTable, panelBeginxpos, panelBeginypos);
+    Table surroundTable = new Table(1,1);
+    surroundTable.setWidth(Table.HUNDRED_PERCENT);
+    surroundTable.setColor(colorForButtonTable);
+    surroundTable.add(panelTable, 1, 1);
+    add(surroundTable, panelBeginxpos, panelBeginypos);
     if (useExternalForm)	{
     	  HiddenInput hiddenInputRequestFrom = new HiddenInput(formKey + REQUEST_KEY);
     	  add(hiddenInputRequestFrom);
@@ -1361,16 +1368,15 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     if (!showSettingsButton)
       return new Table();
     String settings = resourceBundle.getLocalizedString("Settings","Settings");
-    Link link = new Link(settings);
-    link.setWindowToOpen(EntityBrowserSettingsWindow.class);
-    link.addParameter(EntityBrowserSettingsWindow.LEADING_ENTITY_NAME_KEY, leadingEntityName);
+    GenericButton settingsButton = new GenericButton(settings);
+    settingsButton.setWindowToOpen(EntityBrowserSettingsWindow.class);
+    settingsButton.addParameter(EntityBrowserSettingsWindow.LEADING_ENTITY_NAME_KEY, leadingEntityName);
     Collection defaultColumnValues = (defaultColumns == null) ? null : defaultColumns.values();
     Collection optionColumnValues = (optionColumns == null) ? null : optionColumns.values();
-    EntityBrowserSettingsWindow.setParameters(link, entityNames, defaultColumnValues , optionColumnValues, defaultNumberOfRowsPerPage );
-        
-    link.setAsImageButton(true);
+    EntityBrowserSettingsWindow.setParameters(settingsButton, entityNames, defaultColumnValues , optionColumnValues, defaultNumberOfRowsPerPage );
+    StyledButton styledSettingsButton = new StyledButton(settingsButton);    
     Table table = new Table();
-    table.add(link);
+    table.add(styledSettingsButton);
     return table;
   }
   
