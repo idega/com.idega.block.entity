@@ -50,6 +50,8 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
     if (idPostalAddressMap == null || countryHasChanged) {
       idPostalAddressMap = new HashMap();
       postalCodeNumberIdMap = new HashMap();
+      // add null value
+      postalCodeNumberIdMap.put("", ConverterConstants.NULL_ENTITY_ID);
       try {
         if( countryName!=null && country == null) {
           country = getAddressBusiness(iwc).getCountryHome().findByCountryName(countryName);      
