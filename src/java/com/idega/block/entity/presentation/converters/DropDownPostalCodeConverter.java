@@ -52,7 +52,7 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
       postalCodeNumberIdMap = new HashMap();
       // add null value
       postalCodeNumberIdMap.put("", ConverterConstants.NULL_ENTITY_ID);
-      idPostalAddressMap.put("", ConverterConstants.NULL_ENTITY_ID);
+      idPostalAddressMap.put("", "");
       try {
         if( countryName!=null && country == null) {
           country = getAddressBusiness(iwc).getCountryHome().findByCountryName(countryName);      
