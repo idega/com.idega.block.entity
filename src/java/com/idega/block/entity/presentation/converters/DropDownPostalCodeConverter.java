@@ -34,7 +34,7 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
   private String countryName = null;
   private boolean countryHasChanged = false;
   
-  private Map PostalCodeNumberIdMap;
+  private Map postalCodeNumberIdMap;
   private Map idPostalAddressMap;
   
   public DropDownPostalCodeConverter(Form externalForm) {
@@ -44,6 +44,7 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
   private void initializePostalCodeMaps(IWContext iwc) {
     if (idPostalAddressMap == null || countryHasChanged) {
       idPostalAddressMap = new HashMap();
+      postalCodeNumberIdMap = new HashMap();
       try {
         if( countryName!=null && country == null) {
           country = getAddressBusiness(iwc).getCountryHome().findByCountryName(countryName);      
@@ -58,7 +59,7 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
             String postalCodeNumber = element.getPostalCode();
             if( code!=null && postalCodeNumber != null) {
               idPostalAddressMap.put(id,code);
-              PostalCodeNumberIdMap.put(postalCodeNumber, id);
+              postalCodeNumberIdMap.put(postalCodeNumber, id);
             }           
           }
         }
@@ -108,7 +109,7 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
       // the id of the postal code. Therefore get the corresponding id of the postal code element first and
       // then set the preselection 
       String preselectionAsString = preselection.toString();
-      Integer id = (Integer) PostalCodeNumberIdMap.get(preselection);
+      Integer id = (Integer) postalCodeNumberIdMap.get(preselection);
       if (id != null) {
         dropdownMenu.setSelectedElement(id.toString());
       }
