@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
+
+import com.idega.block.entity.business.EntityPropertyHandler;
 import com.idega.block.entity.business.MultiEntityPropertyHandler;
 import com.idega.block.entity.data.EntityPath;
 import com.idega.idegaweb.IWResourceBundle;
@@ -35,6 +37,7 @@ public class EntityBrowserSettingsWindow extends IWAdminWindow {
   // use the method getParamterKeyForEntityName to get this key
   public final static String ENTITY_NAME_KEY_PREFIX = "e_n_";
   public final static String DEFAULT_SHORT_KEY_KEY_PREFIX = "s_k_";
+  public final static String DEFAULT_NUMBER_OF_ROWS_KEY = "default_rows_key";
   
   private final static String FORM_SUBMIT_KEY = "browser_setting_mode";
   private final static String ACTION_SAVE_FORM = "save_form";
@@ -56,6 +59,8 @@ public class EntityBrowserSettingsWindow extends IWAdminWindow {
   
   private List defaultPathes;
   
+  private int defaultNumberOfRows = 1;
+  
   public EntityBrowserSettingsWindow() {
     setResizable(true);
     setWidth(700);
@@ -66,42 +71,52 @@ public class EntityBrowserSettingsWindow extends IWAdminWindow {
     return EntityBrowser.IW_BUNDLE_IDENTIFIER;
   }  
 
-  public static void setParameters(Link link, Collection entityNames, Collection defaultShortKeys) {
-    Iterator iterator = entityNames.iterator();
-    int i = 0;
-    while (iterator.hasNext())  {
-      String entityName = (String) iterator.next();
-      StringBuffer buffer = new StringBuffer(ENTITY_NAME_KEY_PREFIX);
-      buffer.append(i++);
-      link.addParameter(buffer.toString(), entityName);
+  public static void setParameters(Link link, Collection entityNames, Collection defaultShortKeys, int defaultNumberOfRows) {
+    if (entityNames != null)  {
+      Iterator iterator = entityNames.iterator();
+      int i = 0;
+      while (iterator.hasNext())  {
+        String entityName = (String) iterator.next();
+        StringBuffer buffer = new StringBuffer(ENTITY_NAME_KEY_PREFIX);
+        buffer.append(i++);
+        link.addParameter(buffer.toString(), entityName);
+      }
     }
-    i = 0;
-    iterator = defaultShortKeys.iterator();
-    while (iterator.hasNext())  {
-      String shortKey = (String) iterator.next();
-      StringBuffer buffer = new StringBuffer(DEFAULT_SHORT_KEY_KEY_PREFIX);
-      buffer.append(i++);
-      link.addParameter(buffer.toString(), shortKey);
+    if (defaultShortKeys != null) {
+      int i = 0;
+      Iterator iterator = defaultShortKeys.iterator();
+      while (iterator.hasNext())  {
+        String shortKey = (String) iterator.next();
+        StringBuffer buffer = new StringBuffer(DEFAULT_SHORT_KEY_KEY_PREFIX);
+        buffer.append(i++);
+        link.addParameter(buffer.toString(), shortKey);
+      }
     }
+    link.addParameter(DEFAULT_NUMBER_OF_ROWS_KEY, Integer.toString(defaultNumberOfRows));
   }
   
-  public static void setParameters(Form form, Collection entityNames, Collection defaultShortKeys) {
-    Iterator iterator = entityNames.iterator();
-    int i = 0;
-    while (iterator.hasNext())  {
-      String entityName = (String) iterator.next();
-      StringBuffer buffer = new StringBuffer(ENTITY_NAME_KEY_PREFIX);
-      buffer.append(i++);
-      form.addParameter(buffer.toString(), entityName);
+  public static void setParameters(Form form, Collection entityNames, Collection defaultShortKeys, int defaultNumberOfRows) {
+    if (entityNames != null)  {
+      Iterator iterator = entityNames.iterator();
+      int i = 0;
+      while (iterator.hasNext())  {
+        String entityName = (String) iterator.next();
+        StringBuffer buffer = new StringBuffer(ENTITY_NAME_KEY_PREFIX);
+        buffer.append(i++);
+        form.addParameter(buffer.toString(), entityName);
+      }
     }
-    i = 0;
-    iterator = defaultShortKeys.iterator();
-    while (iterator.hasNext())  {
-      String shortKey = (String) iterator.next();
-      StringBuffer buffer = new StringBuffer(DEFAULT_SHORT_KEY_KEY_PREFIX);
-      buffer.append(i++);
-      form.addParameter(buffer.toString(), shortKey);
+    if (entityNames != null)  {
+      int i = 0;
+      Iterator iterator = defaultShortKeys.iterator();
+      while (iterator.hasNext())  {
+        String shortKey = (String) iterator.next();
+        StringBuffer buffer = new StringBuffer(DEFAULT_SHORT_KEY_KEY_PREFIX);
+        buffer.append(i++);
+        form.addParameter(buffer.toString(), shortKey);
+      }
     }
+    form.addParameter(DEFAULT_NUMBER_OF_ROWS_KEY, Integer.toString(defaultNumberOfRows));
   }
 
     
@@ -141,6 +156,10 @@ public class EntityBrowserSettingsWindow extends IWAdminWindow {
         buffer.append(i++);
         key = buffer.toString();
       }
+      // get the default number of rows
+      if (iwc.isParameterSet(DEFAULT_NUMBER_OF_ROWS_KEY))  {
+        defaultNumberOfRows = Integer.parseInt(iwc.getParameter(DEFAULT_NUMBER_OF_ROWS_KEY));
+      }
       
     }
     catch (ClassNotFoundException ex) {
@@ -171,6 +190,9 @@ public class EntityBrowserSettingsWindow extends IWAdminWindow {
     }
     
     int numberOfRowsPerPage = multiEntityPropertyHandler.getNumberOfRowsPerPage();
+    // if the user has not set the desired number of rows per page fetch default value 
+    if (numberOfRowsPerPage == EntityPropertyHandler.NUMBER_OF_ROWS_PER_PAGE_NOT_SET)
+      numberOfRowsPerPage = defaultNumberOfRows;
     
     List allColumnsColl = new ArrayList();
     // get existing settings of the user
@@ -237,7 +259,7 @@ public class EntityBrowserSettingsWindow extends IWAdminWindow {
     form.add(formTable);
     // the name of the entity is necessary for initializing this class
     form.add(new HiddenInput(LEADING_ENTITY_NAME_KEY, multiEntityPropertyHandler.getLeadingEntityClassName()));
-    EntityBrowserSettingsWindow.setParameters(form, multiEntityPropertyHandler.getEntityNames(),defaultShortKeys);   
+    EntityBrowserSettingsWindow.setParameters(form, multiEntityPropertyHandler.getEntityNames(),defaultShortKeys, defaultNumberOfRows);   
     // finally add form        
     add(form);
   }
