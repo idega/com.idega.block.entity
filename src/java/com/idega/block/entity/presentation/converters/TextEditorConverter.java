@@ -98,6 +98,9 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
       Object value = iwc.getParameter(key);
       container.setValue(value);
     }
+    else {
+      container.setValue("");
+    }
     // set previous value (that is the current value of the entity)
     String keyPreviousValue = getTextInputUniqueKeyPreviousValue(id, entityPathShortKey);
     if (iwc.isParameterSet(keyPreviousValue))  {
