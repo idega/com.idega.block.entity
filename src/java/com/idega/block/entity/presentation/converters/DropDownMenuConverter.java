@@ -42,6 +42,14 @@ public class DropDownMenuConverter
   protected List maintainParameterList = new ArrayList(0);
   private Form externalForm = null;
   
+  
+  // flag 
+  private boolean workWithExternalSubmitButton = true;
+  
+  public void setWorkWithExternalSubmitButton(boolean workWithExternalSubmitButton) {
+    this.workWithExternalSubmitButton = workWithExternalSubmitButton;
+  }
+  
   public DropDownMenuConverter(Form externalForm) {
     this.externalForm = externalForm;
   } 
@@ -126,8 +134,11 @@ public class DropDownMenuConverter
     boolean newEntity = id.intValue() < 0;
     String shortKeyPath = path.getShortKey();
     String uniqueKeyLink = getLinkUniqueKey(id, shortKeyPath);
+    boolean editEntity = iwc.isParameterSet(ConverterConstants.EDIT_ENTITY_KEY);
     // decide to show a link or a drop down menu
-    if (newEntity || iwc.isParameterSet(uniqueKeyLink)) {
+    if (newEntity || 
+        editEntity ||
+        iwc.isParameterSet(uniqueKeyLink)) {
       // show drop down menu with submitButton
       String uniqueKeyDropdownMenu = getDropdownMenuUniqueKey(id, shortKeyPath);
       DropdownMenu dropdownMenu = 
@@ -143,7 +154,7 @@ public class DropDownMenuConverter
       Table table = (newEntity) ? new Table(1,1) : new Table(2,1);
       table.add(dropdownMenu,1,1);
       // add submit button
-      if (! newEntity) {    
+      if (! editEntity || ! newEntity) {    
         SubmitButton button = new SubmitButton("OK", getGeneralSubmitKey(), getUniqueKey(id, shortKeyPath).toString());
         button.setAsImageButton(true);
         table.add(button,2,1);
@@ -152,16 +163,21 @@ public class DropDownMenuConverter
     } 
     else {
       // show link
-      return getLink(value, uniqueKeyLink, iwc);
+      return getLink(value, uniqueKeyLink, id.toString(), iwc);
     }
       
   }
   
-  protected Link getLink(Object value, String uniqueKeyLink, IWContext iwc)  {
+  protected Link getLink(Object value, String uniqueKeyLink, String id, IWContext iwc)  {
     String display = value.toString();
     display = (display.length() == 0) ? "_" : display;
     Link link = new Link(display);
-    link.addParameter(uniqueKeyLink,"dummy_value");
+    if (workWithExternalSubmitButton) {
+      link.addParameter(ConverterConstants.EDIT_ENTITY_KEY, id);
+    }
+    else {
+      link.addParameter(uniqueKeyLink,"dummy_value");
+    }
     // add maintain parameters
     Iterator iteratorList = maintainParameterList.iterator();
     while (iteratorList.hasNext())  {

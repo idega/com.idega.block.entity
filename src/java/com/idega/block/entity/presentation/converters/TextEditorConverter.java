@@ -38,6 +38,13 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
   private List maintainParameterList = new ArrayList(0);
   private Form externalForm = null;
   
+  // flag 
+  private boolean workWithExternalSubmitButton = true;
+  
+  public void setWorkWithExternalSubmitButton(boolean workWithExternalSubmitButton) {
+    this.workWithExternalSubmitButton = workWithExternalSubmitButton;
+  }
+  
   public TextEditorConverter(Form externalForm) {
     this.externalForm = externalForm;
   }
@@ -120,8 +127,11 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
     boolean newEntity = id.intValue() < 0;
     String shortKeyPath = path.getShortKey();
     String uniqueKeyLink = getLinkUniqueKey(id, shortKeyPath);
+    boolean editEntity = iwc.isParameterSet(ConverterConstants.EDIT_ENTITY_KEY);
     // decide to show a link or a text inputfield
-    if (newEntity || iwc.isParameterSet(uniqueKeyLink)) {
+    if (newEntity || 
+        editEntity || 
+        iwc.isParameterSet(uniqueKeyLink)) {
       // show text input with submitButton
       String uniqueKeyTextInput = getTextInputUniqueKey(id, shortKeyPath);
       TextInput textInput = new TextInput( uniqueKeyTextInput, text);
@@ -131,7 +141,7 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
 
       Table table = (newEntity) ? new Table(1,1) : new Table(2,1);
       table.add(textInput,1,1);
-      if (! newEntity) {
+      if (! editEntity || ! newEntity) {
         SubmitButton button = new SubmitButton("OK", getGeneralSubmitKey(), getUniqueKey(id, shortKeyPath).toString());
         button.setAsImageButton(true);
         table.add(button,2,1);
@@ -142,7 +152,12 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
       // show link
       text = (text.length() == 0) ? "_" : text;  
       Link link = new Link(text);
-      link.addParameter(uniqueKeyLink,"dummy_value");
+      if (workWithExternalSubmitButton) {
+        link.addParameter(ConverterConstants.EDIT_ENTITY_KEY, id.toString());
+      }
+      else {
+        link.addParameter(uniqueKeyLink,"dummy_value");
+      }
       // add maintain parameters
       Iterator iteratorList = maintainParameterList.iterator();
       while (iteratorList.hasNext())  {
