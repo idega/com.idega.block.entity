@@ -210,14 +210,14 @@ public class EntityPath {
     String targetClassName = targetEntity.getName();
     String classNameWithoutPath = targetClassName.substring(targetClassName.lastIndexOf(".") + 1);
     buffer.append(classNameWithoutPath);
-    buffer.append('.').append(pathToEntity.get(pathToEntity.size()-1));
+    // buffer.append('.').append(pathToEntity.get(pathToEntity.size()-1));
     // add all column names of this entity path
-    /*Iterator iterator = pathToEntity.iterator();
+    Iterator iterator = pathToEntity.iterator();
     while (iterator.hasNext())  {
       buffer.append(DESCRIPTION_COLUMN_DELIMITER);
       String columnName = (String) iterator.next();
       buffer.append(columnName); 
-    }*/
+    }
     // add describtion of the next entity path
     if (nextEntityPath != null) {
       buffer.append(DESCRIPTION_NEXT_ENTITY_PATH_DELIMITER);

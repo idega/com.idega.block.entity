@@ -277,7 +277,9 @@ public class EntityBrowserSettingsWindow extends IWAdminWindow {
       new SelectionDoubleBox(RIGHT_SELECTION_BOX_KEY,"Available columns","Visible Columns");
     // set size
     selectionDoubleBox.getRightBox().setWidth("300");
-    selectionDoubleBox.getLeftBox().setWidth("300");      
+    selectionDoubleBox.getLeftBox().setWidth("300");   
+    selectionDoubleBox.getRightBox().setHeight("20");
+    selectionDoubleBox.getLeftBox().setHeight("20");   
 		// submit selection on right box
 		selectionDoubleBox.getRightBox().selectAllOnSubmit();
 		// build SelectionDoubleBox
