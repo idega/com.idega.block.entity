@@ -135,13 +135,20 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
     // do nothing
   }
   
-  /** Overwrite this method if necessary */
+  /** Overwritten method */
   protected Object getValueForLink(
       Object entity,
       EntityPath path,
       EntityBrowser browser,
       IWContext iwc)  {
-    return getValue(entity, path, browser, iwc);
+    Object value = getValue(entity, path, browser, iwc);
+    if (value != null)  {
+      String display = value.toString();
+      if (display.length() > 0) {
+        return display;
+      }
+    }
+    return "_";
   }
 
   
