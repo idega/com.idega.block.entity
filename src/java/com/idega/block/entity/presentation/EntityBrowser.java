@@ -74,7 +74,11 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private int defaultNumberOfRowsPerPage = 1;
   private int defaultNumberOfLinksPreviousToCurrentSet = 4;
   private int defaultNumberOfLinksAfterCurrentSet = 4;
+  
   private int pageLimitForShowingBottomNavigation = 15;
+  private boolean showHeaderNavigation = true;
+  private boolean showBottomNavigation = true;
+  
   private final static String STYLE = 
         "font-family:arial; font-size:9pt; text-align: justify;";
   private final static String FONT_STYLE_FOR_LINK = STYLE;
@@ -404,7 +408,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // store state in session
     entityIterator.storeStateInSession(iwc, keyForEntityCollection, getMyId());
     
-    if (enableBack || enableForward)
+    if (showHeaderNavigation && (enableBack || enableForward)) 
       setNavigationPanel( HEADER_FORM_KEY, 
                           iwc, 
                           resourceBundle, 
@@ -414,7 +418,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
                           enableForward,
                           1,
                           necessaryColumns);
-    if ((enableBack || enableForward) && (entityIterator.getIncrement() > pageLimitForShowingBottomNavigation))                      
+    if (showBottomNavigation 
+        && (enableBack || enableForward) 
+        && ( (! showHeaderNavigation) || 
+             (entityIterator.getIncrement() > pageLimitForShowingBottomNavigation)) )                      
     setNavigationPanel( BOTTOM_FORM_KEY, 
                         iwc, 
                         resourceBundle, 
@@ -744,8 +751,6 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
         link.setBold();
       if (useEventSystem)
         link.addEventModel(getPresentationEvent(),iwc);
-      else
-        link.setTarget(Link.TARGET_SELF_WINDOW);
       link.addParameter(key, preNumber);
       listOfLinks.add(link);
       number += increment;
@@ -942,4 +947,16 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 		return currentRow;
 	}
 
+	/**
+	 * Sets the pageLimitForShowingBottomNavigation.
+	 * @param pageLimitForShowingBottomNavigation The pageLimitForShowingBottomNavigation to set
+	 */
+	public void setPageLimitForShowingBottomNavigation(int pageLimitForShowingBottomNavigation) {
+		this.pageLimitForShowingBottomNavigation = pageLimitForShowingBottomNavigation;
+	}
+
+  public void setShowNavigation(boolean showHeaderNavigation, boolean showBottomNavigation) {
+    this.showHeaderNavigation = showHeaderNavigation;
+    this.showBottomNavigation = showBottomNavigation;
+  }
 }
