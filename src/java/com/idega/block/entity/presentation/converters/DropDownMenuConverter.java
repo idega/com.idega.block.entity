@@ -134,7 +134,10 @@ public class DropDownMenuConverter
     EntityPath path,
     EntityBrowser browser,
     IWContext iwc) {
-    Object value = getValue(entity,path,browser,iwc);  
+    	  	
+    Object value = getValue(entity,path,browser,iwc);
+    if( value == null ) value = "";
+    
     Integer id = (Integer) ((EntityRepresentation) entity).getPrimaryKey();
     // show drop down menu without a submit button if the entity is new
     boolean newEntity = id.equals(ConverterConstants.NEW_ENTITY_ID);

@@ -148,8 +148,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private boolean showMirroredView = false;
   
   private String colorForEvenRows = null;
-  private String colorForOddRows = null;
-  private String colorForHeader= null;
+  private String colorForOddRows = "#EFEFEF";
+  private String colorForHeader= "#DFDFDF";
   
   private Text defaultTextProxy = new Text();
   private Text columnTextProxy = new Text();
@@ -162,6 +162,21 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   private Collection mandatoryParameters = null;
   
+	/**
+	 * @return
+	 */
+	public Text getDefaultTextProxy() {
+		return defaultTextProxy;
+	}
+
+	/**
+	 * 
+	 */
+	public EntityBrowser() {
+		super();
+		this.setCellspacing(0);
+	}
+
   public static void releaseBrowser(IWContext iwc) {
     if (iwc.isParameterSet(HEADER_FORM_LAST_USED_MY_ID_KEY))  {
       String id = iwc.getParameter(HEADER_FORM_LAST_USED_MY_ID_KEY);
@@ -1156,6 +1171,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
           String columnName = entityPath.getLocalizedDescription(resourceBundle);
           Text text = (Text) columnTextProxy.clone();
           text.setText(columnName); 
+          text.setBold();
           return text;
         }              
             

@@ -18,4 +18,7 @@ public interface ConverterConstants {
   public static Integer NEW_ENTITY_ID = new Integer(-1);
   
   public static Integer NULL_ENTITY_ID = new Integer(-2);
+	public static String SUBMIT_CANCEL_KEY = "eb_cancel";
+	
+	
 }
