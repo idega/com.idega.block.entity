@@ -13,6 +13,8 @@ public class DummyEntityPath extends EntityPath {
   public DummyEntityPath(String shortKey) {
     super(DummyEntityPath.class);
     this.shortKey = shortKey;
+    // use the short key as columnname in the path
+    add(shortKey);
   }
   
   
