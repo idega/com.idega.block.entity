@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.ejb.FinderException;
 
@@ -40,7 +42,7 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
   private boolean countryHasChanged = false;
   
   private Map postalCodeNumberIdMap;
-  private Map idPostalAddressMap;
+  private SortedMap idPostalAddressMap;
   
   public DropDownPostalCodeConverter(Form externalForm) {
     super(externalForm);
@@ -48,11 +50,11 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
   
   private void initializePostalCodeMaps(IWContext iwc) {
     if (idPostalAddressMap == null || countryHasChanged) {
-      idPostalAddressMap = new HashMap();
+      idPostalAddressMap = new TreeMap();
       postalCodeNumberIdMap = new HashMap();
       // add null value
       postalCodeNumberIdMap.put("", ConverterConstants.NULL_ENTITY_ID);
-      idPostalAddressMap.put("", "");
+      idPostalAddressMap.put(ConverterConstants.NULL_ENTITY_ID, "");
       try {
         if( countryName!=null && country == null) {
           country = getAddressBusiness(iwc).getCountryHome().findByCountryName(countryName);      
