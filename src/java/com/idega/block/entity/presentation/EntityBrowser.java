@@ -1434,7 +1434,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
   
   public Parameter getShowAllEntriesParameter() {
-    Parameter parameter = new Parameter(EXTERNAL_FORM_SHOW_ALL_ENTITIES_KEY, Boolean.toString(showAllEntities));
+    Parameter parameter = new Parameter(EXTERNAL_FORM_SHOW_ALL_ENTITIES_KEY, String.valueOf(showAllEntities));
     return parameter;
   }
       
