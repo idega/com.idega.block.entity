@@ -30,7 +30,7 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
   
   private String key = DEFAULT_KEY;
   
-  private boolean editable = true;
+  protected boolean editable = true;
   
   public CheckBoxConverter() {
   }
