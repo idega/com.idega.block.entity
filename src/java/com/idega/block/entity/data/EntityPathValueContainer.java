@@ -52,7 +52,8 @@ public class EntityPathValueContainer {
     if (entityPathShortKey == null || entityPathShortKey.length() == 0) {
       return false;
     }
-    if (entityId == null || entityId.intValue() < 0)  {
+    // if the entity is new, the id should be set to -1
+    if (entityId == null)  {
       return false;
     }
     return true;
