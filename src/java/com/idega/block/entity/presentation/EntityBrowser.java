@@ -34,6 +34,8 @@ import com.idega.presentation.text.Link;
 import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.DropdownMenu;
 import com.idega.presentation.ui.Form;
+import com.idega.presentation.ui.HiddenInput;
+import com.idega.presentation.ui.Parameter;
 import com.idega.user.app.UserApplication;
 import com.idega.util.SetIterator;
 /**
@@ -52,6 +54,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private final static String HEADER_FORM_KEY = "header_form_key";
   
   private final static String BOTTOM_FORM_KEY = "bottom_form_key";
+  
+  // this parameter enables the entity browser to remove the 
+  // stored state in the session
+  private final static String LAST_USED_MY_ID_KEY = "last_my_id_key";
   
   private final static String NEXT_SUBSET = "next";
   
@@ -128,6 +134,14 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   private String myId = null;
   
+  private Collection mandatoryParameters = null;
+  
+  public static void releaseBrowser(IWContext iwc) {
+    if (iwc.isParameterSet(LAST_USED_MY_ID_KEY))  {
+      String id = iwc.getParameter(LAST_USED_MY_ID_KEY);
+      SetIterator.releaseStoredState(iwc, id);
+    }  
+  }
   
   public void setDefaultNumberOfRows(int defaultNumberOfRows) {
     this.defaultNumberOfRowsPerPage = defaultNumberOfRows;
@@ -418,6 +432,11 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     String currentStateOfIterator = entityIterator.getStateAsString();
     // store state in session
     entityIterator.storeStateInSession(iwc, keyForEntityCollection, getMyId());
+    // set hidden input (import for releasing)
+    if (useExternalForm)  {     
+      HiddenInput hiddenInputLastUsedMyId = new HiddenInput(LAST_USED_MY_ID_KEY, getMyId());
+      add(hiddenInputLastUsedMyId);
+    }
     
     if (showHeaderNavigation && (enableBack || enableForward)) 
       setNavigationPanel( HEADER_FORM_KEY, 
@@ -473,8 +492,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // add form 
     PresentationObject panel;
     if (! useExternalForm)  {
-      
+      HiddenInput hiddenInputLastUsedMyId = new HiddenInput(LAST_USED_MY_ID_KEY, getMyId());
       Form panelForm = new Form();
+      panelForm.add(hiddenInputLastUsedMyId);
       if (useEventSystem)
         panelForm.addEventModel(getPresentationEvent(),iwc);
       panelForm.add(panelTable);
@@ -643,8 +663,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // show buttons  
     String uniqueKey = getUniqueKeyForSubmitButton(formKey, NEW_SUBSET_KEY, currentStateOfIterator);
     // use links
-    Link goBackLink = new Link(resourceBundle.getLocalizedString("back","Back"));
-    Link goForwardLink = new Link(resourceBundle.getLocalizedString("forward","Forward"));
+    Link goBackLink = getLinkInstanceWithMandatoryParameters(resourceBundle.getLocalizedString("back","Back"));
+    Link goForwardLink = getLinkInstanceWithMandatoryParameters(resourceBundle.getLocalizedString("forward","Forward"));
     goBackLink.setFontStyle(FONT_STYLE_FOR_LINK);
     goForwardLink.setFontStyle(FONT_STYLE_FOR_LINK);
     if (useEventSystem) {
@@ -689,7 +709,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     int quantity = setIterator.getQuantity();
     int setNumber = setIterator.getNegativeNumberOfPreviousSetsRelativeToCurrentSet();
     int number = 1;
-    while (number < size) {
+    while (number <= size) {
       StringBuffer buffer = new StringBuffer();
       // first index of subset is value
       buffer.append(number);
@@ -760,7 +780,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
         lastNumberOfSubset = (lastNumberOfSubset > size) ? size : lastNumberOfSubset - 1; 
         buffer.append(lastNumberOfSubset);
       }
-      Link link = new Link(buffer.toString());
+      Link link = getLinkInstanceWithMandatoryParameters(buffer.toString());
       link.setFontStyle(FONT_STYLE_FOR_LINK);
       if (preNumber == 0)
         link.setBold();
@@ -987,4 +1007,47 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     this.showHeaderNavigation = showHeaderNavigation;
     this.showBottomNavigation = showBottomNavigation;
   }
+  
+  /** Sets a parameter that is send with every request
+   *  
+   * @param parameter
+   */ 
+  public void addMandatoryParameter(Parameter parameter)  {
+    if (mandatoryParameters == null)  {
+      mandatoryParameters = new ArrayList();
+    }
+    mandatoryParameters.add(parameter);
+  }
+  
+  public void addMandatoryParameter(String parameterName, String parameterValue)  {
+    addMandatoryParameter(new Parameter(parameterName, parameterValue));
+  }
+  
+  public void removeAllMandatoryParameters()  {
+    mandatoryParameters = null;
+  }
+  
+  public void addMandatoryParameters(Collection mandatoryParameters) {
+    if (this.mandatoryParameters == null)  {
+      this.mandatoryParameters = new ArrayList(mandatoryParameters);
+    }
+    this.mandatoryParameters.addAll(mandatoryParameters);
+  }
+      
+  
+  private Link getLinkInstanceWithMandatoryParameters(String text) {
+    Link link = new Link(text);
+    link.addParameter(LAST_USED_MY_ID_KEY, getMyId());
+    if (mandatoryParameters == null)  {
+       return link;
+    }
+    Iterator iterator = mandatoryParameters.iterator();
+    while (iterator.hasNext())  {
+      Parameter parameter = (Parameter) iterator.next();
+      link.addParameter(parameter);
+    }
+    return link;
+  }
+    
+     
 }
