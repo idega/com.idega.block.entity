@@ -110,7 +110,13 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private boolean useExternalForm = false;
   private boolean useEventSystem = true;
   
-  private boolean showSettingButton = true;
+  /** this flag indicates if the browser should use and accept the settings of the user
+  * If this flag is set to false the user settings button will not be shown even if the
+  * showSettingButton flag is set to true.
+  */
+  private boolean acceptUserSettings = true;
+  private boolean showSettingsButton = true;
+  
   private String colorForEvenRows = null;
   private String colorForOddRows = null;
   
@@ -772,8 +778,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
    * Get settings button
 	*/
   private Table getSettingsButton(IWResourceBundle resourceBundle) {
-    // sometimes setting button is not desired
-    if (!showSettingButton)
+    // sometimes settings button is not desired
+    if (!showSettingsButton)
       return new Table();
     String settings = resourceBundle.getLocalizedString("Settings","Settings");
     Link link = new Link(settings);
@@ -819,7 +825,15 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
   
   private List getVisibleOrderedEntityPathes(MultiEntityPropertyHandler multiPropertyHandler)  {
-    List columnsSetByUserList = multiPropertyHandler.getVisibleOrderedEntityPathes();
+    List columnsSetByUserList;
+    // if the user settings should not be accepted set the columns 
+    // that are set by the user to an empty collection
+    if (acceptUserSettings) {
+      columnsSetByUserList = multiPropertyHandler.getVisibleOrderedEntityPathes();
+    }
+    else {
+      columnsSetByUserList = new ArrayList();
+    }
     // use arrayList because the returned collection of a tree map does not support add operations
     List mandatoryColumns = new ArrayList(this.mandatoryColumns.values());
     // columnsSetByUserList is empty...  
@@ -842,6 +856,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }           
   
   private int getNumberOfRowsPerPage(MultiEntityPropertyHandler multiPropertyHandler) {
+    if (! acceptUserSettings) {
+      return defaultNumberOfRowsPerPage;
+    }
     int rows = multiPropertyHandler.getNumberOfRowsPerPage();
     if (rows == EntityPropertyHandler.NUMBER_OF_ROWS_PER_PAGE_NOT_SET)
       return defaultNumberOfRowsPerPage;
@@ -918,8 +935,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 	 * Sets the showSettingButton.
 	 * @param showSettingButton The showSettingButton to set
 	 */
-	public void setShowSettingButton(boolean showSettingButton) {
-		this.showSettingButton = showSettingButton;
+	public void setAcceptUserSettingsShowUserSettingsButton(boolean acceptUserSettings, boolean showSettingButton) {
+		this.acceptUserSettings = acceptUserSettings;
+    // if acceptUserSettings is false do never show the user settings button!
+    this.showSettingsButton = (acceptUserSettings) ? showSettingButton : false; 
 	}
 
 	/**
