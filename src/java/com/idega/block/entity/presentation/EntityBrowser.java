@@ -534,6 +534,12 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     int i = 1;
     while (iterator.hasNext())  {
       EntityPath entityPath = (EntityPath) iterator.next();
+      EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(entityPath); 
+      PresentationObject presentation = converter.getHeaderPresentationObject(entityPath, this, iwc);
+      add(presentation, xAnchorPosition + i , yAnchorPosition + 2);     
+     
+     
+     
       String columnName = entityPath.getLocalizedDescription(resourceBundle);
       Text text = (Text) columnTextProxy.clone();
       text.setText(columnName);               
@@ -890,6 +896,19 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     if (defaultConverter == null) 
       defaultConverter = 
       new EntityToPresentationObjectConverter() {
+        
+        IWResourceBundle resourceBundle = null;
+        
+        public PresentationObject getHeaderPresentationObject(EntityPath entityPath, EntityBrowser browser, IWContext iwc)  {
+          // get resource bundle
+          if (resourceBundle == null) {
+            resourceBundle = getResourceBundle(iwc);
+          }
+          String columnName = entityPath.getLocalizedDescription(resourceBundle);
+          Text text = (Text) columnTextProxy.clone();
+          text.setText(columnName); 
+          return text;
+        }              
             
         public PresentationObject getPresentationObject(Object genericEntity, EntityPath path, EntityBrowser browser, IWContext iwc)  {
           StringBuffer displayValues = new StringBuffer();
