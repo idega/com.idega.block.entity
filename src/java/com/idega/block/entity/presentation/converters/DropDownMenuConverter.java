@@ -17,8 +17,8 @@ import com.idega.presentation.IWContext;
 import com.idega.presentation.PresentationObject;
 import com.idega.presentation.Table;
 import com.idega.presentation.text.Link;
+import com.idega.presentation.ui.DropdownMenu;
 import com.idega.presentation.ui.SubmitButton;
-import com.idega.presentation.ui.TextInput;
 
 /**
  * <p>Title: idegaWeb</p>
@@ -27,15 +27,17 @@ import com.idega.presentation.ui.TextInput;
  * <p>Company: idega Software</p>
  * @author <a href="thomas@idega.is">Thomas Hilbig</a>
  * @version 1.0
- * Created on Jul 3, 2003
+ * Created on Jul 7, 2003
  */
-public class TextEditorConverter implements EntityToPresentationObjectConverter{
+public class DropDownMenuConverter
+  implements EntityToPresentationObjectConverter {
 
-  private static final String LINK_KEY = "te_link";
-  private static final String TEXTINPUT_KEY = "te_textinput";
-  private static final String SUBMIT_KEY = "te_submit";
+  private static final String LINK_KEY = "dd_link";
+  private static final String DROPDOWNMENU_KEY = "dd_dropDownInput";
+  private static final String SUBMIT_KEY = "dd_submit";
   private static final char DELIMITER = '|';
   
+  private List options = new ArrayList();
   private Map maintainParameterMap = new HashMap(0);
   private List maintainParameterList = new ArrayList(0);
 
@@ -52,7 +54,7 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
       if (tokenizer.hasMoreTokens())  {
         container.setEntityId(tokenizer.nextToken());
       }
-      String key = getTextInputUniqueKey(container.getEntityId(), container.getEntityPathShortKey()).toString();
+      String key = getDropdownMenuUniqueKey(container.getEntityId(), container.getEntityPathShortKey()).toString();
       if (iwc.isParameterSet(key))  {
         Object value = iwc.getParameter(key);
         container.setValue(value);
@@ -68,8 +70,14 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
     EntityPath entityPath,
     EntityBrowser browser,
     IWContext iwc) {
-      return browser.getDefaultConverter().getHeaderPresentationObject(entityPath, browser, iwc);   
+      return browser.getDefaultConverter().getHeaderPresentationObject(entityPath, browser, iwc); 
   }
+
+  /** This method uses a copy of the specified list */
+  public void addOptions(List options)  {
+    this.options = options;
+  }
+
 
   /** This method uses a copy of the specified map */
   public void maintainParameters(Map maintainParameters) {
@@ -96,11 +104,11 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
     String shortKeyPath = path.getShortKey();
     
     String uniqueKeyLink = getLinkUniqueKey(id, shortKeyPath);
-    // decide to show a link or a text inputfield
+    // decide to show a link or a drop down menu
     if (iwc.isParameterSet(uniqueKeyLink)) {
       // show text input with submitButton
-      String uniqueKeyTextInput = getTextInputUniqueKey(id, shortKeyPath);
-      TextInput textInput = new TextInput( uniqueKeyTextInput, text);
+      String uniqueKeyDropdownMenu = getDropdownMenuUniqueKey(id, shortKeyPath);
+      DropdownMenu dropdownMenu = getDropdownMenu(text, uniqueKeyDropdownMenu);
       SubmitButton button = new SubmitButton("OK", getGeneralSubmitKey(), getUniqueKey(id, shortKeyPath).toString());
       // add maintain parameters
       Iterator iterator = maintainParameterMap.entrySet().iterator();
@@ -110,7 +118,7 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
       }
       button.setAsImageButton(true);
       Table table = new Table(2,1);
-      table.add(textInput,1,1);
+      table.add(dropdownMenu,1,1);
       table.add(button,2,1);
       return table;      
     } 
@@ -134,14 +142,34 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
     }
       
   }
+  
+  private DropdownMenu getDropdownMenu(String preselection, String name)  {
+    DropdownMenu dropdownMenu = new DropdownMenu(name);
+    Iterator iterator = options.iterator();
+    while (iterator.hasNext()) {
+      String option = (String) iterator.next();
+      // key is option, value is option
+      dropdownMenu.addMenuElement(option);
+    }
+    // set preselection
+    if (preselection != null) {
+      // sometimes the preselection does not exist
+      if (! options.contains(preselection)) {
+        dropdownMenu.addMenuElement(preselection);
+      }
+      dropdownMenu.setSelectedElement(preselection);
+    }
+    return dropdownMenu;
+  }
+    
 
   private String getLinkUniqueKey(Integer id, String shortKeyOfPath)  {
     StringBuffer buffer = getUniqueKey(id, shortKeyOfPath).append(DELIMITER).append(LINK_KEY);
     return buffer.toString();
   }
 
-  private static String getTextInputUniqueKey(Integer id, String shortKeyOfPath)  {
-    StringBuffer buffer = getUniqueKey(id, shortKeyOfPath).append(DELIMITER).append(TEXTINPUT_KEY);
+  private static String getDropdownMenuUniqueKey(Integer id, String shortKeyOfPath)  {
+    StringBuffer buffer = getUniqueKey(id, shortKeyOfPath).append(DELIMITER).append(DROPDOWNMENU_KEY);
     return buffer.toString();
   }
   
