@@ -46,7 +46,7 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
     EntityPath entityPath,
     EntityBrowser browser,
     IWContext iwc) {
-    CheckBox checkAllCheckBox = new CheckBox(key);
+    CheckBox checkAllCheckBox = new CheckBox("checkAll");
     checkAllCheckBox.setToCheckOnClick(key, "this.checked");
     return checkAllCheckBox;
   }
