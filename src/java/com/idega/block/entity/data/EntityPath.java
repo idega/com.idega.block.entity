@@ -2,6 +2,7 @@ package com.idega.block.entity.data;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
@@ -268,7 +269,7 @@ public class EntityPath {
    
   private static SortedMap getAllEntityPathes
     ( EntityPath motherEntityPath, 
-      Class currentEntityClass, 
+      Class currentEntityClass,  
       int currentLayer, 
       int maximumSearchDepth) {       
     // entering a new layer....
@@ -276,8 +277,8 @@ public class EntityPath {
 		GenericEntity entity = getEntity(currentEntityClass);
     if (entity == null)
       return new TreeMap();
-    List list = new Vector(entity.getAttributes());
-    Iterator iterator = list.iterator();
+    Collection coll = entity.getAttributes();
+    Iterator iterator = coll.iterator();
     TreeMap pathes = new TreeMap();
     while (iterator.hasNext())  {
       EntityAttribute attribute = (EntityAttribute) iterator.next();
