@@ -14,6 +14,7 @@ import com.idega.presentation.PresentationObject;
 import com.idega.presentation.text.Link;
 import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.CheckBox;
+import com.idega.presentation.ui.Parameter;
 
 /**
  * <p>Title: idegaWeb</p>
@@ -91,6 +92,8 @@ public class CheckBoxAsLinkConverter extends CheckBoxConverter {
       return new Text(text);
     }
     Link link = new Link(text);
+    Parameter showAllEntries = browser.getShowAllEntriesParameter();
+    link.addParameter(showAllEntries);
     link.addParameter(ConverterConstants.EDIT_ENTITY_KEY, id.toString());
      // add maintain parameters
     Iterator iteratorList = maintainParameterList.iterator();

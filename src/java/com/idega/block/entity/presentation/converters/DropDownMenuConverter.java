@@ -19,6 +19,7 @@ import com.idega.presentation.text.Link;
 import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.DropdownMenu;
 import com.idega.presentation.ui.Form;
+import com.idega.presentation.ui.Parameter;
 import com.idega.presentation.ui.SubmitButton;
 
 /**
@@ -183,12 +184,13 @@ public class DropDownMenuConverter
     } 
     else {
       // show link
-      return getLink(value, uniqueKeyLink, id.toString(), iwc);
+      return getLink(value, uniqueKeyLink, id.toString(), browser, iwc);
+      
     }
       
   }
   
-  protected PresentationObject getLink(Object value, String uniqueKeyLink, String id, IWContext iwc)  {
+  protected PresentationObject getLink(Object value, String uniqueKeyLink, String id, EntityBrowser browser, IWContext iwc)  {
   	
     String display = (value!=null) ? value.toString() : "";
     display = (display.length() == 0) ? "_" : display;
@@ -208,6 +210,8 @@ public class DropDownMenuConverter
       String parameter = (String) iteratorList.next();
       link.maintainParameter(parameter, iwc);
     }
+    Parameter showAllEntries = browser.getShowAllEntriesParameter();
+    link.addParameter(showAllEntries);
     return link;
   	
   }
