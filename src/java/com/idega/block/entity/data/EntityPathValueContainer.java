@@ -18,6 +18,10 @@ package com.idega.block.entity.data;
 public class EntityPathValueContainer {
 
   private String entityPathShortKey;
+  // this flag indicates if the value was set or not:
+  // keep in mind that a valid value could be null, an empty string or something else, that is why 
+  // this flag is needed.
+  private boolean valueIsSet = false;
   private Object value;
   private Object previousValue = null;
   private Integer entityId;
@@ -43,12 +47,16 @@ public class EntityPathValueContainer {
     this.entityId = entityId;
     this.value = value;
     this.previousValue = previousValue;
+    valueIsSet = true;
   }
   
   /**
    * Previous value needn't to be set.
    */
   public boolean isValid()  {
+    if (! valueIsSet) {
+      return false;
+    }
     if (entityPathShortKey == null || entityPathShortKey.length() == 0) {
       return false;
     }
@@ -122,6 +130,13 @@ public class EntityPathValueContainer {
    */
   public void setPreviousValue(Object object) {
     previousValue = object;
+  }
+
+  /**
+   * @param b
+   */
+  public void setValueIsSet(boolean b) {
+    valueIsSet = b;
   }
 
 }
