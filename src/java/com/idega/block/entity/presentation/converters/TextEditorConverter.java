@@ -224,7 +224,7 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
     return (object == null) ? "" : object;
   }        
 
-  private String getLinkUniqueKey(Integer id, String shortKeyOfPath)  {
+  protected String getLinkUniqueKey(Integer id, String shortKeyOfPath)  {
     StringBuffer buffer = getUniqueKey(id, shortKeyOfPath).append(DELIMITER).append(LINK_KEY);
     return buffer.toString();
   }
