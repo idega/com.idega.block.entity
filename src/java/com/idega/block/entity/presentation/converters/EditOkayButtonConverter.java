@@ -28,7 +28,6 @@ public class EditOkayButtonConverter
     EntityPath entityPath,
     EntityBrowser browser,
     IWContext iwc) {
-    // TODO Auto-generated method stub
     return new Text("");
   }
 
@@ -40,19 +39,21 @@ public class EditOkayButtonConverter
     EntityPath path,
     EntityBrowser browser,
     IWContext iwc) {
-    // TODO Auto-generated method stub
     Integer id = (Integer) ((EntityRepresentation) value).getPrimaryKey();
     if (iwc.isParameterSet(ConverterConstants.EDIT_ENTITY_KEY)) {
-      SubmitButton button = new SubmitButton("OK", ConverterConstants.EDIT_ENTITY_SUBMIT_KEY, id.toString());
-      button.setAsImageButton(true);
-      return button;
+      String idEditEntity = iwc.getParameter(ConverterConstants.EDIT_ENTITY_KEY);
+      try {
+        Integer primaryKey = new Integer(idEditEntity);
+        if (id.equals(primaryKey))  {
+          SubmitButton button = new SubmitButton("OK", ConverterConstants.EDIT_ENTITY_SUBMIT_KEY, id.toString());
+          button.setAsImageButton(true);
+          return button;
+        }
+      }
+      catch (NumberFormatException ex)  {
+      }
     }
-    else {
-      return new Text("");
-    }
-    
-      
-
+    return new Text("");
   }
 
 }

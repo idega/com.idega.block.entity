@@ -132,9 +132,20 @@ public class DropDownMenuConverter
     Integer id = (Integer) ((EntityRepresentation) entity).getPrimaryKey();
     // show drop down menu without a submit button if the entity is new
     boolean newEntity = id.intValue() < 0;
+    boolean editEntity = false;
     String shortKeyPath = path.getShortKey();
     String uniqueKeyLink = getLinkUniqueKey(id, shortKeyPath);
-    boolean editEntity = iwc.isParameterSet(ConverterConstants.EDIT_ENTITY_KEY);
+    if (iwc.isParameterSet(ConverterConstants.EDIT_ENTITY_KEY)) {
+      String idEditEntity = iwc.getParameter(ConverterConstants.EDIT_ENTITY_KEY);
+      Integer primaryKey = null;
+
+      try {
+        primaryKey = new Integer(idEditEntity);
+        editEntity = id.equals(primaryKey);
+      }
+      catch (NumberFormatException ex)  {
+      }
+    }
     // decide to show a link or a drop down menu
     if (newEntity || 
         editEntity ||
@@ -154,7 +165,7 @@ public class DropDownMenuConverter
       Table table = (newEntity) ? new Table(1,1) : new Table(2,1);
       table.add(dropdownMenu,1,1);
       // add submit button
-      if (! editEntity || ! newEntity) {    
+      if (! editEntity && ! newEntity) {    
         SubmitButton button = new SubmitButton("OK", getGeneralSubmitKey(), getUniqueKey(id, shortKeyPath).toString());
         button.setAsImageButton(true);
         table.add(button,2,1);

@@ -127,7 +127,19 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
     boolean newEntity = id.intValue() < 0;
     String shortKeyPath = path.getShortKey();
     String uniqueKeyLink = getLinkUniqueKey(id, shortKeyPath);
-    boolean editEntity = iwc.isParameterSet(ConverterConstants.EDIT_ENTITY_KEY);
+    boolean editEntity = false;
+    if (iwc.isParameterSet(ConverterConstants.EDIT_ENTITY_KEY)) {
+      String idEditEntity = iwc.getParameter(ConverterConstants.EDIT_ENTITY_KEY);
+      Integer primaryKey = null;
+
+      try {
+        primaryKey = new Integer(idEditEntity);
+        editEntity = id.equals(primaryKey);
+      }
+      catch (NumberFormatException ex)  {
+      }
+    }
+    iwc.isParameterSet(ConverterConstants.EDIT_ENTITY_KEY);
     // decide to show a link or a text inputfield
     if (newEntity || 
         editEntity || 
@@ -141,7 +153,7 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
 
       Table table = (newEntity) ? new Table(1,1) : new Table(2,1);
       table.add(textInput,1,1);
-      if (! editEntity || ! newEntity) {
+      if (! editEntity && ! newEntity) {
         SubmitButton button = new SubmitButton("OK", getGeneralSubmitKey(), getUniqueKey(id, shortKeyPath).toString());
         button.setAsImageButton(true);
         table.add(button,2,1);
