@@ -11,5 +11,5 @@ import com.idega.presentation.PresentationObject;
  */
 public interface EntityToPresentationObjectConverter {
   
-  public PresentationObject getPresentationObject(GenericEntity value, EntityPath path, IWContext iwc);
+  public PresentationObject getPresentationObject(Object value, EntityPath path, IWContext iwc);
 }
