@@ -29,6 +29,7 @@ public class ButtonConverter implements EntityToPresentationObjectConverter {
 
 	private String displayName = null;
 	private Image image = null;
+	private String setOnClick = null;
 
 	private static String getGeneralSubmitKey() {
     return SUBMIT_KEY;
@@ -79,7 +80,7 @@ public class ButtonConverter implements EntityToPresentationObjectConverter {
     buffer.append(id);
     return buffer;
   }
-
+  
 	public ButtonConverter(String displayName)	{
 		this.displayName = displayName;
 	}
@@ -88,6 +89,11 @@ public class ButtonConverter implements EntityToPresentationObjectConverter {
 		this.image = image;
 	}
 
+	public void setOnClick(String setOnClick) {
+		this.setOnClick = setOnClick;
+	}
+	
+	
 	/* (non-Javadoc)
 	 * @see com.idega.block.entity.business.EntityToPresentationObjectConverter#getHeaderPresentationObject(com.idega.block.entity.data.EntityPath, com.idega.block.entity.presentation.EntityBrowser, com.idega.presentation.IWContext)
 	 */
@@ -116,6 +122,9 @@ public class ButtonConverter implements EntityToPresentationObjectConverter {
 		else {
 		 	submitButton = new SubmitButton( displayName, getGeneralSubmitKey(), getUniqueKey(id, shortKeyPath).toString());
 			submitButton.setAsImageButton(true);
+		}
+		if ( setOnClick != null) {
+			submitButton.setOnClick(setOnClick);
 		}
 		return submitButton;
 	}
