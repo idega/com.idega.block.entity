@@ -16,7 +16,7 @@ import com.idega.core.data.Country;
 import com.idega.core.data.PostalCode;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.presentation.IWContext;
-import com.idega.presentation.text.Link;
+import com.idega.presentation.ui.DropdownMenu;
 import com.idega.presentation.ui.Form;
 
 /**
@@ -34,92 +34,86 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
   private String countryName = null;
   private boolean countryHasChanged = false;
   
+  private Map PostalCodeNumberIdMap;
+  private Map idPostalAddressMap;
+  
   public DropDownPostalCodeConverter(Form externalForm) {
     super(externalForm);
-    initialize();
   }
   
-  private void initialize() {
-    // define an option provider
-    
-    OptionProvider optionProvider = new OptionProvider() {
-      
-      Map optionMap = null;
-      
-      public Map getOptions(Object entity, EntityPath path, EntityBrowser browser, IWContext iwc) {
-        if (optionMap == null || countryHasChanged) {
-          optionMap = new HashMap();
-          try {
-            if( countryName!=null && country == null) {
-              country = getAddressBusiness(iwc).getCountryHome().findByCountryName(countryName);      
-            }
-      
-            if( country!=null ){
-              Collection postals = getAddressBusiness(iwc).getPostalCodeHome().findAllByCountryIdOrderedByPostalCode(((Integer)country.getPrimaryKey()).intValue());
-              Iterator iter = postals.iterator();
-              while (iter.hasNext()) {
-                PostalCode element = (PostalCode) iter.next();
-                int id = ((Integer)element.getPrimaryKey()).intValue();
-                String code = element.getPostalAddress();
-                if( code!=null ) {
-                  optionMap.put(new Integer(id),code);
-                }           
-              }
-            }
-            countryHasChanged = false;
-          }
-          catch (RemoteException ex) {
-            System.err.println(
-              "[DropDownPostalCodeConverter]: Can't retrieve AddressBusiness. Message is: "
-                + ex.getMessage());
-            ex.printStackTrace(System.err);
-            throw new RuntimeException("[DropDownPostalCodeConverter]: Can't retrieve AddressBusiness.");
-          }
-          catch (FinderException ex)  { 
-            System.err.println(
-              "[DropDownPostalCodeConverter]: Can't find postalcodes or country. Message is: "
-                + ex.getMessage());
-            ex.printStackTrace(System.err);
+  private void initializePostalCodeMaps(IWContext iwc) {
+    if (idPostalAddressMap == null || countryHasChanged) {
+      idPostalAddressMap = new HashMap();
+      try {
+        if( countryName!=null && country == null) {
+          country = getAddressBusiness(iwc).getCountryHome().findByCountryName(countryName);      
+        }
+        if( country!=null ){
+          Collection postals = getAddressBusiness(iwc).getPostalCodeHome().findAllByCountryIdOrderedByPostalCode(((Integer)country.getPrimaryKey()).intValue());
+          Iterator iter = postals.iterator();
+          while (iter.hasNext()) {
+            PostalCode element = (PostalCode) iter.next();
+            Integer id = (Integer) element.getPrimaryKey();
+            String code = element.getPostalAddress();
+            String postalCodeNumber = element.getPostalCode();
+            if( code!=null && postalCodeNumber != null) {
+              idPostalAddressMap.put(id,code);
+              PostalCodeNumberIdMap.put(postalCodeNumber, id);
+            }           
           }
         }
-        return optionMap;
+        countryHasChanged = false;
       }
+      catch (RemoteException ex) {
+        System.err.println(
+        "[DropDownPostalCodeConverter]: Can't retrieve AddressBusiness. Message is: "
+          + ex.getMessage());
+          ex.printStackTrace(System.err);
+        throw new RuntimeException("[DropDownPostalCodeConverter]: Can't retrieve AddressBusiness.");
+      }
+      catch (FinderException ex)  { 
+        System.err.println(
+        "[DropDownPostalCodeConverter]: Can't find postalcodes or country. Message is: "
+          + ex.getMessage());
+          ex.printStackTrace(System.err);
+      }
+    }
+  }
         
       
-      private AddressBusiness getAddressBusiness(IWApplicationContext iwc) throws RemoteException {
-        return (AddressBusiness) IBOLookup.getServiceInstance(iwc,AddressBusiness.class);
-      }
-      
-    }; 
-    
-    // set this option provider
-    setOptionProvider(optionProvider);    
+  private AddressBusiness getAddressBusiness(IWApplicationContext iwc) throws RemoteException {
+   return (AddressBusiness) IBOLookup.getServiceInstance(iwc,AddressBusiness.class);
   }
-  
-  /** This method overwrites the corresponding super method, because this is a special
-   * case: The value is an id of the postal code and not a postal code number.
-   */ 
-  protected Link getLink(Object value, String uniqueKeyLink, IWContext iwc)  {
-    String display = null;
-    Integer id = null;
-    try {
-      id = new Integer(value.toString());
-      // if the postal code is not set the following code is not executed
-      Map map = optionProvider.getOptions(null, null, null, iwc);
-      display = (String) map.get(id); 
+      
+  // overwrites super method
+  protected DropdownMenu getDropdownMenu(
+      Object preselection, 
+      String name,
+      Object entity,
+      EntityPath path,
+      EntityBrowser browser,
+      IWContext iwc)  {
+    initializePostalCodeMaps(iwc);
+    DropdownMenu dropdownMenu = new DropdownMenu(name);
+    Iterator iterator = idPostalAddressMap.entrySet().iterator();
+    while (iterator.hasNext()) {
+      Map.Entry option = (Map.Entry) iterator.next();
+      String value = option.getKey().toString();
+      String display = option.getValue().toString();
+      dropdownMenu.addMenuElement(value, display);
     }
-    catch (NumberFormatException ex)  {
+    // set preselection
+    if (preselection != null) {
+      // The preselection is the postal code number, but the value used in the drop down menu is 
+      // the id of the postal code. Therefore get the corresponding id of the postal code element first and
+      // then set the preselection 
+      String preselectionAsString = preselection.toString();
+      Integer id = (Integer) PostalCodeNumberIdMap.get(preselection);
+      if (id != null) {
+        dropdownMenu.setSelectedElement(id.toString());
+      }
     }
-    display = (display == null || display.length() == 0) ? "_" : display;
-    Link link = new Link(display);
-    link.addParameter(uniqueKeyLink,"dummy_value");
-    // add maintain parameters
-    Iterator iteratorList = maintainParameterList.iterator();  
-    while (iteratorList.hasNext())  {
-      String parameter = (String) iteratorList.next();
-      link.maintainParameter(parameter, iwc);
-    }
-    return link;
+    return dropdownMenu;
   }
   
   public void setCountry(Country country) {

@@ -181,7 +181,7 @@ public class DropDownMenuConverter
   }      
     
   
-  private DropdownMenu getDropdownMenu(
+  protected DropdownMenu getDropdownMenu(
       Object preselection, 
       String name,
       Object entity,
