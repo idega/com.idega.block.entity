@@ -423,7 +423,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     setSize(necessaryColumns, necessaryRows);
             
     // get now the table    
-    fillEntityTable(resourceBundle, visibleOrderedEntityPathes , entityIterator, iwc);
+    fillEntityTable(visibleOrderedEntityPathes , entityIterator, iwc);
 
     boolean enableForward = entityIterator.hasNextSet();
     boolean enableBack = entityIterator.hasPreviousSet(); 
@@ -520,7 +520,6 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 	}
     
   private  void fillEntityTable(
-      IWResourceBundle resourceBundle, 
       List visibleOrderedEntityPathes, 
       SetIterator entitySetIterator,
       IWContext iwc)  
@@ -536,15 +535,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       EntityPath entityPath = (EntityPath) iterator.next();
       EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(entityPath); 
       PresentationObject presentation = converter.getHeaderPresentationObject(entityPath, this, iwc);
-      add(presentation, xAnchorPosition + i , yAnchorPosition + 2);     
-     
-     
-     
-      String columnName = entityPath.getLocalizedDescription(resourceBundle);
-      Text text = (Text) columnTextProxy.clone();
-      text.setText(columnName);               
-      add(text, xAnchorPosition + i , yAnchorPosition + 2);
-      i++;
+      add(presentation, xAnchorPosition + i , yAnchorPosition + 2); 
+      i++;    
     }
     
     // fill table  
