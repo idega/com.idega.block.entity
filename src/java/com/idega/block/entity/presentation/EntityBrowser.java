@@ -640,10 +640,6 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       goBackLink.addEventModel(getPresentationEvent(),iwc);
       goForwardLink.addEventModel(getPresentationEvent(),iwc);
     }
-    else  {
-      goBackLink.setTarget(Link.TARGET_SELF_WINDOW);
-      goForwardLink.setTarget(Link.TARGET_SELF_WINDOW);
-    }
     goBackLink.addParameter(uniqueKey, PREVIOUS_SUBSET);
     goForwardLink.addParameter(uniqueKey,NEXT_SUBSET); 
     /* use this if you like to display buttons
