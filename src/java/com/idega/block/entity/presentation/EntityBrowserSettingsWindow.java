@@ -10,10 +10,11 @@ import java.util.SortedMap;
 import com.idega.block.entity.business.EntityPropertyHandler;
 import com.idega.block.entity.business.MultiEntityPropertyHandler;
 import com.idega.block.entity.data.EntityPath;
-import com.idega.block.help.presentation.Help;
 import com.idega.idegaweb.IWConstants;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.idegaweb.IWUserContext;
+import com.idega.idegaweb.help.presentation.Help;
+import com.idega.idegaweb.presentation.StyledIWAdminWindow;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.Table;
 import com.idega.presentation.text.Link;
@@ -24,7 +25,6 @@ import com.idega.presentation.ui.IntegerInput;
 import com.idega.presentation.ui.SelectionBox;
 import com.idega.presentation.ui.SelectionDoubleBox;
 import com.idega.presentation.ui.SubmitButton;
-import com.idega.user.presentation.StyledIWAdminWindow;
 
 /**
  *@author     <a href="mailto:thomas@idega.is">Thomas Hilbig</a>
