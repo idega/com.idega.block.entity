@@ -36,6 +36,7 @@ import com.idega.presentation.StatefullPresentation;
 import com.idega.presentation.Table;
 import com.idega.presentation.text.Link;
 import com.idega.presentation.text.Text;
+import com.idega.presentation.ui.DropdownMenu;
 import com.idega.presentation.ui.Form;
 import com.idega.presentation.ui.SubmitButton;
 import com.idega.user.app.UserApplication;
@@ -49,18 +50,18 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   public final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.entity";
 
-  public final static String NEW_SUBSET_KEY = "new_subset_key";
+  private final static String NEW_SUBSET_KEY = "new_subset_key";
   
-  private final static String NEXT_SUBSET_KEY = "next_subset_key";
+  private final static String NEW_SUBSET_FROM_LIST_KEY = "new_subset_from_list_key";
+  
+  private final static String HEADER_FORM_KEY = "header_form_key";
+  
+  private final static String BOTTOM_FORM_KEY = "bottom_form_key";
   
   private final static String NEXT_SUBSET = "next";
   
   private final static String PREVIOUS_SUBSET = "previous";
-  
-  private final static String NEXT_SUBSET_ACTION = "next_subset";
-  
-  private final static String PREVIOUS_SUBSET_ACTION = "previous_subset";
-  
+ 
   private final static String VIEW_ACTION = "view_action";
   
   private static final String SET_ENTIY_METHOD_IDENTIFIER = 
@@ -68,7 +69,16 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     
   private static final String SET_DEFAULT_COLUMNS_METHOD_IDENTIFIER = 
     ":method:1:implied:void:setDefaultColumns:int:java.lang.String:";  
-
+  
+  // some important default settings for the view
+  private int defaultNumberOfRowsPerPage = 1;
+  private int defaultNumberOfLinksPreviousToCurrentSet = 4;
+  private int defaultNumberOfLinksAfterCurrentSet = 4;
+  private int pageLimitForShowingBottomNavigation = 15;
+  private final static String STYLE = 
+        "font-family:arial; font-size:9pt; text-align: justify;";
+  private final static String FONT_STYLE_FOR_LINK = STYLE;
+  
   private String leadingEntityName = null;
   
   // foreign entities
@@ -94,26 +104,23 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   // use tree map because of the order of the elements
   private TreeMap defaultColumns = new TreeMap();
-  
   private TreeMap mandatoryColumns = new TreeMap();
-  
-  private int defaultNumberOfRowsPerPage = 1;
+
   
   private boolean useExternalForm = false;
+  private boolean useEventSystem = true;
   
   private boolean showSettingButton = true;
-  
   private String colorForEvenRows = null;
-  
   private String colorForOddRows = null;
   
   private Text defaultTextProxy = new Text();
-  
   private Text columnTextProxy = new Text();
   
   private int currentRow = -1;
-  
   private int currentColumn = -1;
+  
+  private String myId = null;
   
   
   public void setDefaultNumberOfRows(int defaultNumberOfRows) {
@@ -140,6 +147,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
    */
   public void setUseExternalForm(boolean useExternalForm) {
     this.useExternalForm = useExternalForm;
+  }
+  
+  public void setUseEventSystem(boolean useEventSystem) {
+    this.useEventSystem = useEventSystem;
   }
   
   public void addEntity(String entityName)  {
@@ -362,7 +373,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     List visibleOrderedEntityPathes = getVisibleOrderedEntityPathes(multiPropertyHandler);
     int numberOfRowsPerPage = getNumberOfRowsPerPage(multiPropertyHandler);
     
-    // get the state of the former iterator
+    // get and save the state of the former iterator BEFORE changing the iterator
     SetIterator entityIterator = retrieveSetIterator(iwc, entities);
     String formerStateOfIterator = entityIterator.getStateAsString();
     // set properties (it does not matter if they have change or not)
@@ -372,66 +383,92 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // parse action use as key the state of the iterator:
     // If there is a reload of the page the action "next subset" or
     // "previous subset" will no be performed again.
-    String action = parseAction(iwc, formerStateOfIterator);
-    
-    // let iterator point to a new subset   
-    if (NEXT_SUBSET_ACTION.equals(action) && entityIterator.hasNextSet())
-      entityIterator.nextSet();
-    else if (PREVIOUS_SUBSET_ACTION.equals(action) && entityIterator.hasPreviousSet())
-      entityIterator.previousSet();
-    else 
-      entityIterator.currentSet();  
-    
+    parseAndDoAction(iwc, formerStateOfIterator, entityIterator);
     // set size of table
     int necessaryRows = entityIterator.getQuantity();
     int necessaryColumns = visibleOrderedEntityPathes.size();
     // we need at least on column for buttons
     necessaryColumns = (necessaryColumns == 0) ? 1 : necessaryColumns;
     // plus rows for header and buttons
-    necessaryRows += 2;
+    necessaryRows += 3;
     setSize(necessaryColumns, necessaryRows);
             
     // get now the table    
     fillEntityTable(resourceBundle, visibleOrderedEntityPathes , entityIterator, iwc);
-    
-    // get the last row and merge it
-    int beginxpos = xAnchorPosition + 1;
-    // rows of the data plus header row 
-    int beginypos = yAnchorPosition + necessaryRows;
-    int endypos = beginypos;
-    int endxpos = xAnchorPosition + necessaryColumns;
-    mergeCells(beginxpos, beginypos, endxpos, endypos);
-    // put settings button, info text, forward and back button in one table
-    Table table = new Table(4, 1);
-    table.add(getSettingsButton(resourceBundle), 1, 1);
-    
+
     boolean enableForward = entityIterator.hasNextSet();
     boolean enableBack = entityIterator.hasPreviousSet(); 
     
-    table.add(getInfo(resourceBundle, entityIterator, enableBack, enableForward),2,1);
-     
     // get current subset position
     String currentStateOfIterator = entityIterator.getStateAsString();
     // store state in session
     entityIterator.storeStateInSession(iwc, keyForEntityCollection, getMyId());
-    // get back and forward buttons
-    Table goAndBackButton = getForwardAndBackButtons(resourceBundle, currentStateOfIterator, enableBack, enableForward);   
-    // create Form
-    // add parameters for event handling (if the event model is used)
-    if (! useExternalForm)  {
-      Form form = new Form();
-      form.addEventModel(getPresentationEvent(), iwc);
-      form.add(goAndBackButton);
-      table.add(form, 3, 1);
-    }
-    else  {
-      table.add(goAndBackButton, 3, 1); 
-    }
     
-    // now add the table in the row that was created by merging the cells of the last row
-    add(table, beginxpos, beginypos);
+    if (enableBack || enableForward)
+      setNavigationPanel( HEADER_FORM_KEY, 
+                          iwc, 
+                          resourceBundle, 
+                          entityIterator, 
+                          currentStateOfIterator, 
+                          enableBack, 
+                          enableForward,
+                          1,
+                          necessaryColumns);
+    if ((enableBack || enableForward) && (entityIterator.getIncrement() > pageLimitForShowingBottomNavigation))                      
+    setNavigationPanel( BOTTOM_FORM_KEY, 
+                        iwc, 
+                        resourceBundle, 
+                        entityIterator, 
+                        currentStateOfIterator, 
+                        enableBack, 
+                        enableForward,
+                        necessaryRows,
+                        necessaryColumns);                       
+    
   }
 
+  private void setNavigationPanel(
+      String formKey, 
+      IWContext iwc, 
+      IWResourceBundle resourceBundle, 
+      SetIterator entityIterator, 
+      String currentStateOfIterator, 
+      boolean enableBack, 
+      boolean enableForward,
+      int bottomRightCornerX,
+      int bottomRightCornerY)  {
+    // get the desired row and merge it
+    int panelBeginxpos = xAnchorPosition + 1;
+    int panelBeginypos = yAnchorPosition + bottomRightCornerX;
+    int panelEndxpos = xAnchorPosition + bottomRightCornerY;
+    int panelEndypos = panelBeginypos;
+    // merge cell
+    mergeCells(panelBeginxpos, panelBeginypos, panelEndxpos, panelEndypos);
+    // create table
+    Table panelTable = new Table(2,1);
+    // add settings 
+    panelTable.add(getSettingsButton(resourceBundle),2,1);
+    // get links
+    Table goAndBackButtonPanel = 
+      getForwardAndBackButtons(formKey,iwc, resourceBundle, entityIterator, currentStateOfIterator, enableBack, enableForward);   
+    panelTable.add(goAndBackButtonPanel,1,1);
+    // add form 
+    PresentationObject panel;
+    if (! useExternalForm)  {
+      
+      Form panelForm = new Form();
+      if (useEventSystem)
+        panelForm.addEventModel(getPresentationEvent(),iwc);
+      panelForm.add(panelTable);
+      panel = panelForm;
+    }
+    else  {
+      panel = panelTable;
+    }
+    // now add the table in the row that was created by merging the cells of the last row
+    add(panel, panelBeginxpos, panelBeginypos);
+  }
+    
 
 	private void setSize(int columns, int rows ) {
     // add the anchor positions
@@ -462,13 +499,13 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       String columnName = entityPath.getLocalizedDescription(resourceBundle);
       Text text = (Text) columnTextProxy.clone();
       text.setText(columnName);               
-      add(text, xAnchorPosition + i , yAnchorPosition + 1);
+      add(text, xAnchorPosition + i , yAnchorPosition + 2);
       i++;
     }
     
     // fill table  
     
-    int y = 2;
+    int y = 3;
     while (entitySetIterator.hasNextInSet()) {
       Object genericEntity = entitySetIterator.next();
       Iterator visibleOrderedEntityPathesIterator = visibleOrderedEntityPathes.iterator();
@@ -502,28 +539,57 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 		  setRowColor(rowNumber, colorForEvenRows);
 	}
   
-  private String parseAction(IWContext iwc, String currentStateOfIterator)  {
+  private void parseAndDoAction(IWContext iwc, String formerStateOfIterator, SetIterator setIterator)  {
     // event system
     EntityBrowserPS state = (EntityBrowserPS) getPresentationState((IWUserContext) iwc);
-    state.hashCode();
+    if (! parseAndDoActionForForm(HEADER_FORM_KEY,iwc,state,formerStateOfIterator,setIterator))
+      parseAndDoActionForForm(BOTTOM_FORM_KEY,iwc,state,formerStateOfIterator,setIterator);
+    }
+
+  private boolean parseAndDoActionForForm(
+      String formKey, 
+      IWContext iwc, 
+      EntityBrowserPS state,
+      String formerStateOfIterator, 
+      SetIterator setIterator)  {      
+    String keyForwardBack = getUniqueKeyForSubmitButton(formKey,NEW_SUBSET_KEY, formerStateOfIterator);
+    String keySelectionFromList = getUniqueKeyForSubmitButton(formKey ,NEW_SUBSET_FROM_LIST_KEY, formerStateOfIterator);
     
-    String uniqueKey = getUniqueKeyForSubmitButton(currentStateOfIterator);
-    
-    String action = null;
-    String parameter = state.getParameter();
-    
-    if (parameter != null && parameter.length() != 0)   
-      action = parameter;       
-    else if (iwc.isParameterSet(NEW_SUBSET_KEY))  
-      action = iwc.getParameter(NEW_SUBSET_KEY);
-      
-    if ( (NEXT_SUBSET + uniqueKey).equals(action))
-      return NEXT_SUBSET_ACTION;
-    else if ( (PREVIOUS_SUBSET + uniqueKey).equals(action))
-      return PREVIOUS_SUBSET_ACTION;
-    else  
-      return VIEW_ACTION;
-  }
+		String forwardBackAction = getAction(iwc, state, keyForwardBack);
+    String selectionFromListAction = getAction(iwc, state, keySelectionFromList); 
+    // action from list
+    // current subset has always subset number zero
+    int i;
+    if (selectionFromListAction != null && 
+         (i = Integer.parseInt(selectionFromListAction)) != 0)  {
+      setIterator.goToSetRelativeToCurrentSet(i);
+    }  
+    // action from buttons  
+    else if ( (NEXT_SUBSET).equals(forwardBackAction))
+      setIterator.nextSet();
+    else if ( (PREVIOUS_SUBSET).equals(forwardBackAction))
+      setIterator.previousSet();
+    else  {
+      setIterator.currentSet();
+      // there was no action
+      return false;
+    }
+    return true;
+   }
+
+
+	private String getAction(IWContext iwc, EntityBrowserPS state, String keySubmit) {
+		String action = null;
+		String parameter = null;
+		if (state.isParameterSet(keySubmit))
+		  parameter = state.getParameter(keySubmit);
+		
+		if (parameter != null && parameter.length() != 0)   
+		  action = parameter;       
+		else if (iwc.isParameterSet(keySubmit))  
+		  action = iwc.getParameter(keySubmit);
+		return action;
+	}
 
   private SetIterator retrieveSetIterator(IWContext iwc, Collection entities) {    
     // initialize setIterator
@@ -544,52 +610,148 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     return setIterator;
   }
 
-  private Table getForwardAndBackButtons(IWResourceBundle resourceBundle, String formerStateOfIterator, boolean enableBack, boolean enableForward) {
+  private Table getForwardAndBackButtons(
+      String formKey,
+      IWContext iwc,
+      IWResourceBundle resourceBundle, 
+      SetIterator setIterator,
+      String currentStateOfIterator, 
+      boolean enableBack, 
+      boolean enableForward) {
  
     // if the list is completely shown do not show forward and backward buttons
     if ((! enableBack) && (! enableForward))
       return new Table();
     // show buttons  
-    String uniqueKey = getUniqueKeyForSubmitButton(formerStateOfIterator);
-    SubmitButton goBackButton = 
-      new SubmitButton(resourceBundle.getLocalizedImageButton("back","BACK"), NEW_SUBSET_KEY, PREVIOUS_SUBSET + uniqueKey);
-    SubmitButton goForwardButton = 
-      new SubmitButton(resourceBundle.getLocalizedImageButton("forward","FORWARD"), NEW_SUBSET_KEY, NEXT_SUBSET + uniqueKey);  
-    goForwardButton.setDisabled(! enableForward);
-    goBackButton.setDisabled(! enableBack);
+    String uniqueKey = getUniqueKeyForSubmitButton(formKey, NEW_SUBSET_KEY, currentStateOfIterator);
+    // use links
+    Link goBackLink = new Link(resourceBundle.getLocalizedString("back","Back"));
+    Link goForwardLink = new Link(resourceBundle.getLocalizedString("forward","Forward"));
+    goBackLink.setFontStyle(FONT_STYLE_FOR_LINK);
+    goForwardLink.setFontStyle(FONT_STYLE_FOR_LINK);
+    if (useEventSystem) {
+      goBackLink.addEventModel(getPresentationEvent(),iwc);
+      goForwardLink.addEventModel(getPresentationEvent(),iwc);
+    }
+    else  {
+      goBackLink.setTarget(Link.TARGET_SELF_WINDOW);
+      goForwardLink.setTarget(Link.TARGET_SELF_WINDOW);
+    }
+    goBackLink.addParameter(uniqueKey, PREVIOUS_SUBSET);
+    goForwardLink.addParameter(uniqueKey,NEXT_SUBSET); 
+    /* use this if you like to display buttons
+        SubmitButton goBackButton = 
+        new SubmitButton(resourceBundle.getLocalizedImageButton("back","Back"), uniqueKey, PREVIOUS_SUBSET);
+        SubmitButton goForwardButton = 
+        new SubmitButton(resourceBundle.getLocalizedImageButton("forward","Forward"), uniqueKey, NEXT_SUBSET);  
+        goForwardButton.setDisabled(! enableForward);
+        oBackButton.setDisabled(! enableBack);
+    */
     Table table = new Table(2,1);
-    table.add(goBackButton, 1,1);
-    table.add(goForwardButton, 2, 1);
+    table.setHeight(7);
+    if (enableBack) 
+      table.add(goBackLink,1,1);
+ 
+    Iterator iterator = getLinksToPage(formKey, iwc, resourceBundle, setIterator, currentStateOfIterator).iterator();
+    while (iterator.hasNext())  {
+      Link link = (Link) iterator.next();
+      table.add(Text.getNonBrakingSpace(),1,1); 
+      table.add(link,1,1);
+      table.setAlignment(2,1,Table.VERTICAL_ALIGN_TOP); 
+    }
+    if (enableForward)  {
+      table.add(Text.getNonBrakingSpace(),1,1); 
+      table.add(goForwardLink,1,1);
+    }
+    table.add(getPageList(formKey, resourceBundle, setIterator, currentStateOfIterator),2,1);
     return table;
   }    
   
-  private Table getInfo(IWResourceBundle resourceBundle, SetIterator setIterator, boolean enableBack, boolean enableForward)  {
-    // if the list is completely shown do not show forward and backward buttons
-    if ((! enableBack) && (! enableForward))
-      return new Table();
-    // show info
-    int firstIndex = setIterator.currentFirstIndexSet() + 1;
-    int lastIndex = setIterator.currentLastIndexSet() + 1;
+  private DropdownMenu getPageList(String formKey, IWResourceBundle resourceBundle, SetIterator setIterator, String currentStateOfIterator) {
+    String key = getUniqueKeyForSubmitButton(formKey, NEW_SUBSET_FROM_LIST_KEY, currentStateOfIterator);
+    DropdownMenu menu = new DropdownMenu(key);
     int size = setIterator.size();
-    Table table;
-    int columnIndex = 1;
-    // firstIndex is larger then lastIndex when the iterator is empty
-    if (firstIndex >= lastIndex)  {
-      // show e.g. "1 of 12"
-      table = new Table(3,1);
+    int increment = setIterator.getIncrement();
+    int quantity = setIterator.getQuantity();
+    int setNumber = setIterator.getNegativeNumberOfPreviousSetsRelativeToCurrentSet();
+    int number = 1;
+    while (number < size) {
+      StringBuffer buffer = new StringBuffer();
+      // first index of subset is value
+      buffer.append(number);
+      int lastNumberOfSubset = number + quantity; 
+      if (quantity > 1)  {
+        buffer.append(" - ");
+        lastNumberOfSubset = (lastNumberOfSubset > size) ? size : lastNumberOfSubset - 1; 
+        buffer.append(lastNumberOfSubset);
+      }
+      // add special string (e.g."of 12234") at the current shown subset
+      // current subset has always subset number zero
+      if (setNumber == 0) {
+        buffer
+          .append(" ")
+          .append(resourceBundle.getLocalizedString("of","of"))
+          .append(" ")
+          .append(size);
+      }
+      menu.addMenuElement(setNumber, buffer.toString());
+      // count sets
+      number += increment;
+      setNumber++;
     }
-    else  {
-      // show e.g. "1 - 4 of 12"
-      table = new Table(5,1);
-      table.add(Integer.toString(firstIndex), columnIndex++, 1);
-      table.add("-", columnIndex++, 1);
-    }
-    table.add(Integer.toString(lastIndex), columnIndex++, 1);
-    table.add(resourceBundle.getLocalizedString("of","of"), columnIndex++, 1);
-    table.add(Integer.toString(size), columnIndex, 1);  
-    table.setCellpadding(5);
+    // set selected element
+    menu.setSelectedElement(0);
+    // set to submit
+    menu.setToSubmit();
+    menu.setStyleAttribute(STYLE);
+    return menu;
+  }
 
-    return table;
+  private List getLinksToPage(
+      String formKey,
+      IWContext iwc, 
+      IWResourceBundle resourceBundle, 
+      SetIterator setIterator, 
+      String currentStateOfIterator)  {
+    List listOfLinks = new ArrayList(); 
+    // trick: use the same key as the drop down menu
+    String key = getUniqueKeyForSubmitButton(formKey, NEW_SUBSET_FROM_LIST_KEY, currentStateOfIterator);    
+    int size = setIterator.size();
+    int increment = setIterator.getIncrement();
+    int quantity = setIterator.getQuantity();
+    int preNumber = setIterator.getNegativeNumberOfPreviousSetsRelativeToCurrentSet();
+    int afterNumber = setIterator.getPositiveNumberOfNextSetsRelativeToCurrentSet();
+    // prenumber is negative 
+    preNumber = (preNumber <  -defaultNumberOfLinksPreviousToCurrentSet) ? 
+      -defaultNumberOfLinksPreviousToCurrentSet : preNumber; 
+    afterNumber = (afterNumber > defaultNumberOfLinksAfterCurrentSet) ?
+      defaultNumberOfLinksAfterCurrentSet : afterNumber;
+    int number = setIterator.currentFirstIndexSetRelativeToZero() + 1; // plus one because it starts with zero
+    // prenumber is negative
+    number += (preNumber * increment);
+    while (preNumber <= afterNumber)  {
+      StringBuffer buffer = new StringBuffer();
+      buffer.append(number);
+      int lastNumberOfSubset = number + quantity;
+      if (quantity > 1)  {
+        buffer.append("-");
+        lastNumberOfSubset = (lastNumberOfSubset > size) ? size : lastNumberOfSubset - 1; 
+        buffer.append(lastNumberOfSubset);
+      }
+      Link link = new Link(buffer.toString());
+      link.setFontStyle(FONT_STYLE_FOR_LINK);
+      if (preNumber == 0)
+        link.setBold();
+      if (useEventSystem)
+        link.addEventModel(getPresentationEvent(),iwc);
+      else
+        link.setTarget(Link.TARGET_SELF_WINDOW);
+      link.addParameter(key, preNumber);
+      listOfLinks.add(link);
+      number += increment;
+      preNumber++;
+    }
+    return listOfLinks;
   }
 
   /** 
@@ -611,20 +773,29 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     return table;
   }
     
-  private String getUniqueKeyForSubmitButton(String stateOfIterator)  {
+  private String getUniqueKeyForSubmitButton(String formKey, String prefix, String stateOfIterator)  {
     StringBuffer buffer = new StringBuffer();
     buffer
-    //  .append(NEW_SUBSET_KEY)
+      .append(formKey)
+      .append(prefix)
       .append(getMyId())
       .append(stateOfIterator);
     return buffer.toString();  
   }
 
   private String getMyId() {
-    int id = getICObjectInstanceID();
-    if (id != 0)
-      return Integer.toString(id);  
-    return getCompoundId();
+    // use object instance id if possible else compoundId
+    if (myId == null) {
+      int id;
+      PresentationObject object = this;
+      do {
+        id = object.getICObjectInstanceID();
+        object = object.getParentObject();
+      }
+      while (id == 0 && object != null);
+      myId = (id != 0) ? Integer.toString(id) : getCompoundId();
+    }
+    return myId;
   }
   
   private void setErrorContent(IWResourceBundle resourceBundle)  {
