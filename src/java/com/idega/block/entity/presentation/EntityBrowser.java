@@ -1,0 +1,535 @@
+package com.idega.block.entity.presentation;
+
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap; 
+
+
+import com.idega.block.entity.business.EntityPropertyHandler;
+import com.idega.block.entity.data.EntityPath;
+import com.idega.block.entity.event.EntityBrowserEvent;
+import com.idega.block.entity.event.EntityBrowserPS;
+import com.idega.builder.business.IBPropertyHandler;
+import com.idega.builder.handler.SpecifiedChoiceProvider;
+import com.idega.business.IBOLookup;
+import com.idega.data.GenericEntity;
+import com.idega.event.IWActionListener;
+
+import com.idega.event.IWPresentationState;
+import com.idega.event.IWStateMachine;
+
+import com.idega.idegaweb.IWMainApplication;
+import com.idega.idegaweb.IWResourceBundle;
+import com.idega.idegaweb.IWUserContext;
+import com.idega.presentation.IWContext;
+import com.idega.presentation.Page;
+import com.idega.presentation.Table;
+import com.idega.presentation.text.Link;
+import com.idega.presentation.ui.Form;
+import com.idega.presentation.ui.SubmitButton;
+import com.idega.user.app.UserApplication;
+import com.idega.util.SetIterator;
+/**
+ *@author     <a href="mailto:thomas@idega.is">Thomas Hilbig</a>
+ *@version    1.0
+ */
+
+public class EntityBrowser extends Table implements SpecifiedChoiceProvider {
+  
+  public final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.entity";
+      
+  public final static String NEW_SUBSET_KEY = "new_subset_key";
+  
+  private final static String NEXT_SUBSET_KEY = "next_subset_key";
+  
+  private final static String NEXT_SUBSET = "next";
+  
+  private final static String PREVIOUS_SUBSET = "previous";
+  
+  
+  
+  private final static String NEXT_SUBSET_ACTION = "next_subset";
+  
+  private final static String PREVIOUS_SUBSET_ACTION = "previous_subset";
+  
+  private final static String VIEW_ACTION = "view_action";
+  
+  private static final String SET_ENTIY_METHOD_IDENTIFIER = 
+    ":method:1:implied:void:setEntity:java.lang.String:";
+    
+  private static final String SET_DEFAULT_COLUMNS_METHOD_IDENTIFIER = 
+    ":method:1:implied:void:setDefaultColumns:int:java.lang.String:";  
+  
+ 
+  private String entityName = "";
+  
+  private int xAnchorPosition = 0;
+  
+  private int yAnchorPosition = 0;
+  
+  private Collection entities = null;
+  
+  private IWPresentationState presentationState = null;
+  
+ 
+  
+  
+  // use tree map because of the order of the elements
+  private TreeMap defaultColumns = new TreeMap();
+  
+  private int defaultNumberOfRowsPerPage = 1;
+  
+  
+  
+  public void setDefaultNumberOfRows(int defaultNumberOfRows) {
+    this.defaultNumberOfRowsPerPage = defaultNumberOfRows;
+  }
+  
+ 
+  /** if you change the name of this method please change the 
+   *  corresponding method identifier variable SET_ENTIY_METHOD_IDENTIFIER */
+  public void setEntity(String entityName)  {
+    this.entityName = entityName;
+  }
+ 
+  
+  /** this method should only be used by the IWPropertyHandler 
+   *  It provides the drop down menu in the property handler 
+   *  that is used to set the default columns with a collection 
+   *  of appropriate columnnames.
+   *  To do this this method fetches the current value of the 
+   *  entity name property from the specified property handler.
+  
+   */  
+  public Collection getSpecifiedChoice(
+      IWContext iwc, 
+      String ICObjectInstanceID, 
+      String methodIdentifier, 
+      IBPropertyHandler propertyHandler)  {
+      Class entityClass;
+      String anEntityClassName;
+    // is the method correct?
+    if (SET_DEFAULT_COLUMNS_METHOD_IDENTIFIER.equals(methodIdentifier)) {
+      // get the set property value from the handler
+      anEntityClassName = propertyHandler.getPropertyValue(iwc, ICObjectInstanceID, SET_ENTIY_METHOD_IDENTIFIER);
+    }
+    else
+      // the specified method is not handled here
+      return new ArrayList();
+    // create the desired collection   
+    try {
+      entityClass = Class.forName(anEntityClassName);
+
+    }
+    catch (ClassNotFoundException e)  {
+      System.err.println("[EntityBrowser] The class with the specified name: "
+      + anEntityClassName +
+        " was not found. Message is " + e.getMessage());
+      e.printStackTrace(System.err);
+      return new ArrayList();
+    }
+    SortedMap pathes = EntityPropertyHandler.getAllEntityPathes(entityClass);
+    Collection entities = pathes.values();
+    List list = new ArrayList();
+    Iterator iterator = entities.iterator();
+    while (iterator.hasNext())  {
+      String shortKey = ((EntityPath) iterator.next()).getShortKey();
+      list.add(shortKey);
+    }
+    return list;
+  }
+  
+  
+  
+  /** 
+   * Set a shortKey of an entity path with an order number. It is not necessary to have 
+   * order numbers that covers a complete range of integers like e.g. 0 to 10. The order numbers
+   * are only used to determine the order of the columns. Therefore it is well defined 
+   * if the numbers are spread e.g. 2, 7, 122 and 412 (example with four columns).
+   * 
+   * if you change the name of this method please change the 
+   * corresponding method identifier variable SET_DEFAULT_COLUMNS_METHOD_IDENTIFIER 
+   */ 
+  public void setDefaultColumns(int orderNumber, String entityPathShortKey)  {
+    defaultColumns.put(Integer.toString(orderNumber), entityPathShortKey);    
+  }  
+    
+  public void setEntities(Collection entities)  {
+    this.entities = entities;
+  }    
+  
+  public void setLeftUpperCorner(int xAnchorPosition, int yAnchorPosition)  {
+    this.xAnchorPosition = xAnchorPosition;
+    this.yAnchorPosition = yAnchorPosition;
+  }
+  
+    
+  public String getBundleIdentifier(){
+    return EntityBrowser.IW_BUNDLE_IDENTIFIER;
+  }
+  
+
+    
+  public void main(IWContext iwc) throws Exception { 
+    
+    
+    // event model stuff
+    // I am listening to my own events!
+    IWPresentationState state = getPresentationState((IWUserContext) iwc);
+    this.addIWActionListener( (IWActionListener) state);
+    
+    
+    
+    
+    
+    // get resource bundle
+    IWResourceBundle resourceBundle = getResourceBundle(iwc);
+    
+    
+    // get entity name from one element of the entity collection
+    // if the entity name is not set and the collection is not empty
+    if (entityName.length() == 0 && (! entities.isEmpty())) {
+      Class objectClass = (entities.iterator()).next().getClass();
+      Class[] interfaces = objectClass.getInterfaces();
+      if (interfaces.length > 0)  {
+        Class firstInterfaceClass = interfaces[0];
+        entityName = firstInterfaceClass.getName();
+      }
+    }
+      
+    
+    
+   
+    // get user properties
+    EntityPropertyHandler propertyHandler;
+    try {
+      propertyHandler = new EntityPropertyHandler(iwc, entityName);
+    }
+    catch (ClassNotFoundException ex)   {
+      setErrorContent(resourceBundle);
+      return;
+    }
+    
+
+        
+    List visibleOrderedEntityPathes = getVisibleOrderedEntityPathes(propertyHandler);
+    int numberOfRowsPerPage = propertyHandler.getNumberOfRowsPerPage();
+    
+    // get the state of the former iterator
+    SetIterator entityIterator = retrieveSetIterator(iwc, entities);
+    String formerStateOfIterator = entityIterator.getStateAsString();
+    // set properties (it does not matter if they have change or not)
+    entityIterator.setIncrement(numberOfRowsPerPage);
+    entityIterator.setQuantity(numberOfRowsPerPage);
+    
+    // parse action use as key the state of the iterator:
+    // If there is a reload of the page the action "next subset" or
+    // "previous subset" will no be performed again.
+    String action = parseAction(iwc, formerStateOfIterator);
+    
+    // let iterator point to a new subset   
+    if (NEXT_SUBSET_ACTION.equals(action) && entityIterator.hasNextSet())
+      entityIterator.nextSet();
+    else if (PREVIOUS_SUBSET_ACTION.equals(action) && entityIterator.hasPreviousSet())
+      entityIterator.previousSet();
+    else 
+      entityIterator.currentSet();  
+    
+    // set size of table
+    int necessaryRows = entityIterator.getQuantity();
+    int necessaryColumns = visibleOrderedEntityPathes.size();
+    // we need at least on column for buttons
+    necessaryColumns = (necessaryColumns == 0) ? 1 : necessaryColumns;
+    // plus rows for header and buttons
+    necessaryRows += 2;
+    setSize(necessaryColumns, necessaryRows);
+            
+    // get now the table    
+    fillEntityTable(resourceBundle, visibleOrderedEntityPathes , entityIterator);
+    
+    // get the last row and merge it
+    int beginxpos = xAnchorPosition + 1;
+    // rows of the data plus header row 
+    int beginypos = yAnchorPosition + necessaryRows;
+    int endypos = beginypos;
+    int endxpos = xAnchorPosition + necessaryColumns;
+    mergeCells(beginxpos, beginypos, endxpos, endypos);
+    // put setting button, info text, forward and back button in one table
+    Table table = new Table(4, 1);
+    table.add(getSettingButton(resourceBundle), 1, 1);
+    table.add(getInfo(resourceBundle, entityIterator),2,1);
+     
+    // get current subset position
+    String currentStateOfIterator = entityIterator.getStateAsString();
+    // store state in session
+    entityIterator.storeStateInSession(iwc, getMyId());
+    // get back and forward buttons
+    Table goAndBackButton = getForwardAndBackButtons(resourceBundle, currentStateOfIterator, entityIterator.hasNextSet(), entityIterator.hasPreviousSet());   
+    // create Form
+    Form form = new Form();
+    form.add(goAndBackButton);
+    // add parameters for event handling (if the event model is used)
+    // create an event
+    EntityBrowserEvent model = new  EntityBrowserEvent();
+    // necessary: set source!
+    //////model.setSource(myLocation);
+    /////model.setSource(presentationState.getLocation());
+    model.setSource(getLocation());
+    form.addEventModel(model);
+    form.setTarget("_top");
+    ////////form.setTarget("iwb_main");
+    ////////form.setPageToSubmitTo(id);
+    ////////String decript = IWMainApplication.getEncryptedClassName(UserApplicationMainArea.class);
+    String decript = IWMainApplication.getEncryptedClassName(UserApplication.class);
+    form.addParameter(Page.IW_FRAME_CLASS_PARAMETER, decript);
+    ///////form.sendToControllerFrame();
+    table.add(form, 3,1);
+    // now add the table in the row that was created by merging the cells of the last row
+    add(table, beginxpos, beginypos);
+  }
+
+	private void setSize(int columns, int rows ) {
+    // add the anchor positions
+    columns += xAnchorPosition;
+    rows += yAnchorPosition;
+		// set height and width if necessary
+		if (columns > getColumns())
+		  setColumns(columns);
+		if (rows > getRows())
+		  setRows(rows);
+	}
+    
+  private  void fillEntityTable(IWResourceBundle resourceBundle, List visibleOrderedEntityPathes, SetIterator entitySetIterator)  {
+    // build table
+
+    Iterator iterator = visibleOrderedEntityPathes.iterator();
+    
+    // set header row of the table
+    
+    int i = 1;
+    while (iterator.hasNext())  {
+      EntityPath entityPath = (EntityPath) iterator.next();
+      String columnName = entityPath.getLocalizedDescription(resourceBundle);
+      add(columnName, xAnchorPosition + i , yAnchorPosition + 1);
+      i++;
+    }
+    
+    // fill table  
+    
+    int y = 2;
+    while (entitySetIterator.hasNextInSet()) {
+      GenericEntity genericEntity = (GenericEntity) entitySetIterator.next();
+      Iterator visibleOrderedEntityPathesIterator = visibleOrderedEntityPathes.iterator();
+      int x = 1;
+      while (visibleOrderedEntityPathesIterator.hasNext())  {
+        EntityPath path = (EntityPath) visibleOrderedEntityPathesIterator.next();
+        StringBuffer displayValues = new StringBuffer();
+        List list = path.getValues(genericEntity);
+        Iterator valueIterator = list.iterator();
+        while (valueIterator.hasNext()) {
+          Object object = valueIterator.next();
+          // if there is no entry the object is null
+          object = (object == null) ? "" : object;  
+          displayValues.append(object.toString());  
+        }
+        add(displayValues.toString(), xAnchorPosition + x, yAnchorPosition + y);
+        // next column
+        x++; 
+      }
+      // next row
+      y++;
+    }
+  }
+  
+  private String parseAction(IWContext iwc, String currentStateOfIterator)  {
+    // event system
+    EntityBrowserPS state = (EntityBrowserPS) getPresentationState((IWUserContext) iwc);
+    state.hashCode();
+    
+    String uniqueKey = getUniqueKeyForSubmitButton(currentStateOfIterator);
+    
+    String action = null;
+    String parameter = state.getParameter();
+    
+    if (parameter != null && parameter.length() != 0)   
+      action = parameter;       
+    else if (iwc.isParameterSet(NEW_SUBSET_KEY))  
+      action = iwc.getParameter(NEW_SUBSET_KEY);
+      
+    if ( (NEXT_SUBSET + uniqueKey).equals(action))
+      return NEXT_SUBSET_ACTION;
+    else if ( (PREVIOUS_SUBSET + uniqueKey).equals(action))
+      return PREVIOUS_SUBSET_ACTION;
+    else  
+      return VIEW_ACTION;
+  }
+
+  private SetIterator retrieveSetIterator(IWContext iwc, Collection entities) {    
+    // initialize setIterator
+    List entityList;
+    // EntityList has not implemented the toArray() method that is used 
+    // during the execution of new ArrayList(Collection coll) method
+    // therefore we simply try to get a list by casting.
+    if (entities instanceof List)
+      entityList = (List) entities;
+    else if (entities == null)
+      entityList = new ArrayList();
+    else 
+      entityList = new ArrayList(entities);
+    
+    SetIterator setIterator = new SetIterator(entityList);
+    // retrieve old state of setIterator, use session
+    setIterator.retrieveStateFromSession(iwc, getMyId());
+    return setIterator;
+  }
+
+  private Table getForwardAndBackButtons(IWResourceBundle resourceBundle, String formerStateOfIterator, boolean enableForward, boolean enableBack) {
+ 
+    String uniqueKey = getUniqueKeyForSubmitButton(formerStateOfIterator);
+    SubmitButton goBackButton = 
+      new SubmitButton(resourceBundle.getLocalizedImageButton("back","BACK"), NEW_SUBSET_KEY, PREVIOUS_SUBSET + uniqueKey);
+    SubmitButton goForwardButton = 
+      new SubmitButton(resourceBundle.getLocalizedImageButton("forward","FORWARD"), NEW_SUBSET_KEY, NEXT_SUBSET + uniqueKey);  
+    goForwardButton.setDisabled(! enableForward);
+    goBackButton.setDisabled(! enableBack);
+    Table table = new Table(2,1);
+    table.add(goBackButton, 1,1);
+    table.add(goForwardButton, 2, 1);
+    return table;
+  }    
+
+  private Table getInfo(IWResourceBundle resourceBundle, SetIterator setIterator)  {
+    int firstIndex = setIterator.currentFirstIndexSet() + 1;
+    int lastIndex = setIterator.currentLastIndexSet() + 1;
+    int size = setIterator.size();
+    Table table;
+    int columnIndex = 1;
+    // firstIndex is larger then lastIndex when the iterator is empty
+    if (firstIndex >= lastIndex)  {
+      // show e.g. "1 of 12"
+      table = new Table(3,1);
+    }
+    else  {
+      // show e.g. "1 - 4 of 12"
+      table = new Table(5,1);
+      table.add(Integer.toString(firstIndex), columnIndex++, 1);
+      table.add("-", columnIndex++, 1);
+    }
+    table.add(Integer.toString(lastIndex), columnIndex++, 1);
+    table.add(resourceBundle.getLocalizedString("of","of"), columnIndex++, 1);
+    table.add(Integer.toString(size), columnIndex, 1);  
+    table.setCellpadding(5);
+
+    return table;
+  }
+
+  /** 
+   * Get setting button
+	*/
+  private Table getSettingButton(IWResourceBundle resourceBundle) {
+    String setting = resourceBundle.getLocalizedString("setting","setting");
+    Link link = new Link(setting);
+    link.setWindowToOpen(EntityBrowserSettingWindow.class);
+    link.addParameter(EntityBrowserSettingWindow.ENTITY_NAME_KEY, entityName);
+    link.setAsImageButton(true);
+    Table table = new Table();
+    table.add(link);
+    return table;
+  }
+    
+  private String getUniqueKeyForSubmitButton(String stateOfIterator)  {
+    StringBuffer buffer = new StringBuffer();
+    buffer
+    //  .append(NEW_SUBSET_KEY)
+      .append(getMyId())
+      .append(stateOfIterator);
+    return buffer.toString();  
+  }
+
+  private int getMyId() {
+    int id = getICObjectInstanceID();
+    return (id == 0) ? getParentObjectInstanceID() : id;
+  }
+  
+  private void setErrorContent(IWResourceBundle resourceBundle)  {
+    String message = resourceBundle.getLocalizedString("Set_an_entity", "Set an entity");
+    add(message);
+  }
+  
+  private List getVisibleOrderedEntityPathes(EntityPropertyHandler propertyHandler)  {
+    List list = propertyHandler.getVisibleOrderedEntityPathes();
+    if (! list.isEmpty()) 
+      return list;
+    // list is empty...  
+    // there are no visible columns set by the user, therefore show the default columns  
+    // default columns is a tree map values returns an ordered collection
+    Collection coll = defaultColumns.values();
+    Iterator defaultColumnsIterator = coll.iterator();
+    while (defaultColumnsIterator.hasNext()) {
+      String shortKey = (String) defaultColumnsIterator.next();
+      EntityPath path = propertyHandler.getEntityPath(shortKey);
+      if (path != null)
+        list.add(path);
+    }
+    return list;
+  }           
+  
+  private int getNumberOfRowsPerPage(EntityPropertyHandler propertyHandler) {
+    int rows = propertyHandler.getNumberOfRowsPerPage();
+    if (rows != EntityPropertyHandler.DEFAULT_NUMBER_OF_ROWS_PER_PAGE)
+      return rows;
+    // rows was not set
+    // there are no rows set by the user, therefore show the default size
+    return defaultNumberOfRowsPerPage;
+  }
+
+
+  
+  /** this method is used for the event model */
+  public IWPresentationState getPresentationState(IWUserContext iwuc){
+    if(presentationState == null){
+      try {
+        IWStateMachine stateMachine = (IWStateMachine)IBOLookup.getSessionInstance(iwuc,IWStateMachine.class);
+        presentationState = (EntityBrowserPS)stateMachine.getStateFor(this.getLocation(),EntityBrowserPS.class);
+      }
+      catch (RemoteException re) {
+        throw new RuntimeException(re.getMessage());
+      }
+    }
+    return presentationState;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+}
