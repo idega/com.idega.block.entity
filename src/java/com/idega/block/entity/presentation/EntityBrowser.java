@@ -28,6 +28,7 @@ import com.idega.presentation.IWContext;
 import com.idega.presentation.PresentationObject;
 import com.idega.presentation.StatefullPresentation;
 import com.idega.presentation.Table;
+import com.idega.presentation.TableType;
 import com.idega.presentation.text.Link;
 import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.CheckBox;
@@ -35,6 +36,7 @@ import com.idega.presentation.ui.DropdownMenu;
 import com.idega.presentation.ui.Form;
 import com.idega.presentation.ui.HiddenInput;
 import com.idega.presentation.ui.Parameter;
+import com.idega.presentation.ui.ScrollTable;
 import com.idega.util.SetIterator;
 /**
  *@author     <a href="mailto:thomas@idega.is">Thomas Hilbig</a>
@@ -152,6 +154,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private boolean showSettingsButton = true;
   private boolean showMirroredView = false;
   private boolean leadingEntityIsUndefined = false;
+  private boolean useScrollbars = false;
+  private int heightScrollTable = 100;
+  private int widthScrollTable = 100;
   
   protected String nullValueForNumbers = "";
   
@@ -597,6 +602,11 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       necessaryColumns = (necessaryColumns == 0) ? 2 : necessaryColumns;
       // plus rows for buttons
     }
+    else if (useScrollbars) {
+    	// use one cell to put the scrallable table into it
+    	necessaryColumns = 1;
+    	necessaryRows = 3;
+    }
     else {  
       // we need at least on column for buttons 
       necessaryColumns = (necessaryColumns == 0) ? 1 : necessaryColumns;
@@ -606,7 +616,12 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     setSize(necessaryColumns, necessaryRows);
             
     // get now the table    
-    fillEntityTable(visibleOrderedEntityPathes , entityIterator, iwc);
+    if (useScrollbars) {
+    	fillScrollableEntityTable(visibleOrderedEntityPathes, entityIterator, iwc);
+    }
+    else {
+    	fillEntityTable(visibleOrderedEntityPathes , entityIterator, iwc);
+    }
     
     //TODO: thi: enable the mirrored view to work together with the navigation panel
     if (showMirroredView) {
@@ -898,7 +913,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       else {
         currentRow = yAnchorPosition + y;
       }
-      setColorForRow(currentColumn, currentRow, colorForOddRowsIsSet, colorForEvenRowsIsSet);
+      setColorForRow(this, currentColumn, currentRow, colorForOddRowsIsSet, colorForEvenRowsIsSet);
       int x = 1;
       // fill columns
       currentIndexOfEntities = entitySetIterator.currentIndexRelativeToZero();
@@ -915,8 +930,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
         add(presentation, currentColumn, currentRow);
         // set some settings for the current column
         String shortKey = path.getShortKey();
-        setColorForColumn(shortKey, currentColumn, currentRow);
-        setAlignmentForColumn(shortKey, currentColumn, currentRow);
+        setColorForColumn(this, shortKey, currentColumn, currentRow);
+        setAlignmentForColumn(this, shortKey, currentColumn, currentRow);
         // next column
         x++;
       }
@@ -928,7 +943,101 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     currentIndexOfEntities = -1;
   }
   
-  private void setAlignmentForColumn(String entityPathShortKey, int column, int row) {
+  private  void fillScrollableEntityTable(
+        List visibleOrderedEntityPathes, 
+        SetIterator entitySetIterator,
+        IWContext iwc)  
+      {
+      // build table
+  	
+  	ScrollTable scrollTable = new ScrollTable();
+  	scrollTable.setCellpadding(0);
+  	scrollTable.setCellspacing(0);
+  	scrollTable.setNumberOfHeaderRows(1);
+	scrollTable.setScrollLayerHeaderRowThickness(47);  // prior 47
+	scrollTable.setWidth(widthScrollTable);
+	scrollTable.setHeight(heightScrollTable);
+  	
+      Iterator iterator = visibleOrderedEntityPathes.iterator();
+      
+      // set header row of the table
+      
+      // set color for header
+      int i = 1;
+      if (colorForHeader != null) {
+        if (showMirroredView) {
+          scrollTable.setColumnColor(1, colorForHeader);
+        }
+        else {
+          scrollTable.setRowColor(1, colorForHeader);
+        }
+      }
+      while (iterator.hasNext())  {
+        EntityPath entityPath = (EntityPath) iterator.next();
+        EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(entityPath); 
+        PresentationObject presentation = converter.getHeaderPresentationObject(entityPath, this, iwc);
+        if (showMirroredView) {
+          scrollTable.add(presentation, 1, i);
+          if (colorForHeader != null) {
+            scrollTable.setColor(1, i,colorForHeader);
+          }
+
+        }
+        else {
+          scrollTable.add(presentation, i , 1);
+          if (colorForHeader != null) {
+            scrollTable.setColor(i, 1,colorForHeader);
+          }
+        } 
+        i++;    
+      }
+      
+      // fill table
+      boolean colorForOddRowsIsSet = (colorForOddRows != null);
+      boolean colorForEvenRowsIsSet = (colorForEvenRows != null);
+      int y = 2;
+      while (entitySetIterator.hasNextInSet()) {
+        Object genericEntity = entitySetIterator.next();
+        Iterator visibleOrderedEntityPathesIterator = visibleOrderedEntityPathes.iterator();
+        // set color of rows
+        if (showMirroredView) {
+          currentColumn = y;
+        }
+        else {
+          currentRow = y;
+        }
+        setColorForRow(scrollTable, currentColumn, currentRow, colorForOddRowsIsSet, colorForEvenRowsIsSet);
+        int x = 1;
+        // fill columns
+        currentIndexOfEntities = entitySetIterator.currentIndexRelativeToZero();
+        while (visibleOrderedEntityPathesIterator.hasNext())  {
+          if (showMirroredView) {
+            currentRow = x;
+          }
+          else {
+            currentColumn = x;
+          }
+          EntityPath path = (EntityPath) visibleOrderedEntityPathesIterator.next();
+          EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(path); 
+          PresentationObject presentation = converter.getPresentationObject(genericEntity, path, this, iwc);
+          scrollTable.add(presentation, currentColumn, currentRow);
+          // set some settings for the current column
+          String shortKey = path.getShortKey();
+          setColorForColumn(scrollTable, shortKey, currentColumn, currentRow);
+          setAlignmentForColumn(scrollTable, shortKey, currentColumn, currentRow);
+          // next column
+          x++;
+        }
+        // nextRow
+        y++;
+      }
+      currentColumn = -1;
+      currentRow = -1;
+      currentIndexOfEntities = -1;
+      add(scrollTable, xAnchorPosition + 1, yAnchorPosition + 2);
+    }
+  
+  private void setAlignmentForColumn(TableType table, String entityPathShortKey, int column, int row) {
     if (entityPathShortKeyAlignmentMap == null) {
       return;
     }
@@ -936,10 +1045,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     if (alignment == null)  {
       return;
     }
-    setAlignment(column, row, alignment);
+    table.setAlignment(column, row, alignment);
   }
 
-  private void setColorForColumn(String entityPathShortKey, int column, int row) {
+  private void setColorForColumn(TableType table, String entityPathShortKey, int column, int row) {
     if (entityPathShortKeyColorMap == null) {
       return;
     }
@@ -948,30 +1057,30 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       return; 
     }
     if (showMirroredView) {
-      setRowColor(row, color);
+      table.setRowColor(row, color);
     }
     else {
-      setColumnColor(column, color);
+      table.setColumnColor(column, color);
     }
   }
 
-  private void setColorForRow(int column, int row, boolean colorForOddRowsIsSet, boolean colorForEvenRowsIsSet) {
+  private void setColorForRow(TableType table, int column, int row, boolean colorForOddRowsIsSet, boolean colorForEvenRowsIsSet) {
   	if (showMirroredView)  {
       boolean oddColumn = ((column % 2) == 0);
       if (colorForOddRowsIsSet && oddColumn) { 
-        setColumnColor(column, colorForOddRows);
+        table.setColumnColor(column, colorForOddRows);
       }
       else if (colorForEvenRowsIsSet && !oddColumn)  {
-        setColumnColor(column, colorForEvenRows);
+        table.setColumnColor(column, colorForEvenRows);
       } 
     }
     else {
       boolean oddRow = ((row % 2) == 0);
   	  if (colorForOddRowsIsSet && oddRow) {
-        setRowColor(row, colorForOddRows);
+        table.setRowColor(row, colorForOddRows);
       }
       else if (colorForEvenRowsIsSet && (! oddRow))  {
-        setRowColor(row, colorForEvenRows);
+        table.setRowColor(row, colorForEvenRows);
       }
     }
   }
@@ -1616,6 +1725,12 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   public Parameter getShowAllEntriesParameter() {
     Parameter parameter = new Parameter(EXTERNAL_FORM_SHOW_ALL_ENTITIES_KEY, String.valueOf(showAllEntities));
     return parameter;
+  }
+  
+  public void setScrollableWithHeightAndWidth(int height, int width) {
+  	heightScrollTable = height;
+  	widthScrollTable = width;
+  	useScrollbars = true;
   }
       
   
