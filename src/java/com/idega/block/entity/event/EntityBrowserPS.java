@@ -1,5 +1,8 @@
 package com.idega.block.entity.event;
 
+import java.util.Enumeration;
+import java.util.Hashtable;
+
 import com.idega.event.*;
 import com.idega.event.IWPresentationStateImpl;
 
@@ -17,20 +20,25 @@ public class EntityBrowserPS extends IWPresentationStateImpl implements IWAction
 
 
 
-  private String parameter = null;
+  private Hashtable parameterValues = null;
   
   private String entityName = null;
 
 
   public void reset(){
-    parameter = null;
+    parameterValues = null;
+    entityName = null;
     super.reset();
 
   }
 
+  public boolean isParameterSet(String parameter) {
+    return (parameterValues != null && parameterValues.containsKey(parameter));
+  }
 
-  public String getParameter() {
-    return parameter;
+
+  public String getParameter(String parameter) {
+    return (parameterValues != null) ? (String) parameterValues.get(parameter) : null;
   }
   
   
@@ -43,8 +51,15 @@ public class EntityBrowserPS extends IWPresentationStateImpl implements IWAction
     
     
     if (e instanceof EntityBrowserEvent)  {
+      // store all parameters
       IWContext mainIwc = e.getIWContext();
-      parameter = mainIwc.getParameter(EntityBrowser.NEW_SUBSET_KEY);
+      parameterValues = new Hashtable();
+      Enumeration enumeration = mainIwc.getParameterNames();
+      while (enumeration.hasMoreElements()) {
+        String parameter = (String) enumeration.nextElement();
+        if (mainIwc.isParameterSet(parameter)) 
+          parameterValues.put(parameter, mainIwc.getParameter(parameter));
+      }
       entityName = ((EntityBrowserEvent)e).getEntityName();
       this.fireStateChanged();
     }
