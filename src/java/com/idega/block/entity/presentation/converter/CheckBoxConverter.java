@@ -66,7 +66,7 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
   /** Gets all ids of the entities that are checked.
    * @param iwc - Context
    * @param key - the key that was used during instanciation of the checkbox converter
-   * @return a list of primary keys (Integer) or an empty list (is never null)
+   * @return a list of primary keys (Integer or Strings) or an empty list (is never null)
    */
   public static List getResultByParsing(IWContext iwc, String key) {
     List result = new ArrayList();
@@ -75,11 +75,12 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
       String[] id = iwc.getParameterValues(key);
       for (int i = 0; i < id.length; i++) {
         try {
-          Integer primaryKey = new Integer(id[i]);
+          Integer primaryKey = new Integer(Integer.parseInt(id[i]));
           result.add(primaryKey);
         }
         catch (NumberFormatException ex)  {
-          // do nothings
+          //its a string
+		  result.add(id[i]);
         }
       }
     }
@@ -93,11 +94,11 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
    * @param id - the id of an entity
    * @return true if the specified id is checked else false
    */
-  public static boolean isEntityChecked(IWContext iwc, String key, Integer id) {
+  public static boolean isEntityChecked(IWContext iwc, String key, Object id) {
     return getResultByParsing(iwc, key).contains(id);
   }
   
-  public static boolean isEntityCheckedUsingDefaultKey(IWContext iwc, Integer id)  {
+  public static boolean isEntityCheckedUsingDefaultKey(IWContext iwc, Object id)  {
     return getResultByParsingUsingDefaultKey(iwc).contains(id);
   }
   
