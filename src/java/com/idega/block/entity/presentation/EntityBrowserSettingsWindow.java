@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
-
 import com.idega.block.entity.business.EntityPropertyHandler;
 import com.idega.block.entity.business.MultiEntityPropertyHandler;
 import com.idega.block.entity.data.EntityPath;
@@ -17,7 +16,6 @@ import com.idega.idegaweb.help.presentation.Help;
 import com.idega.idegaweb.presentation.StyledIWAdminWindow;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.Table;
-import com.idega.presentation.text.Link;
 import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.Form;
 import com.idega.presentation.ui.GenericButton;
