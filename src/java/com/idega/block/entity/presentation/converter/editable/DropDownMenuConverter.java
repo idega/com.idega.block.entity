@@ -53,6 +53,8 @@ public class DropDownMenuConverter
   // flag 
   private boolean workWithExternalSubmitButton = true;
   
+  private boolean addEntryForNonExistingValue = true;
+  
   public void setWorkWithExternalSubmitButton(boolean workWithExternalSubmitButton) {
     this.workWithExternalSubmitButton = workWithExternalSubmitButton;
   }
@@ -68,6 +70,7 @@ public class DropDownMenuConverter
   public DropDownMenuConverter(Form externalForm) {
     this.externalForm = externalForm;
   } 
+  
 
   public static EntityPathValueContainer getResultByParsing(IWContext iwc) {
     String entityPathShortKey = null;
@@ -295,7 +298,7 @@ public class DropDownMenuConverter
       // sometimes the preselection does not exist, 
       // add to options without localization
       String preselectionAsString = preselection.toString();
-      if (! options.containsKey(preselectionAsString)) {
+      if ((! options.containsKey(preselectionAsString) && addEntryForNonExistingValue)) {
         dropdownMenu.addMenuElement("", "");
       }
       dropdownMenu.setSelectedElement(preselectionAsString);
@@ -336,4 +339,11 @@ public class DropDownMenuConverter
     buffer.append(id);
     return buffer;
   }
+	/**
+	 * @param addEntryForNonExistingValue The addEntryForNonExistingValue to set.
+	 */
+	public void setAddEntryForNonExistingValue(boolean addEntryForNonExistingValue) {
+		this.addEntryForNonExistingValue = addEntryForNonExistingValue;
+	}
+
 }
