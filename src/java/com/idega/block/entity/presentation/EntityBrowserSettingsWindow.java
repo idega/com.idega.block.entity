@@ -111,7 +111,6 @@ public class EntityBrowserSettingsWindow extends IWAdminWindow {
     if (! doAction(iwc))
       return;
     setContent(iwc);
-    setParentToReload();
   }
   
   private boolean initialize(IWContext iwc)  {
@@ -210,12 +209,11 @@ public class EntityBrowserSettingsWindow extends IWAdminWindow {
 		SelectionDoubleBox selectionDoubleBox = getColumnsChooserDoubleSelectionBox(resourceBundle, availableColumns, visibleColumns);
     // how many rows per page
     IntegerInput rowsInput = getNumberPerPageInputField(numberOfRowsPerPage, iwuc);
-    // save Button
-
-    SubmitButton saveButton = 
-      new SubmitButton(resourceBundle.getLocalizedImageButton("close","CLOSE"),FORM_SUBMIT_KEY,ACTION_CLOSE);
-    // close Button 
+    // close Button
     SubmitButton closeButton = 
+      new SubmitButton(resourceBundle.getLocalizedImageButton("close","CLOSE"),FORM_SUBMIT_KEY,ACTION_CLOSE);
+    // save Button 
+    SubmitButton saveButton = 
       new SubmitButton(resourceBundle.getLocalizedImageButton("save","SAVE"), FORM_SUBMIT_KEY,ACTION_SAVE_FORM);
     // create form 
     // add selection double box
@@ -232,8 +230,8 @@ public class EntityBrowserSettingsWindow extends IWAdminWindow {
     formTable.add(inputTable,1,2);
     // add buttons
     Table buttonTable = new Table(2,1);
-    buttonTable.add(saveButton,1,1);
-    buttonTable.add(closeButton,2,1);
+    buttonTable.add(closeButton,1,1);
+    buttonTable.add(saveButton,2,1);
     formTable.add(buttonTable,1,3);
     Form form = new Form();  
     form.add(formTable);
@@ -295,6 +293,8 @@ public class EntityBrowserSettingsWindow extends IWAdminWindow {
         return false;
       }
       else if ( ACTION_SAVE_FORM.equals(action))  {
+        // reload parent after when settings were saved
+        setOnLoad("window.opener.location.reload()");
         // if the parameter RIGHT_SELECTION_BOX_KEY is not set nothing was selected
         String[] selectedColumns =
           (iwc.isParameterSet(RIGHT_SELECTION_BOX_KEY)) ?
