@@ -149,6 +149,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   private String colorForEvenRows = null;
   private String colorForOddRows = null;
+  private String colorForHeader= null;
   
   private Text defaultTextProxy = new Text();
   private Text columnTextProxy = new Text();
@@ -685,7 +686,16 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     
     // set header row of the table
     
+    // set color for header
     int i = 1;
+    if (colorForHeader != null) {
+      if (showMirroredView) {
+        setColumnColor(xAnchorPosition + 1, colorForHeader);
+      }
+      else {
+        setRowColor(yAnchorPosition + 2, colorForHeader);
+      }
+    }
     while (iterator.hasNext())  {
       EntityPath entityPath = (EntityPath) iterator.next();
       EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(entityPath); 
@@ -700,12 +710,14 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     }
     
     // fill table
+    boolean colorForOddRowsIsSet = (colorForOddRows != null);
+    boolean colorForEvenRowsIsSet = (colorForEvenRows != null);
     int y = 3;
     while (entitySetIterator.hasNextInSet()) {
       Object genericEntity = entitySetIterator.next();
       Iterator visibleOrderedEntityPathesIterator = visibleOrderedEntityPathes.iterator();
       // set color of rows
-			setColorForRow(y);
+			setColorForRow(y, colorForOddRowsIsSet, colorForEvenRowsIsSet);
       int x = 1;
       // fill columns
       currentIndexOfEntities = entitySetIterator.currentIndexRelativeToZero();
@@ -734,9 +746,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
 
 
-	private void setColorForRow(int rowNumber) {
+	private void setColorForRow(int rowNumber, boolean colorForOddRowsIsSet, boolean colorForEvenRowsIsSet) {
 		boolean oddRow = ((rowNumber % 2) == 0);
-		if (colorForOddRows != null && oddRow) {
+		if (colorForOddRowsIsSet && oddRow) {
       if (showMirroredView) {
         setColumnColor(rowNumber, colorForOddRows);
       }
@@ -744,7 +756,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 		    setRowColor(rowNumber, colorForOddRows);
       }
     }   
-		else if (colorForEvenRows != null && (! oddRow))  {
+		else if (colorForEvenRowsIsSet && (! oddRow))  {
       if (showMirroredView) {
         setColumnColor(rowNumber, colorForEvenRows);
       }
@@ -1190,6 +1202,12 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     return EntityBrowserPS.class;
   }
 
+  /** Sets the color for the header row
+   * @param colorForHeader
+   */
+  public void setColorForHeader(String colorForHeader)  {
+    this.colorForHeader = colorForHeader;
+  }
   
 	/**
 	 * Sets the colorForEvenRows.
