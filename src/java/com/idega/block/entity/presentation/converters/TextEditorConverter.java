@@ -53,7 +53,7 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
       if (tokenizer.hasMoreTokens())  {
         container.setEntityId(tokenizer.nextToken());
       }
-      String key = getUniqueKey(container.getEntityId(), container.getEntityPathShortKey()).toString();
+      String key = getTextInputUniqueKey(container.getEntityId(), container.getEntityPathShortKey()).toString();
       if (iwc.isParameterSet(key))  {
         Object value = iwc.getParameter(key);
         container.setValue(value);
