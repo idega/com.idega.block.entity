@@ -70,6 +70,18 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
   }
 
   
+  /** Checks if the specified entity is checked or not.
+   * @param iwc - Context
+   * @param key - the key that was used during instanciation of the checkbox converter
+   * @param id - the id of an entity
+   * @return true if the specified id is checked else false
+   */
+  public static boolean isEntityChecked(IWContext iwc, String key, Integer id) {
+    return getResultByParsing(iwc, key).contains(id);
+  }
+  
+  
+  
   public void setKeyForCheckBox(String key) {
     this.key = (key == null || key.length() == 0) ? DEFAULT_KEY : key;      
   }
