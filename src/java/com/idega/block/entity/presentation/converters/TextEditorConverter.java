@@ -144,8 +144,6 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
     EntityPath path,
     EntityBrowser browser,
     IWContext iwc) {
-    Object value = getValue(entity, path, browser, iwc);
-    String text = value.toString(); 
    
     Integer id = (Integer) ((EntityRepresentation) entity).getPrimaryKey();
     // show text input without a submit button if the entity is new 
@@ -169,6 +167,8 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
     if (newEntity || 
         editEntity || 
         iwc.isParameterSet(uniqueKeyLink)) {
+      Object value = getValueForInput(entity, path, browser, iwc);
+      String text = value.toString(); 
       // show text input with submitButton
       String uniqueKeyTextInput = getTextInputUniqueKey(id, shortKeyPath);
       TextInput textInput = new TextInput( uniqueKeyTextInput, text);
@@ -194,6 +194,8 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
     } 
     else {
       // show link
+      Object value = getValueForLink(entity, path, browser, iwc);
+      String text = value.toString();
       text = (text.length() == 0) ? "_" : text;  
       if (! editable) {
         return new Text(text);
@@ -218,7 +220,25 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
     }
       
   }
+  /** Overwrite this method if necessary */
+ protected Object getValueForLink(
+      Object entity,
+      EntityPath path,
+      EntityBrowser browser,
+      IWContext iwc)  {
+    return getValue(entity, path, browser, iwc);
+ }
+ 
+ /** Overwrite this method if necessary */
+ protected Object getValueForInput(
+      Object entity,
+      EntityPath path,
+      EntityBrowser browser,
+      IWContext iwc)  {
+    return getValue(entity, path, browser, iwc);
+  }
   
+  /** Overwrite this method if necessary */
   protected Object getValue(
       Object entity,
       EntityPath path,
