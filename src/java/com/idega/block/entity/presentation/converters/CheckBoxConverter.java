@@ -86,6 +86,9 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
     return getResultByParsing(iwc, key).contains(id);
   }
   
+  public static boolean isEntityCheckedUsingDefaultKey(IWContext iwc, Integer id)  {
+    return getResultByParsingUsingDefaultKey(iwc).contains(id);
+  }
   
   
   public void setKeyForCheckBox(String key) {
