@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import javax.faces.component.UIComponent;
 import com.idega.block.entity.business.EntityPropertyHandler;
 import com.idega.block.entity.business.EntityToPresentationObjectConverter;
 import com.idega.block.entity.business.MultiEntityPropertyHandler;
@@ -833,7 +834,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       }
     }
     // add form 
-    PresentationObject panel;
+    UIComponent panel;
     HiddenInput hiddenInputRequestFrom = new HiddenInput(formKey + REQUEST_KEY);
     if (! useExternalForm)  {
       HiddenInput hiddenInputLastUsedMyId = new HiddenInput(formKey + LAST_USED_MY_ID_KEY, getMyId());
