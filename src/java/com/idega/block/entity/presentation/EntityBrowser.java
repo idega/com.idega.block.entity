@@ -153,6 +153,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private boolean acceptUserSettings = true;
   private boolean showSettingsButton = true;
   private boolean showMirroredView = false;
+  private boolean leadingEntityIsUndefined = false;
   
   private String nullValueForNumbers = "";
   
@@ -206,11 +207,17 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   /** if you change the name of this method please change the 
    *  corresponding method identifier variable SET_ENTIY_METHOD_IDENTIFIER */
   public void setLeadingEntity(String leadingEntityName)  {
+  	leadingEntityIsUndefined = false;
     this.leadingEntityName = leadingEntityName;
   }
   
   public void setLeadingEntity(Class leadingEntityClass)  {
+  	leadingEntityIsUndefined = false;
     this.leadingEntityName = leadingEntityClass.getName();
+  }
+  
+  public void setLeadingEntityIsUndefined()	{
+  	leadingEntityIsUndefined = true;
   }
   
   /**
@@ -326,10 +333,17 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     mandatoryColumns.put(new Integer(orderNumber), entityPathShortKey);  
   }
 
+	public void setMandatoryColumnWithConverter(int orderNumber, String entityPathShortKey, EntityToPresentationObjectConverter converter)	{
+		setMandatoryColumn(orderNumber, entityPathShortKey);
+		if (converter != null) {
+			setEntityToPresentationConverter(entityPathShortKey, converter);
+		}
+	} 
+
+
   /**
    * Sets the collection of entities that this browser should show. You have to 
-   * set a non empty collection otherwise this browser will show nothing.
-   * 
+   * set a non empty collection otherwise this browser shows nothing.
    * @param keyForEntityCollection  
    * very important if you use more than one entityBrowser on a web site, because
    * this key is used to identify the different states of the collections in the session.
@@ -341,6 +355,44 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     this.keyForEntityCollection = keyForEntityCollection;
     this.entities = entities;
   }    
+
+  /**
+   * Sets the collection of entities that this browser should show. You have to 
+   * set a non empty collection otherwise this browser shows nothing. 
+   * All entities are shown within a single page.
+   * After calling this method you can change the property how many 
+   * rows should appear per page by invoking the method
+   * <code>setDefaultNumberOfRows(int)<code>.
+   * 
+   * @param keyForEntityCollection  
+   * very important if you use more than one entityBrowser on a web site, because
+   * this key is used to identify the different states of the collections in the session.
+   * Just use an unique string like "havannna", "paris" or "w123".
+   * 
+   * @param a collection of entities
+   */
+  public void setShowAllEntities(String keyForEntityCollection, Collection entities)	{
+  	setEntities(keyForEntityCollection, entities);
+  	if( entities!=null && !entities.isEmpty()) { 
+  		setDefaultNumberOfRows(entities.size());
+  	}
+  }
+
+	  /**
+   * Sets the collection of entities that this browser should show. You have to 
+   * set a non empty collection otherwise this browser shows nothing.
+   * @param keyForEntityCollection  
+   * very important if you use more than one entityBrowser on a web site, because
+   * this key is used to identify the different states of the collections in the session.
+   * Just use an unique string like "havannna", "paris" or "w123".
+   * 
+   * @param entities - a collection of entities
+   * @param defaultNumberOfrowsPerPage - number of rows per page
+   */
+  public void setEntities(String keyForEntityCollection, Collection entities, int defaultNumberOfRowsPerPage)	{
+  	setEntities(keyForEntityCollection, entities);
+  	setDefaultNumberOfRows(defaultNumberOfRowsPerPage);
+  }
   
   public void setLeftUpperCorner(int xAnchorPosition, int yAnchorPosition)  {
     this.xAnchorPosition = xAnchorPosition;
@@ -404,7 +456,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     
     // get entity name from one element of the entity collection
     // if the entity name is not set and the collection is not empty
-    if ( leadingEntityName == null || leadingEntityName.length() == 0 )  {
+    if (leadingEntityIsUndefined)	{
+    	leadingEntityName = "leading entity name is undefined";
+    }
+    else if ( leadingEntityName == null || leadingEntityName.length() == 0 )  {
       if (entities == null || entities.isEmpty()) {
         setErrorContent(resourceBundle);
         return;
@@ -441,7 +496,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // get user properties, set MultiPropertyhandler
     MultiEntityPropertyHandler multiPropertyHandler;
     try {
-      multiPropertyHandler = new MultiEntityPropertyHandler(iwc, leadingEntityName);
+      multiPropertyHandler = (leadingEntityIsUndefined) ?
+      	new MultiEntityPropertyHandler(iwc) : 
+      	new MultiEntityPropertyHandler(iwc, leadingEntityName);
     }
     catch (ClassNotFoundException e)  {
       System.err.println("[EntityBrowser] Class was not recognized: " + leadingEntityName + " Message was: " +
