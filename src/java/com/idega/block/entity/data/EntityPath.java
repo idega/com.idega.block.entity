@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.util.Vector;
 
 import javax.ejb.CreateException;
 
@@ -275,7 +276,7 @@ public class EntityPath {
 		GenericEntity entity = getEntity(currentEntityClass);
     if (entity == null)
       return new TreeMap();
-    List list = entity.getAttributes();
+    List list = new Vector(entity.getAttributes());
     Iterator iterator = list.iterator();
     TreeMap pathes = new TreeMap();
     while (iterator.hasNext())  {
