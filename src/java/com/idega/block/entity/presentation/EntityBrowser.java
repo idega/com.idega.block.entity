@@ -1276,8 +1276,13 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       PresentationObject object = this;
       do {
         id = object.getICObjectInstanceID();
-        object = object.getParentObject();
-      }
+        try{
+        		object = (PresentationObject)object.getParent();
+        }
+        catch(ClassCastException cce){
+        		object=null;
+        }
+       }
       while (id == 0 && object != null);
       myId = (id != 0) ? Integer.toString(id) : getCompoundId();
     }
