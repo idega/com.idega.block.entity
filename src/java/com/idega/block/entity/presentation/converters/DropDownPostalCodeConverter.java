@@ -16,6 +16,7 @@ import com.idega.core.data.Country;
 import com.idega.core.data.PostalCode;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.presentation.IWContext;
+import com.idega.presentation.text.Link;
 import com.idega.presentation.ui.Form;
 
 /**
@@ -93,6 +94,32 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
     
     // set this option provider
     setOptionProvider(optionProvider);    
+  }
+  
+  /** This method overwrites the corresponding super method, because this is a special
+   * case: The value is an id of the postal code and not a postal code number.
+   */ 
+  protected Link getLink(Object value, String uniqueKeyLink, IWContext iwc)  {
+    String display = null;
+    Integer id = null;
+    try {
+      id = new Integer(value.toString());
+      // if the postal code is not set the following code is not executed
+      Map map = optionProvider.getOptions(null, null, null, iwc);
+      display = (String) map.get(id); 
+    }
+    catch (NumberFormatException ex)  {
+    }
+    display = (display == null || display.length() == 0) ? "_" : display;
+    Link link = new Link(display);
+    link.addParameter(uniqueKeyLink,"dummy_value");
+    // add maintain parameters
+    Iterator iteratorList = maintainParameterList.iterator();  
+    while (iteratorList.hasNext())  {
+      String parameter = (String) iteratorList.next();
+      link.maintainParameter(parameter, iwc);
+    }
+    return link;
   }
   
   public void setCountry(Country country) {

@@ -38,8 +38,8 @@ public class DropDownMenuConverter
   private static final String SUBMIT_KEY = "dd_submit";
   private static final char DELIMITER = '<';
   
-  private OptionProvider optionProvider = null;
-  private List maintainParameterList = new ArrayList(0);
+  protected OptionProvider optionProvider = null;
+  protected List maintainParameterList = new ArrayList(0);
   private Form externalForm = null;
   
   public DropDownMenuConverter(Form externalForm) {
@@ -152,19 +152,23 @@ public class DropDownMenuConverter
     } 
     else {
       // show link
-      String display = value.toString();
-      display = (display.length() == 0) ? "_" : display;
-      Link link = new Link(display);
-      link.addParameter(uniqueKeyLink,"dummy_value");
-      // add maintain parameters
-      Iterator iteratorList = maintainParameterList.iterator();
-      while (iteratorList.hasNext())  {
-        String parameter = (String) iteratorList.next();
-        link.maintainParameter(parameter, iwc);
-      }
-      return link;
+      return getLink(value, uniqueKeyLink, iwc);
     }
       
+  }
+  
+  protected Link getLink(Object value, String uniqueKeyLink, IWContext iwc)  {
+    String display = value.toString();
+    display = (display.length() == 0) ? "_" : display;
+    Link link = new Link(display);
+    link.addParameter(uniqueKeyLink,"dummy_value");
+    // add maintain parameters
+    Iterator iteratorList = maintainParameterList.iterator();
+    while (iteratorList.hasNext())  {
+      String parameter = (String) iteratorList.next();
+      link.maintainParameter(parameter, iwc);
+    }
+    return link;
   }
   
   protected Object getValue(
