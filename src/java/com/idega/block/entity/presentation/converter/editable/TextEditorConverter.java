@@ -47,9 +47,14 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
   // flag if editable
   private boolean editable = true;
   
-  // if set to true the text input allows only float values
+  // if set the text input allows only float values
+  private boolean isFloatField = false;
   private String setAsFloatMessage = null;
-  // if set to true the text input allows only social security numbers
+  // if set the text input allows only double values
+  private boolean isDoubleField = false;
+  private String setAsDoubleMessage = null;
+  // if set the text input allows only social security numbers
+  private boolean isIcelandicSocialSecurityNumberField = false;
   private String setAsIcelandicSocialSecurityNumberMessage = null;
   
   public void setEditable(boolean editable)  {
@@ -61,11 +66,24 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
   }
   
   public void setAsFloat(String setAsFloatMessage)  {
-    this.setAsFloatMessage = setAsFloatMessage;
+    setAsFloatOrDoubleOrIclandicSocialSecurityNumber(setAsFloatMessage, null, null);
+  }
+  
+  public void setAsDouble(String setAsDoubleMessage) {
+  	setAsFloatOrDoubleOrIclandicSocialSecurityNumber(null,setAsDoubleMessage, null);
   }
   
   public void setAsIcelandicSocialSecurityNumber(String setAsIcelandicSocialSecurityNumberMessage)  {
-    this.setAsIcelandicSocialSecurityNumberMessage = setAsIcelandicSocialSecurityNumberMessage;
+    setAsFloatOrDoubleOrIclandicSocialSecurityNumber(null, null,setAsIcelandicSocialSecurityNumberMessage);
+  }
+  
+  private void setAsFloatOrDoubleOrIclandicSocialSecurityNumber(String setAsFloatMessage, String setAsDoubleMessage, String setAsIcelandicSocialSecurityNumberMessage) {	
+  	isFloatField = setAsFloatMessage != null;
+  	isDoubleField = setAsDoubleMessage != null;
+  	isIcelandicSocialSecurityNumberField  = setAsIcelandicSocialSecurityNumberMessage != null;
+  	this.setAsFloatMessage = setAsFloatMessage;
+  	this.setAsDoubleMessage = setAsDoubleMessage;
+  	this.setAsIcelandicSocialSecurityNumberMessage = setAsIcelandicSocialSecurityNumberMessage;
   }
   
   public TextEditorConverter(Form externalForm) {
@@ -177,10 +195,13 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
       if (isRequestSender)	{
       	textInput.setInFocusOnPageLoad(true);
       }
-      if (setAsFloatMessage != null) {
+      if (isFloatField) {
         textInput.setAsFloat(setAsFloatMessage);
       }
-      else if (setAsIcelandicSocialSecurityNumberMessage != null) { 
+      else if (isDoubleField) {
+      	textInput.setAsDouble(setAsDoubleMessage);
+      }
+      else if (isIcelandicSocialSecurityNumberField) { 
         textInput.setAsIcelandicSSNumber(setAsIcelandicSocialSecurityNumberMessage);
         textInput.setAsNotEmpty(setAsIcelandicSocialSecurityNumberMessage);
       }
