@@ -30,7 +30,7 @@ public class EntityPropertyHandler {
   
   public final static String NUMBER_OF_ROWS_PER_PAGE_KEY = "number_of_rows_per_page";
   
-  public final static int DEFAULT_NUMBER_OF_ROWS_PER_PAGE = 1;
+  public final static int NUMBER_OF_ROWS_PER_PAGE_NOT_SET = -1;
   
   
   private Class entityClass = null;
@@ -121,7 +121,7 @@ public class EntityPropertyHandler {
   public int getNumberOfRowsPerPage() {
     String result = getValueFromProperty(getRootProperties(), NUMBER_OF_ROWS_PER_PAGE_KEY);
     if (result == null)
-      return DEFAULT_NUMBER_OF_ROWS_PER_PAGE;
+      return NUMBER_OF_ROWS_PER_PAGE_NOT_SET;
     return Integer.parseInt(result);
   } 
  
