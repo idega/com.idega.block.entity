@@ -21,7 +21,12 @@ import com.idega.presentation.ui.Form;
 
 /**
  * <p>Title: idegaWeb</p>
- * <p>Description: </p>
+ * <p>Description: 
+ * Special drop down menu converter for postal codes.
+ * This class is used without setting an option provider, just set a country or a country name to 
+ * define the list of postal codes that is shown.
+ * Note: Calling setOptionProvider(OptionProvider) does nothing.
+ * </p>
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: idega Software</p>
  * @author <a href="thomas@idega.is">Thomas Hilbig</a>
@@ -86,7 +91,7 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
    return (AddressBusiness) IBOLookup.getServiceInstance(iwc,AddressBusiness.class);
   }
       
-  // overwrites super method
+  /** overwrites super method */
   protected DropdownMenu getDropdownMenu(
       Object preselection, 
       String name,
@@ -115,6 +120,11 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
       }
     }
     return dropdownMenu;
+  }
+  
+  /** Overwritten method does nothing */
+  public void setOptionProvider(OptionProvider optionProvider)  {
+    // do nothing
   }
   
   public void setCountry(Country country) {
