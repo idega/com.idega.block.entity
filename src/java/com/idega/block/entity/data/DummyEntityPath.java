@@ -6,12 +6,20 @@ package com.idega.block.entity.data;
  */
 public class DummyEntityPath extends EntityPath {
   
+  public final String VALUE_OF_A_DUMMY_ENTITYPATH = "value_of_a_dummy_entity_path";
+  
   private String shortKey;
   
   public DummyEntityPath(String shortKey) {
-    super(null);
+    super(DummyEntityPath.class);
     this.shortKey = shortKey;
   }
+  
+  
+  public Object getValue()  {
+    return VALUE_OF_A_DUMMY_ENTITYPATH;
+  }
+  
   
   public  String getShortKey()  {
     return shortKey;

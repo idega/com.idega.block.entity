@@ -46,7 +46,6 @@ public class EntityBrowserPS extends IWPresentationStateImpl implements IWAction
       IWContext mainIwc = e.getIWContext();
       parameter = mainIwc.getParameter(EntityBrowser.NEW_SUBSET_KEY);
       entityName = ((EntityBrowserEvent)e).getEntityName();
-      // why is this important?
       this.fireStateChanged();
     }
     

@@ -37,6 +37,8 @@ public class EntityPropertyHandler {
   
   private SortedMap allEntityPathes = null;
   
+  private List defaultEntityPathes = null;
+  
   // cached value
   private IWPropertyList entityProperties = null;
   
@@ -61,7 +63,6 @@ public class EntityPropertyHandler {
   public static SortedMap getAllEntityPathes(Class entityClass) {    
       
     SortedMap map = EntityPath.getInstances(entityClass);
-    
     // add virtual entity pathes
     String[] virtualShortKeys = EntityPropertyDefaultValues.getVirtualShortKeys(entityClass.getName());
     if (virtualShortKeys == null)
@@ -72,19 +73,19 @@ public class EntityPropertyHandler {
     int i;
     for (i = 0; i < virtualShortKeys.length ; i++)  {
       String shortKey = virtualShortKeys[i];
-      EntityPath path = EntityPropertyHandler.getEntityPath(map, shortKey);
-      map.put(shortKey, path);
+      // if the short key is not a virtual path the short key possibly already exists
+      // (that depends on the search depth)
+      if (! map.containsKey(shortKey)) {
+        // does not exist add it 
+        EntityPath path = EntityPropertyHandler.getEntityPath(map, shortKey);
+        map.put(shortKey, path);
+      }
     }
     return map;     
       
   } 
- 
- 
- 
- 
- 
- 
- 
+  
+
   public List getVisibleOrderedEntityPathes() {
     List entityPathKeyNames = getListFromProperty(getRootProperties(), VISIBLE_COLUMN_KEY);
     Iterator iterator = entityPathKeyNames.iterator();
@@ -131,7 +132,6 @@ public class EntityPropertyHandler {
     return allEntityPathes;
   }
       
- 
 
   public String getEntityClassName() {
     return entityClass.getName();
@@ -144,8 +144,8 @@ public class EntityPropertyHandler {
     return EntityPropertyHandler.getEntityPath(map, shortKey);
   }
     
-  private static EntityPath getEntityPath(Map shortKeyPathDic, String shortKey)  {  
-    StringTokenizer tokenizer = new StringTokenizer(shortKey, EntityPath.NEXT_SHORT_KEY_DELIMITER);
+  protected static EntityPath getEntityPath(Map shortKeyPathDic, String shortKey)  {  
+    StringTokenizer tokenizer = new StringTokenizer(shortKey, EntityPath.SHORT_KEY_NEXT_ENTITY_PATH_DELIMITER);
     EntityPath firstPath = null;
     EntityPath lastPath = null;
     while (tokenizer.hasMoreTokens()) {

@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-import java.util.Vector;
 
 import javax.ejb.CreateException;
 
@@ -28,15 +27,19 @@ public class EntityPath {
   
   public final static String SERIALIZATION_DELIMITER = "@";
   
-  public final static String NEXT_ENTITY_PATH_DELIMITER = "#";
+  public final static String SERIALIZATION_NEXT_ENTITY_PATH_DELIMITER = "#";
   
-  public final static String NEXT_SHORT_KEY_DELIMITER = ":";
+  public final static String SHORT_KEY_NEXT_ENTITY_PATH_DELIMITER = ":";
   
-  public final static String ENTITY_NAME_COLUMN_NAME_DELIMITER = ".";
+  public final static String SHORT_KEY_ENTITY_NAME_COLUMN_NAME_DELIMITER = ".";
   
-  public final static String NEXT_DESCRIPTION_DELIMITER = "_";
+  public final static String SHORT_KEY_COLUMN_NAME_DELIMITER = "|";
   
-  private static int DEFAULT_SEARCH_DEPTH = 4;
+  public final static String DESCRIPTION_NEXT_ENTITY_PATH_DELIMITER = "+";
+  
+  public final static String DESCRIPTION_COLUMN_DELIMITER = ".";
+  
+  private static int DEFAULT_SEARCH_DEPTH = 4; 
   
   private Class sourceEntity = null;
   
@@ -63,7 +66,7 @@ public class EntityPath {
   public static EntityPath getInstance(String serialization) throws ClassNotFoundException  {
     EntityPath lastEntityPath = null;
     EntityPath firstEntityPath = null;
-    StringTokenizer entityPathTokenizer = new StringTokenizer(serialization, NEXT_ENTITY_PATH_DELIMITER);
+    StringTokenizer entityPathTokenizer = new StringTokenizer(serialization, SERIALIZATION_NEXT_ENTITY_PATH_DELIMITER);
     while (entityPathTokenizer.hasMoreElements()) {
       // build single entity path
       String singleEntityPathSerialization = entityPathTokenizer.nextToken();
@@ -149,7 +152,7 @@ public class EntityPath {
     if (nextEntityPath == null)
       return;
     // put a delimiter between the two objects  
-    stringBuffer.append(NEXT_ENTITY_PATH_DELIMITER);
+    stringBuffer.append(SERIALIZATION_NEXT_ENTITY_PATH_DELIMITER);
     nextEntityPath.getSerialization(stringBuffer);
   }
   
@@ -168,19 +171,30 @@ public class EntityPath {
   }
     
 
-  private void getShortKey(StringBuffer mainBuffer) {
+  private void getShortKey(StringBuffer buffer) {
     int lastIndex =  pathToEntity.size() - 1;
     if (lastIndex < 0)
       return;
-    StringBuffer buffer = new StringBuffer();
+    // add name of the target entity
     buffer
       .append(targetEntity.getName())
-      .append(ENTITY_NAME_COLUMN_NAME_DELIMITER)
-      .append((String) pathToEntity.get(lastIndex));
-    mainBuffer.append(buffer);
+      .append(SHORT_KEY_ENTITY_NAME_COLUMN_NAME_DELIMITER);
+    // add all column names of this entity path
+    Iterator iterator = pathToEntity.iterator();
+    boolean notTheFirstTime = false;
+    while (iterator.hasNext())  {
+      if (notTheFirstTime) 
+        // append this delimiter not the very first time
+        buffer.append(SHORT_KEY_COLUMN_NAME_DELIMITER);
+      else
+        notTheFirstTime = true;  
+      String columnName = (String) iterator.next();
+      buffer.append(columnName); 
+    }
+    // go to the next entity path
     if (nextEntityPath != null) {
-      mainBuffer.append(NEXT_SHORT_KEY_DELIMITER);
-      nextEntityPath.getShortKey(mainBuffer);
+      buffer.append(SHORT_KEY_NEXT_ENTITY_PATH_DELIMITER);
+      nextEntityPath.getShortKey(buffer);
     }
   }
 
@@ -198,16 +212,23 @@ public class EntityPath {
   
   
   
-  private void getDescription(StringBuffer mainBuffer)  {
+  private void getDescription(StringBuffer buffer)  {
+    // add target name (without package path)
     String targetClassName = targetEntity.getName();
     String classNameWithoutPath = targetClassName.substring(targetClassName.lastIndexOf(".") + 1);
-    String columnName = (String) pathToEntity.get(pathToEntity.size() - 1);
-    StringBuffer buffer = new StringBuffer();
-    buffer.append(classNameWithoutPath).append('.').append(columnName);
-    mainBuffer.append(buffer);
+    buffer.append(classNameWithoutPath);
+    buffer.append('.').append(pathToEntity.get(pathToEntity.size()-1));
+    // add all column names of this entity path
+    /*Iterator iterator = pathToEntity.iterator();
+    while (iterator.hasNext())  {
+      buffer.append(DESCRIPTION_COLUMN_DELIMITER);
+      String columnName = (String) iterator.next();
+      buffer.append(columnName); 
+    }*/
+    // add describtion of the next entity path
     if (nextEntityPath != null) {
-      mainBuffer.append(NEXT_DESCRIPTION_DELIMITER);
-      nextEntityPath.getDescription(mainBuffer);
+      buffer.append(DESCRIPTION_NEXT_ENTITY_PATH_DELIMITER);
+      nextEntityPath.getDescription(buffer);
     }
   }    
   
