@@ -40,6 +40,8 @@ public class EntityPath {
   
   private Class targetEntity = null;
   
+  private Class classOfValue = null;
+  
   private ArrayList pathToEntity = new ArrayList();
   
   private EntityPath nextEntityPath = null;
@@ -116,8 +118,12 @@ public class EntityPath {
     
   
   
-  public void setTargetEntity(Class targetEntityClass)  {
+  private void setTargetEntity(Class targetEntityClass)  {
     this.targetEntity = targetEntityClass;
+  }
+  
+  private void setClassOfValue(Class classOfValue)  {
+    this.classOfValue = classOfValue;
   }
   
   
@@ -237,7 +243,9 @@ public class EntityPath {
     return resourceBundle.getLocalizedString( description, description);
   }
 
-  /** Returns an object or null
+  /** Returns an object or null.
+   * This is the value of this instance without considering the next entity pathes.
+   * Do not use this method in convertes, use rather getValues(EntityRepresentation).
    * @return the value of this entity path without the next entity path
    */
   public Object getValue(EntityRepresentation entity)  {
@@ -264,9 +272,25 @@ public class EntityPath {
     return list;
   }
   
+  /** Returns the class of the value or if not detectable null (e.g. if this is an artificial path).
+   * This is the class of the value of this instance without considering the next entity pathes.
+   * Do not use this method in convertes, use rather getClassesOfValues(EntityRepresentation).
+   * @return the class of the value or null if the class is not detectable
+   */ 
+  public Class getClassOfValue()  {
+    return classOfValue;
+  }
+  
+  public List getClassesOfValues()  {
+    List list = new ArrayList();
+    getClassesOfValues(list);
+    return list;    
+  }
+  
   public Object clone() {
     EntityPath entityPath = new EntityPath(this.sourceEntity);
     entityPath.setTargetEntity(this.targetEntity);
+    entityPath.setClassOfValue(this.classOfValue);
     Iterator iterator = pathToEntity.iterator();
     while (iterator.hasNext()) 
       entityPath.add((String) iterator.next());
@@ -277,11 +301,20 @@ public class EntityPath {
         
     return entityPath;
   } 
+  
+  private void getClassesOfValues(List list) {
+    list.add(getClassOfValue());
+    if (nextEntityPath == null) {
+      return;
+    }
+    nextEntityPath.getClassOfValue();
+  }
 
   private void getValues(List list, EntityRepresentation entity)  {
     list.add(getValue(entity));
-    if (nextEntityPath == null)
+    if (nextEntityPath == null) {
       return;
+    }
     nextEntityPath.getValues(list, entity);
   }
 
@@ -309,7 +342,8 @@ public class EntityPath {
       currentPath.add(attribute.getColumnName());
       if (anEntityClass == null) {
         // finished!
-				currentPath.setTargetEntity(currentEntityClass);
+        currentPath.setClassOfValue(attribute.getStorageClass());
+		currentPath.setTargetEntity(currentEntityClass);
         // use shortKey as key for the returned HashMap
         pathes.put(currentPath.getShortKey(), currentPath);
       }
@@ -339,7 +373,7 @@ public class EntityPath {
     motherEntityPath.add(attribute.getColumnName());
     if (anEntityClass == null) {
       // finished!
-      // set description
+      motherEntityPath.setClassOfValue(attribute.getStorageClass());
       motherEntityPath.setTargetEntity(currentEntityClass);
     }
     else if (currentLayer < columnNames.size()) {
