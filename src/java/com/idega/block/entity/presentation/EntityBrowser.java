@@ -295,7 +295,22 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
         return;
       }
       else {
-        Class objectClass = (entities.iterator()).next().getClass();
+        // sometimes entities is a collection of collections
+        Class objectClass;
+        Object object = entities.iterator().next();
+        if (object instanceof Collection) {
+          Collection coll = (Collection) object;
+          if  (! coll.isEmpty())  {
+            objectClass = coll.iterator().next().getClass();
+          }
+          else  {
+            setErrorContent(resourceBundle);
+            return;
+          }
+        }
+        else  {
+          objectClass = object.getClass();
+        }
         Class[] interfaces = objectClass.getInterfaces();
         if (interfaces.length > 0)  {
           Class firstInterfaceClass = interfaces[0];
@@ -315,8 +330,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     }
     catch (ClassNotFoundException e)  {
       System.err.println("[EntityBrowser] Class was not recognized: " + leadingEntityName + " Message was: " +
-        e.getMessage());
-      // e.getStackTrace(System.err);      setErrorContent(resourceBundle);
+      e.getMessage());
+      // e.printStackTrace(System.err);
+      setErrorContent(resourceBundle);
       return;
     }
     if (entityNames != null)  {
@@ -326,10 +342,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
           multiPropertyHandler.addEntity((String) iterator.next());
         }
         catch (ClassNotFoundException e)  {
-        // do not show the error content, continue!
+          // do not show the error content, continue!
           System.err.println("[EntityBrowser] Class was not recognized: " + leadingEntityName + " Message was: " +
           e.getMessage());
-          //e.getStackTrace(System.err);
+          //e.printStackTrace(System.err);
         }
       }
     }
@@ -439,7 +455,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     
     int y = 2;
     while (entitySetIterator.hasNextInSet()) {
-      GenericEntity genericEntity = (GenericEntity) entitySetIterator.next();
+      Object genericEntity = entitySetIterator.next();
       Iterator visibleOrderedEntityPathesIterator = visibleOrderedEntityPathes.iterator();
       // set color of rows
 			setColorForRow(y);
@@ -447,7 +463,6 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       // fill columns
       while (visibleOrderedEntityPathesIterator.hasNext())  {
         EntityPath path = (EntityPath) visibleOrderedEntityPathesIterator.next();
-
         EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(path); 
         PresentationObject presentation = converter.getPresentationObject(genericEntity, path, iwc);
         add(presentation, xAnchorPosition + x, yAnchorPosition + y);
@@ -628,7 +643,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   public static EntityToPresentationObjectConverter getDefaultConverter() {
     return new EntityToPresentationObjectConverter() {
             
-      public PresentationObject getPresentationObject(GenericEntity genericEntity, EntityPath path, IWContext iwc)  {
+      public PresentationObject getPresentationObject(Object genericEntity, EntityPath path, IWContext iwc)  {
         StringBuffer displayValues = new StringBuffer();
         List list = path.getValues((GenericEntity) genericEntity);
         Iterator valueIterator = list.iterator();
