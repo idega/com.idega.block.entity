@@ -314,9 +314,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       multiPropertyHandler = new MultiEntityPropertyHandler(iwc, leadingEntityName);
     }
     catch (ClassNotFoundException e)  {
-      System.out.println("[EntityBrowser] Class was not recognized: " + leadingEntityName + " Message was: " +
+      System.err.println("[EntityBrowser] Class was not recognized: " + leadingEntityName + " Message was: " +
         e.getMessage());
-      System.err.println(e.getStackTrace());      setErrorContent(resourceBundle);
+      // e.getStackTrace(System.err);      setErrorContent(resourceBundle);
       return;
     }
     if (entityNames != null)  {
@@ -327,9 +327,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
         }
         catch (ClassNotFoundException e)  {
         // do not show the error content, continue!
-          System.out.println("[EntityBrowser] Class was not recognized: " + leadingEntityName + " Message was: " +
+          System.err.println("[EntityBrowser] Class was not recognized: " + leadingEntityName + " Message was: " +
           e.getMessage());
-          System.err.println(e.getStackTrace());
+          //e.getStackTrace(System.err);
         }
       }
     }
