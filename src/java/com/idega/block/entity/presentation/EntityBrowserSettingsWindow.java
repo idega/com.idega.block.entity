@@ -10,6 +10,7 @@ import java.util.SortedMap;
 import com.idega.block.entity.business.EntityPropertyHandler;
 import com.idega.block.entity.business.MultiEntityPropertyHandler;
 import com.idega.block.entity.data.EntityPath;
+import com.idega.idegaweb.IWConstants;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.idegaweb.IWUserContext;
 import com.idega.idegaweb.presentation.IWAdminWindow;
@@ -64,7 +65,7 @@ public class EntityBrowserSettingsWindow extends IWAdminWindow {
   public EntityBrowserSettingsWindow() {
     setResizable(true);
     setWidth(700);
-    setHeight(230);
+    setHeight(430);
   }
   
   public String getBundleIdentifier(){
@@ -121,6 +122,11 @@ public class EntityBrowserSettingsWindow extends IWAdminWindow {
 
     
   public void main(IWContext iwc){
+    // get resource bundle 
+    IWResourceBundle iwrb = getResourceBundle(iwc);
+    setTitle(iwrb.getLocalizedString("settings", "Settings"));
+    addTitle(iwrb.getLocalizedString("settings", "Settings"), IWConstants.BUILDER_FONT_STYLE_TITLE);
+    
     if (! initialize(iwc))
       setErrorContent();
     if (! doAction(iwc))
