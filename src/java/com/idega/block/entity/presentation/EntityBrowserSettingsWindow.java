@@ -11,7 +11,6 @@ import java.util.TreeMap;
 import com.idega.block.entity.business.EntityPropertyHandler;
 import com.idega.block.entity.business.MultiEntityPropertyHandler;
 import com.idega.block.entity.data.EntityPath;
-import com.idega.idegaweb.IWConstants;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.idegaweb.IWUserContext;
 import com.idega.idegaweb.help.presentation.Help;
@@ -163,7 +162,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     // get resource bundle 
     IWResourceBundle iwrb = getResourceBundle(iwc);
     setTitle(iwrb.getLocalizedString("settings", "Settings"));
-    addTitle(iwrb.getLocalizedString("settings", "Settings"), IWConstants.BUILDER_FONT_STYLE_TITLE);
+    addTitle(iwrb.getLocalizedString("settings", "Settings"), TITLE_STYLECLASS);
     
     if (! initialize(iwc))
       setErrorContent();
