@@ -230,8 +230,11 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     	Iterator optionShortKeysIterator = optionShortKeys.iterator();
     	while (optionShortKeysIterator.hasNext())  {
     		String shortKey = (String) optionShortKeysIterator.next();
-    		EntityPath path = multiEntityPropertyHandler.getEntityPath(shortKey);
-    		allPathes.put(shortKey, path);
+    		// do not add pathes that are default pathes (they are handled later)
+    		if (! defaultShortKeys.contains(shortKey)) {
+    			EntityPath path = multiEntityPropertyHandler.getEntityPath(shortKey);
+    			allPathes.put(shortKey, path);
+    		}
     	}
     }
     return true;
