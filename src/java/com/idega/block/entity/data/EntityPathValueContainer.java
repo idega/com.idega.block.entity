@@ -35,7 +35,9 @@ public class EntityPathValueContainer {
   }
   
   public EntityPathValueContainer(String entityPathShortKey, Integer entityId)  {
-    this(entityPathShortKey, entityId, null);
+    this.entityPathShortKey = entityPathShortKey;
+    this.entityId = entityId;
+    valueIsSet = false;
   }
 
   public EntityPathValueContainer(String entityPathShortKey, Integer entityId, Object value)  {
