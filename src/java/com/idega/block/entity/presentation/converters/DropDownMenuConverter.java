@@ -184,20 +184,30 @@ public class DropDownMenuConverter
     } 
     else {
       // show link
-      return getLink(value, uniqueKeyLink, id.toString(), browser, iwc);
+      return getLink(value, uniqueKeyLink, entity,  id.toString(), path, browser, iwc);
       
     }
       
   }
   
-  protected PresentationObject getLink(Object value, String uniqueKeyLink, String id, EntityBrowser browser, IWContext iwc)  {
-  	
-    String display = (value!=null) ? value.toString() : "";
-    display = (display.length() == 0) ? "_" : display;
-    if (! editable) {
-      return new Text(display);
+  protected PresentationObject getLink(
+      Object value, 
+      String uniqueKeyLink, 
+      Object entity,
+      String id,  
+      EntityPath path, 
+      EntityBrowser browser, 
+      IWContext iwc)  {
+  	Map options = (optionProvider == null) ? new HashMap(0) : optionProvider.getOptions(entity,path,browser,iwc);  
+    String valueAsString = (value!=null) ? value.toString() : "";
+    String displayFromOptions = (String) options.get(valueAsString);
+    if (displayFromOptions == null || displayFromOptions.length() == 0) {
+      displayFromOptions = "_";
     }
-    Link link = new Link(display);
+    if (! editable) {
+      return new Text(displayFromOptions);
+    }
+    Link link = new Link(displayFromOptions);
     if (workWithExternalSubmitButton) {
       link.addParameter(ConverterConstants.EDIT_ENTITY_KEY, id);
     }
