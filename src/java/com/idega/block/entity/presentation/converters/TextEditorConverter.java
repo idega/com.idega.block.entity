@@ -5,9 +5,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import com.idega.block.entity.business.EntityToPresentationObjectConverter;
 import com.idega.block.entity.data.EntityPath;
+import com.idega.block.entity.data.EntityPathValueContainer;
 import com.idega.block.entity.presentation.EntityBrowser;
 import com.idega.data.GenericEntity;
 import com.idega.data.IDOEntity;
@@ -33,9 +35,32 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
   private static final String LINK_KEY = "te_link";
   private static final String TEXTINPUT_KEY = "te_textinput";
   private static final String SUBMIT_KEY = "te_submit";
+  private static final char DELIMITER = '|';
   
   private Map maintainParameterMap = new HashMap(0);
   private List maintainParameterList = new ArrayList(0);
+
+  public static EntityPathValueContainer getResultByParsing(IWContext iwc) {
+    EntityPathValueContainer container = new EntityPathValueContainer();
+    String submitKey = getGeneralSubmitKey();
+    String action = "";
+    if (iwc.isParameterSet(submitKey))  {
+      action = iwc.getParameter(submitKey);
+      StringTokenizer tokenizer = new StringTokenizer(action, Character.toString(DELIMITER));
+      if (tokenizer.hasMoreTokens())  {
+        container.setEntityPathShortKey(tokenizer.nextToken());
+      }
+      if (tokenizer.hasMoreTokens())  {
+        container.setEntityId(tokenizer.nextToken());
+      }
+      String key = getUniqueKey(container.getEntityId(), container.getEntityPathShortKey()).toString();
+      if (iwc.isParameterSet(key))  {
+        Object value = iwc.getParameter(key);
+        container.setValue(value);
+      }
+    }
+    return container;
+  }
 
   /* (non-Javadoc)
    * @see com.idega.block.entity.business.EntityToPresentationObjectConverter#getHeaderPresentationObject(com.idega.block.entity.data.EntityPath, com.idega.block.entity.presentation.EntityBrowser, com.idega.presentation.IWContext)
@@ -69,13 +94,16 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
     Object object = path.getValue((GenericEntity) entity);
     String text = (object == null) ? "" : object.toString();      
     Integer id = (Integer) idoEntity.getPrimaryKey();
-    String uniqueKeyLink = getLinkUniqueKey(id, path);
+    String shortKeyPath = path.getShortKey();
+    
+    String uniqueKeyLink = getLinkUniqueKey(id, shortKeyPath);
     // decide to show a link or a text inputfield
     if (iwc.isParameterSet(uniqueKeyLink)) {
       // show text input with submitButton
-      String uniqueKeyTextInput = getTextInputUniqueKey(id, path);
+      String uniqueKeyTextInput = getTextInputUniqueKey(id, shortKeyPath);
       TextInput textInput = new TextInput( uniqueKeyTextInput, text);
-      SubmitButton button = new SubmitButton(getSubmittUniqueKey(id, path), "OK");
+      SubmitButton button = new SubmitButton(getGeneralSubmitKey(), "OK");
+      button.setValue(this.getUniqueKey(id, shortKeyPath).toString());
       // add maintain parameters
       Iterator iterator = maintainParameterMap.entrySet().iterator();
       while (iterator.hasNext())  {
@@ -109,24 +137,30 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
       
   }
 
-  private String getLinkUniqueKey(Integer id, EntityPath path)  {
-    StringBuffer buffer = getUniqueKey(id, path).append(LINK_KEY);
+  private String getLinkUniqueKey(Integer id, String shortKeyOfPath)  {
+    StringBuffer buffer = getUniqueKey(id, shortKeyOfPath).append(DELIMITER).append(LINK_KEY);
     return buffer.toString();
   }
 
-  private String getTextInputUniqueKey(Integer id, EntityPath path)  {
-    StringBuffer buffer = getUniqueKey(id, path).append(TEXTINPUT_KEY);
+  private static String getTextInputUniqueKey(Integer id, String shortKeyOfPath)  {
+    StringBuffer buffer = getUniqueKey(id, shortKeyOfPath).append(DELIMITER).append(TEXTINPUT_KEY);
     return buffer.toString();
   }
   
-  private String getSubmittUniqueKey(Integer id, EntityPath path)  {
-    StringBuffer buffer = getUniqueKey(id, path).append(SUBMIT_KEY);
-    return buffer.toString();
+  private static String getGeneralSubmitKey()  {
+    return SUBMIT_KEY;
   }  
   
   
-  private StringBuffer getUniqueKey(Integer id, EntityPath path) {
-    StringBuffer buffer = new StringBuffer(path.getShortKey());
+  private static StringBuffer getUniqueKey(Integer id, String shortKeyOfPath) {
+    if (id == null) {
+      id = new Integer(-1);
+    }
+    if (shortKeyOfPath == null || shortKeyOfPath.length() == 0) {
+      shortKeyOfPath = "dummy";
+    }
+    StringBuffer buffer = new StringBuffer(shortKeyOfPath);
+    buffer.append(DELIMITER);
     buffer.append(id);
     return buffer;
   }
