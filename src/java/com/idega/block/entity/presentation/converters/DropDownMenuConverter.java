@@ -226,7 +226,7 @@ public class DropDownMenuConverter
       EntityBrowser browser,
       IWContext iwc)  {
     Map options = (optionProvider == null) ? new HashMap(0) : optionProvider.getOptions(entity,path,browser,iwc);  
-    Object value = path.getValue((EntityRepresentation) entity);
+    Object value = getValue(entity, path, browser, iwc);
     String valueAsString = (value!=null) ? value.toString() : "";
     String displayFromOptions = (String) options.get(valueAsString);
     if (displayFromOptions == null || displayFromOptions.length() == 0) {
