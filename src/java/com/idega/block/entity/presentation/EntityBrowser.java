@@ -691,6 +691,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     panelTable.add(table , 3, 1);
     // now add the table in the row that was created by merging the cells of the last row
     add(panelTable, panelBeginxpos, panelBeginypos);
+    if (useExternalForm)	{
+    	  HiddenInput hiddenInputRequestFrom = new HiddenInput(formKey + REQUEST_KEY);
+    	  add(hiddenInputRequestFrom);
+    }
   }     
     
     
@@ -917,9 +921,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       else if (allEntitiesWereShown && showAllEntitiesHeader && showAllEntitiesBottom) {
         showAllEntities = true;
       }
-      // condition below is not tested very well...
-      else if (allEntitiesWereShown && showAllEntitiesBottom) {
-        showAllEntities = true;
+      else if( allEntitiesWereShown && !headerFormExists && showAllEntitiesBottom) {
+      	showAllEntities = true;
       }
       else {
         showAllEntities = false;
