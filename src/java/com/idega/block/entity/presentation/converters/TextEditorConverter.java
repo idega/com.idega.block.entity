@@ -46,7 +46,7 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
     String action = "";
     if (iwc.isParameterSet(submitKey))  {
       action = iwc.getParameter(submitKey);
-      StringTokenizer tokenizer = new StringTokenizer(action, Character.toString(DELIMITER));
+      StringTokenizer tokenizer = new StringTokenizer(action, String.valueOf(DELIMITER));
       if (tokenizer.hasMoreTokens())  {
         container.setEntityPathShortKey(tokenizer.nextToken());
       }
