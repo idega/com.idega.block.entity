@@ -19,6 +19,7 @@ public class EntityPathValueContainer {
 
   private String entityPathShortKey;
   private Object value;
+  private Object previousValue = null;
   private Integer entityId;
   
   public EntityPathValueContainer() {
@@ -32,14 +33,21 @@ public class EntityPathValueContainer {
   public EntityPathValueContainer(String entityPathShortKey, Integer entityId)  {
     this(entityPathShortKey, entityId, null);
   }
-  
+
   public EntityPathValueContainer(String entityPathShortKey, Integer entityId, Object value)  {
+    this(entityPathShortKey, entityId, value, null);  
+  }
+  
+  public EntityPathValueContainer(String entityPathShortKey, Integer entityId, Object value, Object previousValue)  {
     this.entityPathShortKey = entityPathShortKey;
     this.entityId = entityId;
     this.value = value;
+    this.previousValue = previousValue;
   }
   
-  
+  /**
+   * Previous value needn't to be set.
+   */
   public boolean isValid()  {
     if (entityPathShortKey == null || entityPathShortKey.length() == 0) {
       return false;
@@ -99,6 +107,20 @@ public class EntityPathValueContainer {
    */
   public void setValue(Object object) {
     value = object;
+  }
+
+  /**
+   * @return
+   */
+  public Object getPreviousValue() {
+    return previousValue;
+  }
+
+  /**
+   * @param object
+   */
+  public void setPreviousValue(Object object) {
+    previousValue = object;
   }
 
 }
