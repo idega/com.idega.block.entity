@@ -349,29 +349,8 @@ public class EntityPath {
   }  
 
 
-  /** Return null if the entity could not be found */
-	private static GenericEntity getEntity(Class currentEntityClass) {
-		IDOHome home;
-		GenericEntity entity;
-		try {
-		  home = IDOLookup.getHome(currentEntityClass);
-		}
-		catch (RemoteException e) {
-		  System.err.println("Can not look up " + 
-		    currentEntityClass.getName() + " " +
-		    e.getMessage());
-		    e.printStackTrace(System.err);
-		    return null;
-		}
-		try {
-		  entity = (GenericEntity) home.createIDO();
-		}
-		catch (CreateException e) {
-		  System.err.println("Create did not work."+ e.getMessage());
-		  e.printStackTrace(System.err);
-		  return null;      
-		}
-		return entity;
+  private static GenericEntity getEntity(Class currentEntityClass) {
+    return (GenericEntity) GenericEntity.getStaticInstance(currentEntityClass);
 	}  
 
 }
