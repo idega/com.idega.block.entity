@@ -481,7 +481,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // "previous subset" will no be performed again.
     parseAndDoAction(iwc, state, formerStateOfIterator, entityIterator);
     // set size of table
-    int necessaryRows = entityIterator.getQuantity();
+    int necessaryRows = entityIterator.sizeSet();
     int necessaryColumns = visibleOrderedEntityPathes.size();
     if (showMirroredView) {
       int temp = necessaryColumns;
