@@ -3,6 +3,7 @@ package com.idega.block.entity.presentation;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
@@ -12,6 +13,7 @@ import javax.swing.event.ChangeListener;
 
 
 import com.idega.block.entity.business.EntityPropertyHandler;
+import com.idega.block.entity.business.EntityToPresentationObjectConverter;
 import com.idega.block.entity.data.EntityPath;
 import com.idega.block.entity.event.EntityBrowserEvent;
 import com.idega.block.entity.event.EntityBrowserPS;
@@ -21,6 +23,7 @@ import com.idega.business.IBOLookup;
 import com.idega.data.GenericEntity;
 import com.idega.event.IWActionListener;
 
+import com.idega.event.IWPresentationEvent;
 import com.idega.event.IWPresentationState;
 import com.idega.event.IWStateMachine;
 
@@ -33,6 +36,7 @@ import com.idega.presentation.PresentationObject;
 import com.idega.presentation.StatefullPresentation;
 import com.idega.presentation.Table;
 import com.idega.presentation.text.Link;
+import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.Form;
 import com.idega.presentation.ui.SubmitButton;
 import com.idega.user.app.UserApplication;
@@ -81,14 +85,20 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   private IWPresentationState presentationState = null;
   
- 
-  
+  // map of converters
+  private HashMap entityToPresentationConverters = null;
+
+  // the default converter just shows a text  
+  private EntityToPresentationObjectConverter defaultConverter = null;
   
   // use tree map because of the order of the elements
   private TreeMap defaultColumns = new TreeMap();
   
+  private TreeMap mandatoryColumns = new TreeMap();
+  
   private int defaultNumberOfRowsPerPage = 1;
   
+  private boolean useExternalForm = true;
   
   
   public void setDefaultNumberOfRows(int defaultNumberOfRows) {
@@ -101,7 +111,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   public void setEntity(String entityName)  {
     this.entityName = entityName;
   }
- 
+  
   
   /** this method should only be used by the IWPropertyHandler 
    *  It provides the drop down menu in the property handler 
@@ -163,6 +173,12 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   public void setDefaultColumns(int orderNumber, String entityPathShortKey)  {
     defaultColumns.put(Integer.toString(orderNumber), entityPathShortKey);    
   }  
+
+  public void setMandatoryColumns(int orderNumber, String entityPathShortKey) {
+    defaultColumns.put(Integer.toString(orderNumber), entityPathShortKey);  
+  }
+
+
     
   public void setEntities(Collection entities)  {
     this.entities = entities;
@@ -178,7 +194,37 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     return EntityBrowser.IW_BUNDLE_IDENTIFIER;
   }
   
+  public void setEntityToPresentationConverter(String pathShortKey, EntityToPresentationObjectConverter converter) {
+    // lazy initialization (in most cases you do not need this map)
+    if (entityToPresentationConverters == null)
+      entityToPresentationConverters = new HashMap();
+    entityToPresentationConverters.put(pathShortKey, converter);
+  }
+  
+  public EntityToPresentationObjectConverter getEntityToPresentationConverter(String pathShortKey)  {
+    EntityToPresentationObjectConverter converter;
+    if  (entityToPresentationConverters == null ||
+        (converter = (EntityToPresentationObjectConverter) 
+          entityToPresentationConverters.get(pathShortKey)) == null)
+      return getMyDefaultConverter(); 
+    return converter;
+  }
 
+
+  public IWPresentationEvent getPresentationEvent() { 
+    EntityBrowserEvent model = new  EntityBrowserEvent();
+    //EntityBrowserEvent model = (EntityBrowserEvent)initEvent(iwc,EntityBrowserEvent.class);
+    // necessary: set source!
+    //////model.setSource(myLocation);
+    /////model.setSource(presentationState.getLocation());
+    //model.setSource(getLocation());
+    model.setSource(this);
+    model.setEntityName(entityName);
+    String id = IWMainApplication.getEncryptedClassName(UserApplication.Top.class);
+    id = PresentationObject.COMPOUNDID_COMPONENT_DELIMITER + id;
+    model.setController(id);
+    return model;
+  }
     
   public void main(IWContext iwc) throws Exception { 
     
@@ -257,7 +303,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     setSize(necessaryColumns, necessaryRows);
             
     // get now the table    
-    fillEntityTable(resourceBundle, visibleOrderedEntityPathes , entityIterator);
+    fillEntityTable(resourceBundle, visibleOrderedEntityPathes , entityIterator, iwc);
     
     // get the last row and merge it
     int beginxpos = xAnchorPosition + 1;
@@ -278,34 +324,20 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // get back and forward buttons
     Table goAndBackButton = getForwardAndBackButtons(resourceBundle, currentStateOfIterator, entityIterator.hasNextSet(), entityIterator.hasPreviousSet());   
     // create Form
-    Form form = new Form();
-    form.add(goAndBackButton);
     // add parameters for event handling (if the event model is used)
-    // create an event
-    EntityBrowserEvent model = new  EntityBrowserEvent();
-    //EntityBrowserEvent model = (EntityBrowserEvent)initEvent(iwc,EntityBrowserEvent.class);
-    // necessary: set source!
-    //////model.setSource(myLocation);
-    /////model.setSource(presentationState.getLocation());
-    //model.setSource(getLocation());
-    model.setSource(this);
-    model.setEntityName(entityName);
-    String id = IWMainApplication.getEncryptedClassName(UserApplication.Top.class);
-    id = PresentationObject.COMPOUNDID_COMPONENT_DELIMITER + id;
-    model.setController(id);
-    //////////////////////////////////model.setControlFrameTarget("iwb_top");
-    form.addEventModel(model, iwc);
-    //form.setTarget("iwb_top");
-    //form.setTarget("_top");
-    //form.setTarget("iwb_main");
-    ////////form.setPageToSubmitTo(id);
-    ////////String decript = IWMainApplication.getEncryptedClassName(UserApplicationMainArea.class);
-    //String decript = IWMainApplication.getEncryptedClassName(BasicUserOverview.class);  // former UserApplication
-    //form.addParameter(Page.IW_FRAME_CLASS_PARAMETER, decript);
-    ///////form.sendToControllerFrame();
-    table.add(form, 3,1);
+    if (! useExternalForm)  {
+      Form form = new Form();
+      form.addEventModel(getPresentationEvent(), iwc);
+      form.add(goAndBackButton);
+      table.add(form, 3, 1);
+    }
+    else  {
+      table.add(goAndBackButton, 3, 1); 
+    }
+    
     // now add the table in the row that was created by merging the cells of the last row
     add(table, beginxpos, beginypos);
+    
   }
 
 
@@ -320,7 +352,12 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 		  setRows(rows);
 	}
     
-  private  void fillEntityTable(IWResourceBundle resourceBundle, List visibleOrderedEntityPathes, SetIterator entitySetIterator)  {
+  private  void fillEntityTable(
+      IWResourceBundle resourceBundle, 
+      List visibleOrderedEntityPathes, 
+      SetIterator entitySetIterator,
+      IWContext iwc)  
+    {
     // build table
 
     Iterator iterator = visibleOrderedEntityPathes.iterator();
@@ -342,18 +379,14 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       GenericEntity genericEntity = (GenericEntity) entitySetIterator.next();
       Iterator visibleOrderedEntityPathesIterator = visibleOrderedEntityPathes.iterator();
       int x = 1;
+      // fill columns
       while (visibleOrderedEntityPathesIterator.hasNext())  {
         EntityPath path = (EntityPath) visibleOrderedEntityPathesIterator.next();
-        StringBuffer displayValues = new StringBuffer();
-        List list = path.getValues(genericEntity);
-        Iterator valueIterator = list.iterator();
-        while (valueIterator.hasNext()) {
-          Object object = valueIterator.next();
-          // if there is no entry the object is null
-          object = (object == null) ? "" : object;  
-          displayValues.append(object.toString());  
-        }
-        add(displayValues.toString(), xAnchorPosition + x, yAnchorPosition + y);
+
+        EntityToPresentationObjectConverter converter = 
+          getEntityToPresentationConverter(path.getShortKey()); 
+        PresentationObject presentation = converter.getPresentationObject(genericEntity, path, iwc);
+        add(presentation, xAnchorPosition + x, yAnchorPosition + y);
         // next column
         x++; 
       }
@@ -418,7 +451,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     table.add(goForwardButton, 2, 1);
     return table;
   }    
-
+  
   private Table getInfo(IWResourceBundle resourceBundle, SetIterator setIterator)  {
     int firstIndex = setIterator.currentFirstIndexSet() + 1;
     int lastIndex = setIterator.currentLastIndexSet() + 1;
@@ -478,20 +511,25 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
   
   private List getVisibleOrderedEntityPathes(EntityPropertyHandler propertyHandler)  {
-    List list = propertyHandler.getVisibleOrderedEntityPathes();
-    if (! list.isEmpty()) 
-      return list;
-    // list is empty...  
+    List columnsSetByUserList = propertyHandler.getVisibleOrderedEntityPathes();
+    // use arrayList because the returned collection of a tree map does not support add operations
+    List mandatoryColumns = new ArrayList(this.mandatoryColumns.values());
+    // columnsSetByUserList is empty...  
     // there are no visible columns set by the user, therefore show the default columns  
     // default columns is a tree map values returns an ordered collection
-    Collection coll = defaultColumns.values();
-    Iterator defaultColumnsIterator = coll.iterator();
-    while (defaultColumnsIterator.hasNext()) {
-      String shortKey = (String) defaultColumnsIterator.next();
+    if (columnsSetByUserList.isEmpty()) {
+      Collection defaultColumns = this.defaultColumns.values();
+      mandatoryColumns.addAll(defaultColumns);
+    }
+    List list = new ArrayList();
+    Iterator mandatoryColumnsIterator = mandatoryColumns.iterator();
+    while (mandatoryColumnsIterator.hasNext()) {
+      String shortKey = (String) mandatoryColumnsIterator.next();
       EntityPath path = propertyHandler.getEntityPath(shortKey);
       if (path != null)
         list.add(path);
     }
+    list.addAll(columnsSetByUserList);
     return list;
   }           
   
@@ -503,8 +541,35 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // there are no rows set by the user, therefore show the default size
     return defaultNumberOfRowsPerPage;
   }
+  
+  
+  private EntityToPresentationObjectConverter getMyDefaultConverter()  {
+    if (defaultConverter == null) 
+      defaultConverter = EntityBrowser.getDefaultConverter(); 
+    return defaultConverter;
+  }
+    
+
+  public static EntityToPresentationObjectConverter getDefaultConverter() {
+    return new EntityToPresentationObjectConverter() {
+            
+      public PresentationObject getPresentationObject(GenericEntity genericEntity, EntityPath path, IWContext iwc)  {
+        StringBuffer displayValues = new StringBuffer();
+        List list = path.getValues((GenericEntity) genericEntity);
+        Iterator valueIterator = list.iterator();
+        while (valueIterator.hasNext()) {
+          Object object = valueIterator.next();
+          // if there is no entry the object is null
+          object = (object == null) ? "" : object;  
+          displayValues.append(object.toString());  
+        }          
+        return new Text(displayValues.toString());
+      }
+    };        
+  }
 
 
+  
   
   /** this method is used for the event model */
   public IWPresentationState getPresentationState(IWUserContext iwuc){

@@ -26,15 +26,15 @@ import com.idega.idegaweb.IWResourceBundle;
  */
 public class EntityPath {
   
-  private final static String SERIALIZATION_DELIMITER = "@";
+  public final static String SERIALIZATION_DELIMITER = "@";
   
-  private final static String NEXT_ENTITY_PATH_DELIMITER = "#";
+  public final static String NEXT_ENTITY_PATH_DELIMITER = "#";
   
   public final static String NEXT_SHORT_KEY_DELIMITER = ":";
   
-  private final static String ENTITY_NAME_COLUMN_NAME_DELIMITER = ".";
+  public final static String ENTITY_NAME_COLUMN_NAME_DELIMITER = ".";
   
-  private final static String NEXT_DESCRIPTION_DELIMITER = "_";
+  public final static String NEXT_DESCRIPTION_DELIMITER = "_";
   
   private static int DEFAULT_SEARCH_DEPTH = 4;
   
@@ -49,6 +49,7 @@ public class EntityPath {
   public EntityPath(Class sourceEntity) {
     this.sourceEntity = sourceEntity;
   }
+  
   
   public static SortedMap getInstances(Class sourceEntity) {
     return getInstances(DEFAULT_SEARCH_DEPTH, sourceEntity);
@@ -351,6 +352,5 @@ public class EntityPath {
 		}
 		return entity;
 	}  
-  
 
 }

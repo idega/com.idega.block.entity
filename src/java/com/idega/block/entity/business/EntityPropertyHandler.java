@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 
+import com.idega.block.entity.data.DummyEntityPath;
 import com.idega.block.entity.data.EntityPath;
 import com.idega.block.entity.data.EntityPropertyDefaultValues;
 import com.idega.block.entity.presentation.EntityBrowser;
@@ -150,10 +151,12 @@ public class EntityPropertyHandler {
     while (tokenizer.hasMoreTokens()) {
       String singleShortKey = tokenizer.nextToken();
       EntityPath path = (EntityPath) shortKeyPathDic.get(singleShortKey);
-      // do not use the original one !
-      path = (EntityPath) path.clone();
+      // sometimes the shortkey could not be resolved
+      // return DummyEntityPath 
       if (path == null)
-        return null;
+        return new DummyEntityPath(shortKey);
+      // do not use the original one !
+      path = (EntityPath) path.clone();  
       if (firstPath == null)
         firstPath = path;
       else 
