@@ -675,24 +675,26 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     int panelEndxpos = xAnchorPosition + bottomRightCornerX;
     int panelEndypos = panelBeginypos;
     // merge cell
-    mergeCells(panelBeginxpos, panelBeginypos, panelEndxpos, panelEndypos);
+
     // create table
     Table panelTable = new Table(3,1);
     // add settings 
-    panelTable.add(getSettingsButton(resourceBundle),2,1);
+    // panelTable.add(getSettingsButton(resourceBundle),2,1);
     // add show all check box
     Table showAllTable = getShowAllCheckBox(formKey, enableBack, enableForward, resourceBundle);
     if (showAllTable != null) {
       panelTable.add(showAllTable,1,1);   
-    }
+      mergeCells(panelBeginxpos, panelBeginypos, panelEndxpos, panelEndypos);
+    
     // add additional presentation objects
     //Table table = getAdditionalPresentationObjects();
     //panelTable.add(table , 3, 1);
     // now add the table in the row that was created by merging the cells of the last row
-    add(panelTable, panelBeginxpos, panelBeginypos);
-    if (useExternalForm)	{
-    	  HiddenInput hiddenInputRequestFrom = new HiddenInput(formKey + REQUEST_KEY);
-    	  add(hiddenInputRequestFrom);
+    	add(panelTable, panelBeginxpos, panelBeginypos);
+    	if (useExternalForm)	{
+    	  	HiddenInput hiddenInputRequestFrom = new HiddenInput(formKey + REQUEST_KEY);
+    	  	add(hiddenInputRequestFrom);
+    	}
     }
   }     
     
