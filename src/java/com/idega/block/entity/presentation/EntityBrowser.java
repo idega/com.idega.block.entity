@@ -116,6 +116,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   // collection of entities that serves as source of the content  
   private Collection entities = null;
   
+  // collection of presentation objects that are added to the last row of the entity browser (e.g. delete buttons)
+  private Collection additionalPresentationObjects = null;
+  
   // an unique key for the collection 
   // (only important if you use more than one entityBrowser on a web site)  
   private String keyForEntityCollection = "";
@@ -350,6 +353,13 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     model.setController(id);
     return model;
   }
+  
+  public void addPresentationObjectToBottom(PresentationObject presentationObject) {
+    if (additionalPresentationObjects == null)  {
+      additionalPresentationObjects = new ArrayList();
+    }
+    additionalPresentationObjects.add(presentationObject);
+  }
     
   public void main(IWContext iwc) throws Exception { 
     super.main(iwc);
@@ -477,7 +487,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
                           enableBack, 
                           enableForward,
                           1,
-                          necessaryColumns);
+                          necessaryColumns,
+                          false);
     }
     boolean showBottomNavigationPanel =
       (showBottomNavigation 
@@ -493,30 +504,80 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
                         enableBack, 
                         enableForward,
                         necessaryRows,
-                        necessaryColumns);
+                        necessaryColumns,
+                        true);
     }
     // special case:
     // if both panel were not set, set the settings button now...
     if (!showHeaderNavigationPanel && !showBottomNavigationPanel) {
-      setOnlySettingsButton(resourceBundle,necessaryRows,necessaryColumns);
+      setOnlySettingsButton(BOTTOM_FORM_KEY, enableBack, enableForward, resourceBundle,necessaryRows,necessaryColumns);
+    }
+    // special case:
+    // if only the header panel was set, set the additional presentationObjects now
+    if (showHeaderNavigationPanel && !showBottomNavigationPanel)  {
+      setOnlyAdditionalPresentationObjects(enableBack, enableForward, necessaryRows, necessaryColumns);
     }
   }
   
-  private void setOnlySettingsButton(
-      IWResourceBundle resourceBundle, 
-      int bottomRightCornerX, 
-      int bottomRightCornerY) {
+  private Table getAdditionalPresentationObjects() {
+    if (additionalPresentationObjects == null)  {
+      return null;
+    }
+    int size = additionalPresentationObjects.size();
+    Table table = new Table(size, 1);
+    Iterator iterator = additionalPresentationObjects.iterator();
+    int x = 1;
+    while (iterator.hasNext())  {
+      PresentationObject presentationObject = (PresentationObject) iterator.next();
+      table.add(presentationObject, x++ , 1);
+    }
+    return table;
+  }
+  
+  private void setOnlyAdditionalPresentationObjects(boolean enableBack, boolean enableForward, int bottomRightCornerY, int bottomRightCornerX)  {
+    // create table
+    Table panelTable = getAdditionalPresentationObjects();
+    if (panelTable == null) {
+      return;
+    }
     // get the desired row and merge it
     int panelBeginxpos = xAnchorPosition + 1;
-    int panelBeginypos = yAnchorPosition + bottomRightCornerX;
-    int panelEndxpos = xAnchorPosition + bottomRightCornerY;
+    int panelBeginypos = yAnchorPosition + bottomRightCornerY;
+    int panelEndxpos = xAnchorPosition + bottomRightCornerX;
+    int panelEndypos = panelBeginypos;
+    // merge cell
+    mergeCells(panelBeginxpos, panelBeginypos, panelEndxpos, panelEndypos);
+    // now add the table in the row that was created by merging the cells of the last row
+    add(panelTable, panelBeginxpos, panelBeginypos);
+  }
+    
+  
+  private void setOnlySettingsButton(
+      String formKey,
+      boolean enableBack,
+      boolean enableForward, 
+      IWResourceBundle resourceBundle, 
+      int bottomRightCornerY, 
+      int bottomRightCornerX) {
+    // get the desired row and merge it
+    int panelBeginxpos = xAnchorPosition + 1;
+    int panelBeginypos = yAnchorPosition + bottomRightCornerY;
+    int panelEndxpos = xAnchorPosition + bottomRightCornerX;
     int panelEndypos = panelBeginypos;
     // merge cell
     mergeCells(panelBeginxpos, panelBeginypos, panelEndxpos, panelEndypos);
     // create table
-    Table panelTable = new Table(1,1);
+    Table panelTable = new Table(3,1);
     // add settings 
-    panelTable.add(getSettingsButton(resourceBundle),1,1);
+    panelTable.add(getSettingsButton(resourceBundle),2,1);
+    // add show all check box
+    Table showAllTable = getShowAllCheckBox(formKey, enableBack, enableForward, resourceBundle);
+    if (showAllTable != null) {
+      panelTable.add(showAllTable,1,1);   
+    }
+    // add additional presentation objects
+    Table table = getAdditionalPresentationObjects();
+    panelTable.add(table , 3, 1);
     // now add the table in the row that was created by merging the cells of the last row
     add(panelTable, panelBeginxpos, panelBeginypos);
   }     
@@ -531,25 +592,36 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       String currentStateOfIterator, 
       boolean enableBack, 
       boolean enableForward,
+      int bottomRightCornerY,
       int bottomRightCornerX,
-      int bottomRightCornerY)  {
+      boolean showAdditionalPresentationObject)  {
     // get the desired row and merge it
     int panelBeginxpos = xAnchorPosition + 1;
-    int panelBeginypos = yAnchorPosition + bottomRightCornerX;
-    int panelEndxpos = xAnchorPosition + bottomRightCornerY;
+    int panelBeginypos = yAnchorPosition + bottomRightCornerY;
+    int panelEndxpos = xAnchorPosition + bottomRightCornerX;
     int panelEndypos = panelBeginypos;
     // merge cell
     mergeCells(panelBeginxpos, panelBeginypos, panelEndxpos, panelEndypos);
     // create table
-    Table panelTable = new Table(3,1);
+    Table panelTable = new Table(4,1);
     // add settings 
     panelTable.add(getSettingsButton(resourceBundle),3,1);
     // add show all check box
-    panelTable.add(getShowAllCheckBox(formKey, resourceBundle),2,1);
+    Table showAllTable = getShowAllCheckBox(formKey , enableBack, enableForward, resourceBundle);
+    if (showAllTable != null) {
+      panelTable.add(showAllTable,2,1);
+    }
     // get links
     Table goAndBackButtonPanel = 
       getForwardAndBackButtons(formKey,iwc, resourceBundle, entityIterator, currentStateOfIterator, enableBack, enableForward);   
     panelTable.add(goAndBackButtonPanel,1,1);
+    // add additional presentation objects
+    if (showAdditionalPresentationObject) {
+      Table table = getAdditionalPresentationObjects();
+      if (table != null)  {
+        panelTable.add(table , 4, 1); 
+      }
+    }
     // add form 
     PresentationObject panel;
     HiddenInput hiddenInputRequestFrom = new HiddenInput(formKey + REQUEST_KEY);
@@ -919,7 +991,11 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     return table;
   }
   
-  private Table getShowAllCheckBox(String formKey, IWResourceBundle resourceBundle)  {
+  private Table getShowAllCheckBox(String formKey, boolean enableBack, boolean enableForward, IWResourceBundle resourceBundle)  {
+    if ( (! enableBack) && (!enableForward) && (!showAllEntities) ) {
+      // all entities are shown, it makes no sense to offer the checkbox
+      return null;
+    } 
     Text showAll = new Text(resourceBundle.getLocalizedString("eb_show_all","show all"));
     showAll.setFontStyle(FONT_STYLE_FOR_LINK);
     StringBuffer buffer = new StringBuffer(formKey);
