@@ -150,6 +150,7 @@ public class DropDownMenuConverter
     boolean editEntity = false;
     String shortKeyPath = path.getShortKey();
     String uniqueKeyLink = getLinkUniqueKey(id, shortKeyPath);
+    boolean isRequestSender =  iwc.isParameterSet(uniqueKeyLink);
     if (showAlwaysDropDownMenu) {
     	editEntity = true;
     }
@@ -167,7 +168,7 @@ public class DropDownMenuConverter
     // decide to show a link or a drop down menu
     if (newEntity || 
         editEntity ||
-        iwc.isParameterSet(uniqueKeyLink)) {
+        isRequestSender) {
       // show drop down menu with submitButton
       Object value = getValueForDropDownMenu(entity, path, browser, iwc);
       String uniqueKeyDropdownMenu = getDropdownMenuUniqueKey(id, shortKeyPath);
@@ -180,6 +181,9 @@ public class DropDownMenuConverter
           browser,
           iwc);
       // add old value as hidden value
+      if (isRequestSender)	{
+      	dropdownMenu.setInFocusOnPageLoad(true);
+      }
       externalForm.addParameter(getDropDownMenuUniqueKeyPreviousValue(id, shortKeyPath), value.toString());  
       Table table = (newEntity) ? new Table(1,1) : new Table(2,1);
       table.add(dropdownMenu,1,1);
@@ -213,6 +217,7 @@ public class DropDownMenuConverter
     Link link = new Link(display);
     if (workWithExternalSubmitButton) {
       link.addParameter(ConverterConstants.EDIT_ENTITY_KEY, id);
+      link.addParameter(uniqueKeyLink,"dummy_value");
     }
     else {
       link.addParameter(uniqueKeyLink,"dummy_value");

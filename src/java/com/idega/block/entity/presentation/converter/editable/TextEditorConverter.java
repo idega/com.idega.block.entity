@@ -146,11 +146,13 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
     EntityBrowser browser,
     IWContext iwc) {
    
+
     Integer id = (Integer) ((EntityRepresentation) entity).getPrimaryKey();
     // show text input without a submit button if the entity is new 
     boolean newEntity = id.equals(ConverterConstants.NEW_ENTITY_ID);
     String shortKeyPath = path.getShortKey();
     String uniqueKeyLink = getLinkUniqueKey(id, shortKeyPath);
+   	boolean isRequestSender =  iwc.isParameterSet(uniqueKeyLink);
     boolean editEntity = false;
     if (iwc.isParameterSet(ConverterConstants.EDIT_ENTITY_KEY)) {
       String idEditEntity = iwc.getParameter(ConverterConstants.EDIT_ENTITY_KEY);
@@ -163,16 +165,18 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
       catch (NumberFormatException ex)  {
       }
     }
-    iwc.isParameterSet(ConverterConstants.EDIT_ENTITY_KEY);
     // decide to show a link or a text inputfield
     if (newEntity || 
         editEntity || 
-        iwc.isParameterSet(uniqueKeyLink)) {
+        isRequestSender) {
       Object value = getValueForInput(entity, path, browser, iwc);
       String text = value.toString(); 
       // show text input with submitButton
       String uniqueKeyTextInput = getTextInputUniqueKey(id, shortKeyPath);
       TextInput textInput = new TextInput( uniqueKeyTextInput, text);
+      if (isRequestSender)	{
+      	textInput.setInFocusOnPageLoad(true);
+      }
       if (setAsFloatMessage != null) {
         textInput.setAsFloat(setAsFloatMessage);
       }
@@ -204,6 +208,7 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
       Link link = new Link(text);
       if (workWithExternalSubmitButton) {
         link.addParameter(ConverterConstants.EDIT_ENTITY_KEY, id.toString());
+        link.addParameter(uniqueKeyLink,"dummy_Value");
       }
       else {
         link.addParameter(uniqueKeyLink,"dummy_value");
