@@ -13,7 +13,6 @@ import com.idega.block.entity.data.EntityPath;
 import com.idega.idegaweb.IWConstants;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.idegaweb.IWUserContext;
-import com.idega.idegaweb.presentation.IWAdminWindow;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.Table;
 import com.idega.presentation.text.Link;
@@ -24,12 +23,13 @@ import com.idega.presentation.ui.IntegerInput;
 import com.idega.presentation.ui.SelectionBox;
 import com.idega.presentation.ui.SelectionDoubleBox;
 import com.idega.presentation.ui.SubmitButton;
+import com.idega.user.presentation.StyledIWAdminWindow;
 
 /**
  *@author     <a href="mailto:thomas@idega.is">Thomas Hilbig</a>
  *@version    1.0
  */
-public class EntityBrowserSettingsWindow extends IWAdminWindow {
+public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
   
   public final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.entity";
   
@@ -263,9 +263,11 @@ public class EntityBrowserSettingsWindow extends IWAdminWindow {
     form.add(formTable);
     // the name of the entity is necessary for initializing this class
     form.add(new HiddenInput(LEADING_ENTITY_NAME_KEY, multiEntityPropertyHandler.getLeadingEntityClassName()));
-    EntityBrowserSettingsWindow.setParameters(form, multiEntityPropertyHandler.getEntityNames(),defaultShortKeys, defaultNumberOfRows);   
+    EntityBrowserSettingsWindow.setParameters(form, multiEntityPropertyHandler.getEntityNames(),defaultShortKeys, defaultNumberOfRows); 
+    //get the iwcontext for the add-method in StyledIWAdminWindow
+    IWContext iwc = IWContext.getInstance();  
     // finally add form        
-    add(form);
+    add(form,iwc);
   }
 
   /** gets selection double box
