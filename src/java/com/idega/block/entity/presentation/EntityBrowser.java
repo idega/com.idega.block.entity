@@ -459,7 +459,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
         }
       }
     }
-            
+             
     List visibleOrderedEntityPathes = getVisibleOrderedEntityPathes(multiPropertyHandler);
     // check if all entities should be shown
     parseAndDoActionNumberOfRowsPerPage(iwc, state);
@@ -488,7 +488,6 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       // we need at least on column for buttons plus headers
       necessaryColumns = (necessaryColumns == 0) ? 2 : necessaryColumns;
       // plus rows for buttons
-      necessaryRows = necessaryRows;
     }
     else {  
       // we need at least on column for buttons 
@@ -501,10 +500,6 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // get now the table    
     fillEntityTable(visibleOrderedEntityPathes , entityIterator, iwc);
     
-    if (showMirroredView) {
-      return;
-    }
-
     boolean enableForward = entityIterator.hasNextSet();
     boolean enableBack = entityIterator.hasPreviousSet(); 
     
