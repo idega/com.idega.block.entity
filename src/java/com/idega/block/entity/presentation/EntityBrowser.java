@@ -154,6 +154,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private boolean showSettingsButton = true;
   private boolean showMirroredView = false;
   
+  private String nullValueForNumbers = "";
+  
   private String colorForEvenRows = null;
   private String colorForOddRows = "#EFEFEF";
   private String colorForHeader= "#DFDFDF";
@@ -1232,11 +1234,22 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
         public PresentationObject getPresentationObject(Object genericEntity, EntityPath path, EntityBrowser browser, IWContext iwc)  {
           StringBuffer displayValues = new StringBuffer();
           List list = path.getValues((EntityRepresentation) genericEntity);
+          List classes = path.getClassesOfValues();
           Iterator valueIterator = list.iterator();
+          Iterator classIterator = classes.iterator();
           while (valueIterator.hasNext()) {
             Object object = valueIterator.next();
+            Class valueClass = (Class) classIterator.next();
             // if there is no entry the object is null
-            object = (object == null) ? "" : object;  
+            if (object == null) {
+              // if the column is a number show zero if desired
+              if (valueClass != null && Number.class.isAssignableFrom(valueClass)) {
+                object = nullValueForNumbers;
+              }
+              else {
+                object = "";
+              }
+            }
             displayValues.append(object.toString());
             // append white space
             displayValues.append(' ');  
@@ -1363,6 +1376,15 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 	public void setDefaultTextProxy(Text defaultTextProxy) {
 		this.defaultTextProxy = defaultTextProxy;
 	}
+  
+    /** 
+     * Sets the value that is shown if a number column is null.
+     * The default value is an empty string.
+     * @param value 
+     */  
+    public void setNullValueForNumbers(String nullValueForNumbers)  {
+      this.nullValueForNumbers = nullValueForNumbers;
+    }
 
 	/**
 	 * Returns the currentColumn.
