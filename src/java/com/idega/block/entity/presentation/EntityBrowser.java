@@ -277,7 +277,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
    * corresponding method identifier variable SET_DEFAULT_COLUMNS_METHOD_IDENTIFIER 
    */ 
   public void setDefaultColumn(int orderNumber, String entityPathShortKey)  {
-    defaultColumns.put(Integer.toString(orderNumber), entityPathShortKey);    
+    defaultColumns.put(new Integer(orderNumber), entityPathShortKey);    
   }  
 
 
@@ -292,7 +292,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
    * numbers are spread e.g. 2, 7, 122 and 412 (example with four columns).
    */
   public void setMandatoryColumn(int orderNumber, String entityPathShortKey) {
-    mandatoryColumns.put(Integer.toString(orderNumber), entityPathShortKey);  
+    mandatoryColumns.put(new Integer(orderNumber), entityPathShortKey);  
   }
 
   /**
