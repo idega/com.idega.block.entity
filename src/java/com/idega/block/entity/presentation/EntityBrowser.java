@@ -736,10 +736,22 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 
 	private void setColorForRow(int rowNumber) {
 		boolean oddRow = ((rowNumber % 2) == 0);
-		if (colorForOddRows != null && oddRow)
-		  setRowColor(rowNumber, colorForOddRows);
-		else if (colorForEvenRows != null && (! oddRow)) 
-		  setRowColor(rowNumber, colorForEvenRows);
+		if (colorForOddRows != null && oddRow) {
+      if (showMirroredView) {
+        setColumnColor(rowNumber, colorForOddRows);
+      }
+      else {
+		    setRowColor(rowNumber, colorForOddRows);
+      }
+    }   
+		else if (colorForEvenRows != null && (! oddRow))  {
+      if (showMirroredView) {
+        setColumnColor(rowNumber, colorForEvenRows);
+      }
+      else { 
+		    setRowColor(rowNumber, colorForEvenRows);
+      }
+    }
 	}
   
   private void parseAndDoActionNumberOfRowsPerPage(IWContext iwc, EntityBrowserPS state)  {
