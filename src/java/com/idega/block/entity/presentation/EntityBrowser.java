@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap; 
 
-import javax.swing.event.ChangeListener;
 
 
 import com.idega.block.entity.business.EntityPropertyHandler;
 import com.idega.block.entity.business.EntityToPresentationObjectConverter;
+import com.idega.block.entity.business.MultiEntityPropertyHandler;
 import com.idega.block.entity.data.EntityPath;
 import com.idega.block.entity.event.EntityBrowserEvent;
 import com.idega.block.entity.event.EntityBrowserPS;
@@ -31,7 +31,6 @@ import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.idegaweb.IWUserContext;
 import com.idega.presentation.IWContext;
-import com.idega.presentation.Page;
 import com.idega.presentation.PresentationObject;
 import com.idega.presentation.StatefullPresentation;
 import com.idega.presentation.Table;
@@ -40,8 +39,6 @@ import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.Form;
 import com.idega.presentation.ui.SubmitButton;
 import com.idega.user.app.UserApplication;
-import com.idega.user.app.UserApplication.Top;
-import com.idega.user.presentation.BasicUserOverview;
 import com.idega.util.SetIterator;
 /**
  *@author     <a href="mailto:thomas@idega.is">Thomas Hilbig</a>
@@ -51,7 +48,7 @@ import com.idega.util.SetIterator;
 public class EntityBrowser extends Table implements SpecifiedChoiceProvider, StatefullPresentation {
   
   public final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.entity";
-      
+
   public final static String NEW_SUBSET_KEY = "new_subset_key";
   
   private final static String NEXT_SUBSET_KEY = "next_subset_key";
@@ -60,8 +57,6 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   private final static String PREVIOUS_SUBSET = "previous";
   
-  
-  
   private final static String NEXT_SUBSET_ACTION = "next_subset";
   
   private final static String PREVIOUS_SUBSET_ACTION = "previous_subset";
@@ -69,18 +64,21 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private final static String VIEW_ACTION = "view_action";
   
   private static final String SET_ENTIY_METHOD_IDENTIFIER = 
-    ":method:1:implied:void:setEntity:java.lang.String:";
+    ":method:1:implied:void:setLeadingEntity:java.lang.String:";
     
   private static final String SET_DEFAULT_COLUMNS_METHOD_IDENTIFIER = 
     ":method:1:implied:void:setDefaultColumns:int:java.lang.String:";  
+
+  private String leadingEntityName = null;
   
- 
-  private String entityName = "";
+  // foreign entities
+  private List entityNames = null;
   
   private int xAnchorPosition = 0;
   
   private int yAnchorPosition = 0;
-  
+
+  // collection of entities that serves as source of the content  
   private Collection entities = null;
   
   private IWPresentationState presentationState = null;
@@ -98,7 +96,11 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   private int defaultNumberOfRowsPerPage = 1;
   
-  private boolean useExternalForm = true;
+  private boolean useExternalForm = false;
+  
+  private String colorForEvenRows = null;
+  
+  private String colorForOddRows = null;
   
   
   public void setDefaultNumberOfRows(int defaultNumberOfRows) {
@@ -108,10 +110,39 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
  
   /** if you change the name of this method please change the 
    *  corresponding method identifier variable SET_ENTIY_METHOD_IDENTIFIER */
-  public void setEntity(String entityName)  {
-    this.entityName = entityName;
+  public void setLeadingEntity(String leadingEntityName)  {
+    this.leadingEntityName = leadingEntityName;
   }
   
+  /**
+   * Usually this class uses its own form to handle the forward and the backward
+   * buttons. In this case this flag is set to false.
+   * 
+   * But if you want - for example - to add buttons to this table instance you
+   * just can switch off the inherent form by setting this value to true and put
+   * the whole object into an external form. Nothing else is to do, the forward
+   * and backward buttons will further work.
+   * 
+   * @param useExternalForm
+   */
+  public void setUseExternalForm(boolean useExternalForm) {
+    this.useExternalForm = useExternalForm;
+  }
+  
+  public void addEntity(String entityName)  {
+    if (entityNames == null)
+      entityNames = new ArrayList();
+    if (entityNames.contains(entityName))
+      return;
+    entityNames.add(entityName);
+  }
+  
+  public void removeEntity(String entityName) {
+    if (entityNames == null)
+      return;
+    // it does not matter if it does not exist
+    entityNames.remove(entityName);
+  }
   
   /** this method should only be used by the IWPropertyHandler 
    *  It provides the drop down menu in the property handler 
@@ -161,21 +192,35 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   
   
-  /** 
-   * Set a shortKey of an entity path with an order number. It is not necessary to have 
-   * order numbers that covers a complete range of integers like e.g. 0 to 10. The order numbers
-   * are only used to determine the order of the columns. Therefore it is well defined 
-   * if the numbers are spread e.g. 2, 7, 122 and 412 (example with four columns).
+  /**Sets the default columns, that is these columns are only shown if the user has not chosen
+   * any columns yet.
+   * 
+  *  Set  a  shortKey of an entity path with an order number. It is not
+  * necessary to have order numbers that covers a complete range of integers
+  * like e.g. 0 to 10. The order numbers are only used to determine the order of
+  * the columns. Therefore it is well defined if the numbers are spread e.g. 2,
+  * 7, 122 and 412 (example with four columns).
    * 
    * if you change the name of this method please change the 
    * corresponding method identifier variable SET_DEFAULT_COLUMNS_METHOD_IDENTIFIER 
    */ 
-  public void setDefaultColumns(int orderNumber, String entityPathShortKey)  {
+  public void setDefaultColumn(int orderNumber, String entityPathShortKey)  {
     defaultColumns.put(Integer.toString(orderNumber), entityPathShortKey);    
   }  
 
-  public void setMandatoryColumns(int orderNumber, String entityPathShortKey) {
-    defaultColumns.put(Integer.toString(orderNumber), entityPathShortKey);  
+
+  /** Sets the mandatory columns, that is these columns are always shown indepedent 
+   * of the columns that the user has chosen. These columns are shown at the
+   * beginning of the table.
+   * 
+   * Set a shortKey of an entity path with an order
+   * number. It is not necessary to have order numbers that covers a complete
+   * range of integers like e.g. 0 to 10. The order numbers are only used to
+   * determine the order of the columns. Therefore it is well defined if the
+   * numbers are spread e.g. 2, 7, 122 and 412 (example with four columns).
+   */
+  public void setMandatoryColumn(int orderNumber, String entityPathShortKey) {
+    mandatoryColumns.put(Integer.toString(orderNumber), entityPathShortKey);  
   }
 
 
@@ -201,12 +246,19 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     entityToPresentationConverters.put(pathShortKey, converter);
   }
   
-  public EntityToPresentationObjectConverter getEntityToPresentationConverter(String pathShortKey)  {
+  private EntityToPresentationObjectConverter getEntityToPresentationConverter(EntityPath path)  {
     EntityToPresentationObjectConverter converter;
-    if  (entityToPresentationConverters == null ||
-        (converter = (EntityToPresentationObjectConverter) 
-          entityToPresentationConverters.get(pathShortKey)) == null)
-      return getMyDefaultConverter(); 
+    if  (  
+      // are there any converters at all?  
+           entityToPresentationConverters == null 
+      // use the shortkey to find a suitable converter
+        || ((( converter = (EntityToPresentationObjectConverter) 
+           entityToPresentationConverters.get(path.getShortKey())) == null ) 
+      // the key was not found, try to get a converter for the class
+        && (( converter = (EntityToPresentationObjectConverter)
+           entityToPresentationConverters.get(path.getSourceEntityClass().getName())) == null )))
+      // okay we give up! return default converter
+        return getMyDefaultConverter(); 
     return converter;
   }
 
@@ -219,7 +271,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     /////model.setSource(presentationState.getLocation());
     //model.setSource(getLocation());
     model.setSource(this);
-    model.setEntityName(entityName);
+    //model.setEntityName(entityName);
     String id = IWMainApplication.getEncryptedClassName(UserApplication.Top.class);
     id = PresentationObject.COMPOUNDID_COMPONENT_DELIMITER + id;
     model.setController(id);
@@ -227,51 +279,63 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
     
   public void main(IWContext iwc) throws Exception { 
-    
-    
+
     // event model stuff
     EntityBrowserPS state = (EntityBrowserPS) getPresentationState((IWUserContext) iwc);
     this.addActionListener( (IWActionListener) state);
    
-    
     // get resource bundle
     IWResourceBundle resourceBundle = getResourceBundle(iwc);
-
-
-    // get the entity name from the presentation state if it is not set
-    String name;
-    if (entityName.length() == 0 && (name = state.getEntityName()) != null)
-      entityName = name;
-    
     
     // get entity name from one element of the entity collection
     // if the entity name is not set and the collection is not empty
-    if (entityName.length() == 0 && (! entities.isEmpty())) {
-      Class objectClass = (entities.iterator()).next().getClass();
-      Class[] interfaces = objectClass.getInterfaces();
-      if (interfaces.length > 0)  {
-        Class firstInterfaceClass = interfaces[0];
-        entityName = firstInterfaceClass.getName();
+    if ( leadingEntityName == null || leadingEntityName.length() == 0 )  {
+      if (entities == null || entities.isEmpty()) {
+        setErrorContent(resourceBundle);
+        return;
+      }
+      else {
+        Class objectClass = (entities.iterator()).next().getClass();
+        Class[] interfaces = objectClass.getInterfaces();
+        if (interfaces.length > 0)  {
+          Class firstInterfaceClass = interfaces[0];
+          leadingEntityName = firstInterfaceClass.getName();
+        }
+        else {
+          setErrorContent(resourceBundle);
+          return;
+        }
       }
     }
-      
-    
-    
    
-    // get user properties
-    EntityPropertyHandler propertyHandler;
+    // get user properties, set MultiPropertyhandler
+    MultiEntityPropertyHandler multiPropertyHandler;
     try {
-      propertyHandler = new EntityPropertyHandler(iwc, entityName);
+      multiPropertyHandler = new MultiEntityPropertyHandler(iwc, leadingEntityName);
     }
-    catch (ClassNotFoundException ex)   {
-      setErrorContent(resourceBundle);
+    catch (ClassNotFoundException e)  {
+      System.out.println("[EntityBrowser] Class was not recognized: " + leadingEntityName + " Message was: " +
+        e.getMessage());
+      System.err.println(e.getStackTrace());      setErrorContent(resourceBundle);
       return;
     }
-    
-
-        
-    List visibleOrderedEntityPathes = getVisibleOrderedEntityPathes(propertyHandler);
-    int numberOfRowsPerPage = propertyHandler.getNumberOfRowsPerPage();
+    if (entityNames != null)  {
+      Iterator iterator = entityNames.iterator();
+      while (iterator.hasNext())  {
+        try {
+          multiPropertyHandler.addEntity((String) iterator.next());
+        }
+        catch (ClassNotFoundException e)  {
+        // do not show the error content, continue!
+          System.out.println("[EntityBrowser] Class was not recognized: " + leadingEntityName + " Message was: " +
+          e.getMessage());
+          System.err.println(e.getStackTrace());
+        }
+      }
+    }
+            
+    List visibleOrderedEntityPathes = getVisibleOrderedEntityPathes(multiPropertyHandler);
+    int numberOfRowsPerPage = multiPropertyHandler.getNumberOfRowsPerPage();
     
     // get the state of the former iterator
     SetIterator entityIterator = retrieveSetIterator(iwc, entities);
@@ -312,9 +376,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     int endypos = beginypos;
     int endxpos = xAnchorPosition + necessaryColumns;
     mergeCells(beginxpos, beginypos, endxpos, endypos);
-    // put setting button, info text, forward and back button in one table
+    // put settings button, info text, forward and back button in one table
     Table table = new Table(4, 1);
-    table.add(getSettingButton(resourceBundle), 1, 1);
+    table.add(getSettingsButton(resourceBundle), 1, 1);
     table.add(getInfo(resourceBundle, entityIterator),2,1);
      
     // get current subset position
@@ -337,7 +401,6 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     
     // now add the table in the row that was created by merging the cells of the last row
     add(table, beginxpos, beginypos);
-    
   }
 
 
@@ -378,13 +441,14 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     while (entitySetIterator.hasNextInSet()) {
       GenericEntity genericEntity = (GenericEntity) entitySetIterator.next();
       Iterator visibleOrderedEntityPathesIterator = visibleOrderedEntityPathes.iterator();
+      // set color of rows
+			setColorForRow(y);
       int x = 1;
       // fill columns
       while (visibleOrderedEntityPathesIterator.hasNext())  {
         EntityPath path = (EntityPath) visibleOrderedEntityPathesIterator.next();
 
-        EntityToPresentationObjectConverter converter = 
-          getEntityToPresentationConverter(path.getShortKey()); 
+        EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(path); 
         PresentationObject presentation = converter.getPresentationObject(genericEntity, path, iwc);
         add(presentation, xAnchorPosition + x, yAnchorPosition + y);
         // next column
@@ -394,6 +458,15 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       y++;
     }
   }
+
+
+	private void setColorForRow(int rowNumber) {
+		boolean oddRow = ((rowNumber % 2) == 0);
+		if (colorForOddRows != null && oddRow)
+		  setRowColor(rowNumber, colorForOddRows);
+		else if (colorForEvenRows != null && (! oddRow)) 
+		  setRowColor(rowNumber, colorForEvenRows);
+	}
   
   private String parseAction(IWContext iwc, String currentStateOfIterator)  {
     // event system
@@ -478,13 +551,15 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
 
   /** 
-   * Get setting button
+   * Get settings button
 	*/
-  private Table getSettingButton(IWResourceBundle resourceBundle) {
-    String setting = resourceBundle.getLocalizedString("setting","setting");
-    Link link = new Link(setting);
-    link.setWindowToOpen(EntityBrowserSettingWindow.class);
-    link.addParameter(EntityBrowserSettingWindow.ENTITY_NAME_KEY, entityName);
+  private Table getSettingsButton(IWResourceBundle resourceBundle) {
+    String settings = resourceBundle.getLocalizedString("Settings","Settings");
+    Link link = new Link(settings);
+    link.setWindowToOpen(EntityBrowserSettingsWindow.class);
+    link.addParameter(EntityBrowserSettingsWindow.LEADING_ENTITY_NAME_KEY, leadingEntityName);
+    EntityBrowserSettingsWindow.setParameters(link, entityNames, defaultColumns.values());
+        
     link.setAsImageButton(true);
     Table table = new Table();
     table.add(link);
@@ -506,12 +581,12 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
   
   private void setErrorContent(IWResourceBundle resourceBundle)  {
-    String message = resourceBundle.getLocalizedString("Set_an_entity", "Set an entity");
+    String message = resourceBundle.getLocalizedString("Blank table", "Blank table");
     add(message);
   }
   
-  private List getVisibleOrderedEntityPathes(EntityPropertyHandler propertyHandler)  {
-    List columnsSetByUserList = propertyHandler.getVisibleOrderedEntityPathes();
+  private List getVisibleOrderedEntityPathes(MultiEntityPropertyHandler multiPropertyHandler)  {
+    List columnsSetByUserList = multiPropertyHandler.getVisibleOrderedEntityPathes();
     // use arrayList because the returned collection of a tree map does not support add operations
     List mandatoryColumns = new ArrayList(this.mandatoryColumns.values());
     // columnsSetByUserList is empty...  
@@ -525,7 +600,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     Iterator mandatoryColumnsIterator = mandatoryColumns.iterator();
     while (mandatoryColumnsIterator.hasNext()) {
       String shortKey = (String) mandatoryColumnsIterator.next();
-      EntityPath path = propertyHandler.getEntityPath(shortKey);
+      EntityPath path = multiPropertyHandler.getEntityPath(shortKey);
       if (path != null)
         list.add(path);
     }
@@ -561,7 +636,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
           Object object = valueIterator.next();
           // if there is no entry the object is null
           object = (object == null) ? "" : object;  
-          displayValues.append(object.toString());  
+          displayValues.append(object.toString());
+          // append white space
+          displayValues.append(' ');  
         }          
         return new Text(displayValues.toString());
       }
@@ -594,6 +671,21 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     return EntityBrowserPS.class;
   }
 
-
   
+	/**
+	 * Sets the colorForEvenRows.
+	 * @param colorForEvenRows The colorForEvenRows to set
+	 */
+	public void setColorForEvenRows(String colorForEvenRows) {
+		this.colorForEvenRows = colorForEvenRows;
+	}
+
+	/**
+	 * Sets the colorForOddRows.
+	 * @param colorForOddRows The colorForOddRows to set
+	 */
+	public void setColorForOddRows(String colorForOddRows) {
+		this.colorForOddRows = colorForOddRows;
+	}
+
 }
