@@ -81,6 +81,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   // collection of entities that serves as source of the content  
   private Collection entities = null;
   
+  // an unique key for the collection 
+  private String keyForEntityCollection = "";
+  
   private IWPresentationState presentationState = null;
   
   // map of converters
@@ -97,6 +100,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private int defaultNumberOfRowsPerPage = 1;
   
   private boolean useExternalForm = false;
+  
+  private boolean showSettingButton = true;
   
   private String colorForEvenRows = null;
   
@@ -225,7 +230,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 
 
     
-  public void setEntities(Collection entities)  {
+  public void setEntities(String keyForEntityCollection, Collection entities)  {
+    this.keyForEntityCollection = keyForEntityCollection;
     this.entities = entities;
   }    
   
@@ -390,14 +396,18 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // put settings button, info text, forward and back button in one table
     Table table = new Table(4, 1);
     table.add(getSettingsButton(resourceBundle), 1, 1);
-    table.add(getInfo(resourceBundle, entityIterator),2,1);
+    
+    boolean enableForward = entityIterator.hasNextSet();
+    boolean enableBack = entityIterator.hasPreviousSet(); 
+    
+    table.add(getInfo(resourceBundle, entityIterator, enableBack, enableForward),2,1);
      
     // get current subset position
     String currentStateOfIterator = entityIterator.getStateAsString();
     // store state in session
-    entityIterator.storeStateInSession(iwc, getMyId());
+    entityIterator.storeStateInSession(iwc, keyForEntityCollection, getMyId());
     // get back and forward buttons
-    Table goAndBackButton = getForwardAndBackButtons(resourceBundle, currentStateOfIterator, entityIterator.hasNextSet(), entityIterator.hasPreviousSet());   
+    Table goAndBackButton = getForwardAndBackButtons(resourceBundle, currentStateOfIterator, enableBack, enableForward);   
     // create Form
     // add parameters for event handling (if the event model is used)
     if (! useExternalForm)  {
@@ -516,12 +526,16 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     
     SetIterator setIterator = new SetIterator(entityList);
     // retrieve old state of setIterator, use session
-    setIterator.retrieveStateFromSession(iwc, getMyId());
+    setIterator.retrieveStateFromSession(iwc, keyForEntityCollection, getMyId());
     return setIterator;
   }
 
-  private Table getForwardAndBackButtons(IWResourceBundle resourceBundle, String formerStateOfIterator, boolean enableForward, boolean enableBack) {
+  private Table getForwardAndBackButtons(IWResourceBundle resourceBundle, String formerStateOfIterator, boolean enableBack, boolean enableForward) {
  
+    // if the list is completely shown do not show forward and backward buttons
+    if ((! enableBack) && (! enableForward))
+      return new Table();
+    // show buttons  
     String uniqueKey = getUniqueKeyForSubmitButton(formerStateOfIterator);
     SubmitButton goBackButton = 
       new SubmitButton(resourceBundle.getLocalizedImageButton("back","BACK"), NEW_SUBSET_KEY, PREVIOUS_SUBSET + uniqueKey);
@@ -535,7 +549,11 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     return table;
   }    
   
-  private Table getInfo(IWResourceBundle resourceBundle, SetIterator setIterator)  {
+  private Table getInfo(IWResourceBundle resourceBundle, SetIterator setIterator, boolean enableBack, boolean enableForward)  {
+    // if the list is completely shown do not show forward and backward buttons
+    if ((! enableBack) && (! enableForward))
+      return new Table();
+    // show info
     int firstIndex = setIterator.currentFirstIndexSet() + 1;
     int lastIndex = setIterator.currentLastIndexSet() + 1;
     int size = setIterator.size();
@@ -564,11 +582,14 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
    * Get settings button
 	*/
   private Table getSettingsButton(IWResourceBundle resourceBundle) {
+    // sometimes setting button is not desired
+    if (!showSettingButton)
+      return new Table();
     String settings = resourceBundle.getLocalizedString("Settings","Settings");
     Link link = new Link(settings);
     link.setWindowToOpen(EntityBrowserSettingsWindow.class);
     link.addParameter(EntityBrowserSettingsWindow.LEADING_ENTITY_NAME_KEY, leadingEntityName);
-    EntityBrowserSettingsWindow.setParameters(link, entityNames, defaultColumns.values());
+    EntityBrowserSettingsWindow.setParameters(link, entityNames, defaultColumns.values(), defaultNumberOfRowsPerPage );
         
     link.setAsImageButton(true);
     Table table = new Table();
@@ -585,9 +606,11 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     return buffer.toString();  
   }
 
-  private int getMyId() {
+  private String getMyId() {
     int id = getICObjectInstanceID();
-    return (id == 0) ? getParentObjectInstanceID() : id;
+    if (id != 0)
+      return Integer.toString(id);  
+    return getCompoundId();
   }
   
   private void setErrorContent(IWResourceBundle resourceBundle)  {
@@ -620,11 +643,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   private int getNumberOfRowsPerPage(MultiEntityPropertyHandler multiPropertyHandler) {
     int rows = multiPropertyHandler.getNumberOfRowsPerPage();
-    if (rows != EntityPropertyHandler.DEFAULT_NUMBER_OF_ROWS_PER_PAGE)
-      return rows;
-    // rows was not set
-    // there are no rows set by the user, therefore show the default size
-    return defaultNumberOfRowsPerPage;
+    if (rows == EntityPropertyHandler.NUMBER_OF_ROWS_PER_PAGE_NOT_SET)
+      return defaultNumberOfRowsPerPage;
+    return rows;
   }
   
   
@@ -696,6 +717,14 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 	 */
 	public void setColorForOddRows(String colorForOddRows) {
 		this.colorForOddRows = colorForOddRows;
+	}
+
+	/**
+	 * Sets the showSettingButton.
+	 * @param showSettingButton The showSettingButton to set
+	 */
+	public void setShowSettingButton(boolean showSettingButton) {
+		this.showSettingButton = showSettingButton;
 	}
 
 }
