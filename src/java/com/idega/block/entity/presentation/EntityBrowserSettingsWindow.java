@@ -327,7 +327,8 @@ public class EntityBrowserSettingsWindow extends IWAdminWindow {
           String numberOfRowsPerPage = iwc.getParameter(INPUTFIELD_KEY);
           // get absolute value
           int numberOfRows = Math.abs(Integer.parseInt(numberOfRowsPerPage));
-          multiEntityPropertyHandler.setNumberOfRowsPerPage(numberOfRows);
+          if (numberOfRows > 0)
+            multiEntityPropertyHandler.setNumberOfRowsPerPage(numberOfRows);
         }
       }
     }
