@@ -3,7 +3,7 @@ package com.idega.block.entity.presentation;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.HashMap;    
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -183,7 +183,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 	 */
 	public EntityBrowser() {
 		super();
-		this.setCellspacing(0);
+        setCellspacing(0);
+        setCellpadding(0);
 	}
 
   public static void releaseBrowser(IWContext iwc) {
