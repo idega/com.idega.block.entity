@@ -24,11 +24,6 @@ public class EntityBrowserEvent extends IWPresentationEvent {
     return true;
 	}
   
-  public void setControlFrameTarget(String value){
-    this.addParameter(Page.IW_FRAME_NAME_PARAMETER,value);
-  }
-  
-  
 	/**
 	 * Returns the entityName.
 	 * @return String
