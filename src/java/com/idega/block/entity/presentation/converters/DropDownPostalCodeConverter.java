@@ -113,7 +113,7 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
       // The preselection is the postal code number, but the value used in the drop down menu is 
       // the id of the postal code. Therefore get the corresponding id of the postal code element first and
       // then set the preselection 
-      String preselectionAsString = preselection.toString();
+      //String preselectionAsString = preselection.toString();
       Integer id = (Integer) postalCodeNumberIdMap.get(preselection);
       if (id != null) {
         dropdownMenu.setSelectedElement(id.toString());
