@@ -6,7 +6,7 @@ import java.util.List;
 import com.idega.block.entity.business.EntityToPresentationObjectConverter;
 import com.idega.block.entity.data.EntityPath;
 import com.idega.block.entity.presentation.EntityBrowser;
-import com.idega.data.IDOEntity;
+import com.idega.data.EntityRepresentation;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.PresentationObject;
 import com.idega.presentation.ui.CheckBox;
@@ -99,7 +99,7 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
     EntityPath path,
     EntityBrowser browser,
     IWContext iwc) {
-    IDOEntity idoEntity = (IDOEntity) entity;
+    EntityRepresentation idoEntity = (EntityRepresentation) entity;
     return new CheckBox(key, idoEntity.getPrimaryKey().toString());
   }
 
