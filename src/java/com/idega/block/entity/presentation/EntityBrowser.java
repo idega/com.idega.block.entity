@@ -3,13 +3,12 @@ package com.idega.block.entity.presentation;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;    
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-
 import com.idega.block.entity.business.EntityPropertyHandler;
 import com.idega.block.entity.business.EntityToPresentationObjectConverter;
 import com.idega.block.entity.business.MultiEntityPropertyHandler;
@@ -20,11 +19,9 @@ import com.idega.builder.business.IBPropertyHandler;
 import com.idega.builder.handler.SpecifiedChoiceProvider;
 import com.idega.business.IBOLookup;
 import com.idega.data.EntityRepresentation;
-import com.idega.event.IWActionListener;
 import com.idega.event.IWPresentationEvent;
 import com.idega.event.IWPresentationState;
 import com.idega.event.IWStateMachine;
-import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.idegaweb.IWUserContext;
 import com.idega.presentation.IWContext;
@@ -38,7 +35,6 @@ import com.idega.presentation.ui.DropdownMenu;
 import com.idega.presentation.ui.Form;
 import com.idega.presentation.ui.HiddenInput;
 import com.idega.presentation.ui.Parameter;
-import com.idega.user.app.UserApplication;
 import com.idega.util.SetIterator;
 /**
  *@author     <a href="mailto:thomas@idega.is">Thomas Hilbig</a>
@@ -105,8 +101,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   private final static String STYLE = 
         "font-family:arial; font-size:9pt; text-align: justify;";
-  private final static String FONT_STYLE_FOR_LINK = STYLE;
-  
+
   private String styledLink = "styledLinkGeneral";
   
   private String leadingEntityName = null;
@@ -147,7 +142,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private Map entityPathShortKeyAlignmentMap = null;
   
   private boolean useExternalForm = false;
-  private boolean useEventSystem = true;
+  private boolean useEventSystem = false;
   
   /** this flag indicates if the browser should use and accept the settings of the user
   * If this flag is set to false the user settings button will not be shown even if the
@@ -158,14 +153,14 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private boolean showMirroredView = false;
   private boolean leadingEntityIsUndefined = false;
   
-  private String nullValueForNumbers = "";
+  protected String nullValueForNumbers = "";
   
   private String colorForEvenRows = null;
   private String colorForOddRows = "#EFEFEF";
   private String colorForHeader= "#DFDFDF";
   
-  private Text defaultTextProxy = new Text();
-  private Text columnTextProxy = new Text();
+  protected Text defaultTextProxy = new Text();
+  protected Text columnTextProxy = new Text();
   
   private int currentRow = -1;
   private int currentColumn = -1;
@@ -175,17 +170,50 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   private Collection mandatoryParameters = null;
   
-	/**
-	 * @return
-	 */
-	public Text getDefaultTextProxy() {
-		return defaultTextProxy;
+  /**
+   * Returns an EntityBrowser using an own form. 
+   * The event system isn't used.
+   * @return
+   */
+  public static EntityBrowser getInstance() {
+		return new EntityBrowser();
+	}
+	
+  	/** Returns an EntityBrowser that doesn't use an own form.
+   * The caller has to add the browser to a form.
+   * The event system isn't used.
+   * @return
+   */
+	public static EntityBrowser getInstanceUsingExternalForm() {
+		EntityBrowser browser = EntityBrowser.getInstance();
+		browser.setUseExternalForm(true);
+		return browser;
 	}
 
 	/**
-	 * 
-	 */
-	public EntityBrowser() {
+   * Returns an EntityBrowser using an own form. 
+   * The event system is used.
+   * @return
+   */
+	public static EntityBrowser getInstanceUsingEventSystem() {
+		EntityBrowser browser = EntityBrowser.getInstance();
+		browser.setUseEventSystem(true);
+		return browser;
+	}
+	
+	/**
+   * Returns an EntityBrowser that doesn't use a form.
+   * The caller has to add the browser to a form.
+   * The event system is used.
+   * @return
+   */
+	public static EntityBrowser getInstanceUsingEventSystemAndExternalForm() {
+		EntityBrowser browser = EntityBrowser.getInstanceUsingExternalForm();
+		browser.setUseEventSystem(true);
+		return browser;
+	}
+
+	private EntityBrowser() {
 		super();
         setCellspacing(0);
         setCellpadding(0);
@@ -200,6 +228,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       String id = iwc.getParameter(BOTTOM_FORM_LAST_USED_MY_ID_KEY);
       SetIterator.releaseStoredState(iwc, id);
     }  
+  }
+  
+  public Text getDefaultTextProxy() {
+		return defaultTextProxy;
   }
   
   public void setDefaultNumberOfRows(int defaultNumberOfRows) {
@@ -293,9 +325,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       return new ArrayList();
     }
     SortedMap pathes = EntityPropertyHandler.getAllEntityPathes(entityClass);
-    Collection entities = pathes.values();
+    Collection entitiesTemp = pathes.values();
     List list = new ArrayList();
-    Iterator iterator = entities.iterator();
+    Iterator iterator = entitiesTemp.iterator();
     while (iterator.hasNext())  {
       String shortKey = ((EntityPath) iterator.next()).getShortKey();
       list.add(shortKey);
@@ -421,7 +453,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
     
   public String getBundleIdentifier(){
-    return EntityBrowser.IW_BUNDLE_IDENTIFIER;
+    return EntityBrowser.IW_BUNDLE_IDENTIFIER; 
   }
   
   public void setEntityToPresentationConverter(String pathShortKey, EntityToPresentationObjectConverter converter) {
@@ -451,10 +483,6 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   public IWPresentationEvent getPresentationEvent() { 
     EntityBrowserEvent model = new  EntityBrowserEvent();
     model.setSource(this);
-    //model.setEntityName(entityName);
-    String id = IWMainApplication.getEncryptedClassName(UserApplication.Top.class);
-    id = PresentationObject.COMPOUNDID_COMPONENT_DELIMITER + id;
-    model.setController(id);
     return model;
   }
   
@@ -468,8 +496,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   public void main(IWContext iwc) throws Exception { 
     super.main(iwc);
     // event model stuff
-    EntityBrowserPS state = (EntityBrowserPS) getPresentationState((IWUserContext) iwc);
-    this.addActionListener( (IWActionListener) state);
+    EntityBrowserPS state = (EntityBrowserPS) getPresentationState( iwc);
+    this.addActionListener(state);
    
     // get resource bundle
     IWResourceBundle resourceBundle = getResourceBundle(iwc);
@@ -481,35 +509,33 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     }
     else if ( leadingEntityName == null || leadingEntityName.length() == 0 )  {
       if (entities == null || entities.isEmpty()) {
-        setErrorContent(resourceBundle);
+        setErrorContent();
         return;
       }
-      else {
-        // sometimes entities is a collection of collections
-        Class objectClass;
-        Object object = entities.iterator().next();
-        if (object instanceof Collection) {
-          Collection coll = (Collection) object;
-          if  (! coll.isEmpty())  {
-            objectClass = coll.iterator().next().getClass();
-          }
-          else  {
-            setErrorContent(resourceBundle);
-            return;
-          }
+    // sometimes entities is a collection of collections
+      Class objectClass;
+      Object object = entities.iterator().next();
+      if (object instanceof Collection) {
+        Collection coll = (Collection) object;
+        if  (! coll.isEmpty())  {
+          objectClass = coll.iterator().next().getClass();
         }
         else  {
-          objectClass = object.getClass();
-        }
-        Class[] interfaces = objectClass.getInterfaces();
-        if (interfaces.length > 0)  {
-          Class firstInterfaceClass = interfaces[0];
-          leadingEntityName = firstInterfaceClass.getName();
-        }
-        else {
-          setErrorContent(resourceBundle);
+          setErrorContent();
           return;
         }
+      }
+      else  {
+        objectClass = object.getClass();
+      }
+      Class[] interfaces = objectClass.getInterfaces();
+      if (interfaces.length > 0)  {
+        Class firstInterfaceClass = interfaces[0];
+        leadingEntityName = firstInterfaceClass.getName();
+      }
+      else {
+        setErrorContent();
+        return;
       }
     }
    
@@ -524,7 +550,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       System.err.println("[EntityBrowser] Class was not recognized: " + leadingEntityName + " Message was: " +
       e.getMessage());
       // e.printStackTrace(System.err);
-      setErrorContent(resourceBundle);
+      setErrorContent();
       return;
     }
     if (entityNames != null)  {
@@ -644,7 +670,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // special case:
     // if only the header panel was set, set the additional presentationObjects now
     if (showHeaderNavigationPanel && !showBottomNavigationPanel)  {
-      setOnlyAdditionalPresentationObjects(enableBack, enableForward, necessaryRows, necessaryColumns);
+      setOnlyAdditionalPresentationObjects(necessaryRows, necessaryColumns);
     }
   }
   
@@ -663,7 +689,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     return table;
   }
   
-  private void setOnlyAdditionalPresentationObjects(boolean enableBack, boolean enableForward, int bottomRightCornerY, int bottomRightCornerX)  {
+  private void setOnlyAdditionalPresentationObjects(int bottomRightCornerY, int bottomRightCornerX)  {
     // create table
     Table panelTable = getAdditionalPresentationObjects();
     if (panelTable == null) {
@@ -1053,18 +1079,18 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 		return action;
 	}
 
-  private SetIterator retrieveSetIterator(IWContext iwc, Collection entities) {    
+  private SetIterator retrieveSetIterator(IWContext iwc, Collection entityColl) {    
     // initialize setIterator
     List entityList;
     // EntityList has not implemented the toArray() method that is used 
     // during the execution of new ArrayList(Collection coll) method
     // therefore we simply try to get a list by casting.
-    if (entities instanceof List)
-      entityList = (List) entities;
-    else if (entities == null)
+    if (entityColl instanceof List)
+      entityList = (List) entityColl;
+    else if (entityColl == null)
       entityList = new ArrayList();
     else 
-      entityList = new ArrayList(entities);
+      entityList = new ArrayList(entityColl);
     
     SetIterator setIterator = new SetIterator(entityList);
     // retrieve old state of setIterator, use session
@@ -1110,7 +1136,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     if (enableBack) 
       table.add(goBackLink,1,1);
  
-    Iterator iterator = getLinksToPage(formKey, iwc, resourceBundle, setIterator, currentStateOfIterator).iterator();
+    Iterator iterator = getLinksToPage(formKey, iwc, setIterator, currentStateOfIterator).iterator();
     while (iterator.hasNext())  {
       Link link = (Link) iterator.next();
       table.add(Text.getNonBrakingSpace(),1,1); 
@@ -1168,7 +1194,6 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private List getLinksToPage(
       String formKey,
       IWContext iwc, 
-      IWResourceBundle resourceBundle, 
       SetIterator setIterator, 
       String currentStateOfIterator)  {
     List listOfLinks = new ArrayList();
@@ -1289,7 +1314,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     return myId;
   }
   
-  private void setErrorContent(IWResourceBundle resourceBundle)  {
+  private void setErrorContent()  {
     // show nothing
     //// String message = resourceBundle.getLocalizedString("Blank table", "Blank table");
     //// add(message);
@@ -1338,10 +1363,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     if (! acceptUserSettings) {
       return defaultNumberOfRowsPerPage;
     }
-    int rows = multiPropertyHandler.getNumberOfRowsPerPage();
-    if (rows == EntityPropertyHandler.NUMBER_OF_ROWS_PER_PAGE_NOT_SET)
+    int rowsTemp = multiPropertyHandler.getNumberOfRowsPerPage();
+    if (rowsTemp == EntityPropertyHandler.NUMBER_OF_ROWS_PER_PAGE_NOT_SET)
       return defaultNumberOfRowsPerPage;
-    return rows;
+    return rowsTemp;
   }
   
   
@@ -1581,11 +1606,11 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     mandatoryParameters = null;
   }
   
-  public void addMandatoryParameters(Collection mandatoryParameters) {
-    if (this.mandatoryParameters == null)  {
-      this.mandatoryParameters = new ArrayList(mandatoryParameters);
+  public void addMandatoryParameters(Collection parameters) {
+    if (mandatoryParameters == null)  {
+      mandatoryParameters = new ArrayList(parameters);
     }
-    this.mandatoryParameters.addAll(mandatoryParameters);
+    mandatoryParameters.addAll(parameters);
   }
   
   public Parameter getShowAllEntriesParameter() {
