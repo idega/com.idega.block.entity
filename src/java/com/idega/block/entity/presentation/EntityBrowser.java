@@ -99,7 +99,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private int defaultNumberOfLinksPreviousToCurrentSet = 4;
   private int defaultNumberOfLinksAfterCurrentSet = 4;
   
-  private int rowLimitForShowingBottomNavigation = 15;
+  private int rowLimitForShowingBottomNavigation = 10;
   private boolean showHeaderNavigation = true;
   private boolean showBottomNavigation = true;
   
@@ -618,6 +618,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // special case:
     // if both panel were not set, set the settings button now...
     if (!showHeaderNavigationPanel && !showBottomNavigationPanel) {
+    	if (entityIterator.getIncrement() > rowLimitForShowingBottomNavigation) {
+    		setOnlySettingsButton(HEADER_FORM_KEY, enableBack, enableForward, resourceBundle, 1, necessaryColumns);
+    	}
       setOnlySettingsButton(BOTTOM_FORM_KEY, enableBack, enableForward, resourceBundle,necessaryRows,necessaryColumns);
     }
     // special case:
