@@ -131,7 +131,7 @@ public class DropDownMenuConverter
     Object value = getValue(entity,path,browser,iwc);  
     Integer id = (Integer) ((EntityRepresentation) entity).getPrimaryKey();
     // show drop down menu without a submit button if the entity is new
-    boolean newEntity = id.intValue() < 0;
+    boolean newEntity = id.equals(ConverterConstants.NEW_ENTITY_ID);
     boolean editEntity = false;
     String shortKeyPath = path.getShortKey();
     String uniqueKeyLink = getLinkUniqueKey(id, shortKeyPath);
