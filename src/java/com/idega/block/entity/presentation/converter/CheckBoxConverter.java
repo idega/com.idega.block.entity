@@ -27,9 +27,9 @@ import com.idega.presentation.ui.CheckBox;
  */
 public class CheckBoxConverter implements EntityToPresentationObjectConverter {
   
-  private static final String DEFAULT_KEY = "selected";
+  protected static final String DEFAULT_KEY = "selected";
   
-  private String key = DEFAULT_KEY;
+  protected String key = DEFAULT_KEY;
   
   protected boolean editable = true;
   protected boolean useShortKeyAsKey = false;
@@ -149,5 +149,19 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
     }
     return checkBox;
   }
+
+/**
+ * @return Returns the showTitle.
+ */
+public boolean isShowTitle() {
+	return showTitle;
+}
+
+/**
+ * @param showTitle The showTitle to set.
+ */
+public void setShowTitle(boolean showTitle) {
+	this.showTitle = showTitle;
+}
 
 }
