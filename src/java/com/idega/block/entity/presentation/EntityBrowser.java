@@ -90,7 +90,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   // some important default settings for the view
   private int defaultNumberOfRowsPerPage = 1;
-  private int MAX_ROWS_PER_PAGE = 500;
+  private int MAX_ROWS_PER_PAGE = 1000;
   
   // this flag is set by a checkbox 
   private boolean showAllEntities = false;
