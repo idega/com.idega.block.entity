@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import com.idega.block.entity.business.EntityPropertyHandler;
 import com.idega.block.entity.business.MultiEntityPropertyHandler;
@@ -225,6 +226,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     	allPathes = multiEntityPropertyHandler.getAllEntityPathes();
     }
     else {
+    	allPathes = new TreeMap();
     	Iterator optionShortKeysIterator = optionShortKeys.iterator();
     	while (optionShortKeysIterator.hasNext())  {
     		String shortKey = (String) optionShortKeysIterator.next();

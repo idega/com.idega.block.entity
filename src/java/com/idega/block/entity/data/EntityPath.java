@@ -214,6 +214,9 @@ public class EntityPath {
   
   
   private void getDescription(StringBuffer buffer)  {
+  	if (targetEntity == null) {
+  		return;
+  	}
     // add target name (without package path)
     String targetClassName = targetEntity.getName();
     String classNameWithoutPath = targetClassName.substring(targetClassName.lastIndexOf(".") + 1);
