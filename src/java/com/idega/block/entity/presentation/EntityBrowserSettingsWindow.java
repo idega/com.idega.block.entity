@@ -259,7 +259,6 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     formTable.add(selectionDoubleBox,1,1);
     // add inputField for number of rows
     Table inputTable = new Table(2,1);
-    inputTable.setAlignment("bottom");
     Text descriptionInput = new Text(getLocalizedString("number_of_rows_per_page:", "Number of rows per page:", iwuc));
 //    descriptionInput.setFontFace(Text.FONT_FACE_VERDANA);
 //    descriptionInput.setFontSize(2);
