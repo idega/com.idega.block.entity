@@ -1204,7 +1204,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // if acceptUserSettings is false do never show the user settings button!
     this.showSettingsButton = (acceptUserSettings) ? showSettingButton : false; 
 	}
-
+  
+  /** Changes the view: shows the columns as rows and vice versa.
+   * @param showMirroredView - default value is false.
+   */
   public void setShowMirroredView(boolean showMirroredView) {
     this.showMirroredView = showMirroredView;
   }
