@@ -23,7 +23,7 @@ import com.idega.presentation.ui.SubmitButton;
  */
 public class ButtonConverter implements EntityToPresentationObjectConverter {
 	
-	private static final String SUBMIT_KEY = "bc_submit";
+	public static final String SUBMIT_KEY = "bc_submit";
 	private static final char DELIMITER = '<';
 
 
@@ -117,14 +117,11 @@ public class ButtonConverter implements EntityToPresentationObjectConverter {
 		String id = idoEntity.getPrimaryKey().toString();
 		SubmitButton submitButton;
 		if (displayName == null) {
-			submitButton = new SubmitButton(image, getGeneralSubmitKey(), getUniqueKey(id, shortKeyPath).toString());
+			submitButton = new SubmitButton(image, getGeneralSubmitKey(), getUniqueKey(id, shortKeyPath).toString(), setOnClick);
 		}
 		else {
-		 	submitButton = new SubmitButton( displayName, getGeneralSubmitKey(), getUniqueKey(id, shortKeyPath).toString());
+		 	submitButton = new SubmitButton( displayName, getGeneralSubmitKey(), getUniqueKey(id, shortKeyPath).toString(), setOnClick);
 			submitButton.setAsImageButton(true);
-		}
-		if ( setOnClick != null) {
-			submitButton.setOnClick(setOnClick);
 		}
 		return submitButton;
 	}
