@@ -6,7 +6,7 @@ import java.util.Locale;
 import com.idega.block.entity.business.EntityToPresentationObjectConverter;
 import com.idega.block.entity.data.EntityPath;
 import com.idega.block.entity.presentation.EntityBrowser;
-import com.idega.data.GenericEntity;
+import com.idega.data.EntityRepresentation;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.PresentationObject;
 import com.idega.presentation.text.Text;
@@ -41,7 +41,7 @@ public class DateConverter implements EntityToPresentationObjectConverter {
     EntityPath path,
     EntityBrowser browser,
     IWContext iwc) {
-    Object object = path.getValue((GenericEntity) value);
+    Object object = path.getValue((EntityRepresentation) value);
     if (object == null)  {
       return new Text("");
     }

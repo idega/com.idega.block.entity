@@ -11,13 +11,13 @@ import com.idega.block.entity.business.EntityToPresentationObjectConverter;
 import com.idega.block.entity.data.EntityPath;
 import com.idega.block.entity.data.EntityPathValueContainer;
 import com.idega.block.entity.presentation.EntityBrowser;
-import com.idega.data.GenericEntity;
-import com.idega.data.IDOEntity;
+import com.idega.data.EntityRepresentation;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.PresentationObject;
 import com.idega.presentation.Table;
 import com.idega.presentation.text.Link;
 import com.idega.presentation.ui.DropdownMenu;
+import com.idega.presentation.ui.Form;
 import com.idega.presentation.ui.SubmitButton;
 
 /**
@@ -33,35 +33,64 @@ public class DropDownMenuConverter
   implements EntityToPresentationObjectConverter {
 
   private static final String LINK_KEY = "dd_link";
-  private static final String DROPDOWNMENU_KEY = "dd_dropDownInput";
+  private static final String DROPDOWNMENU_KEY = "dd_input";
+  private static final String DROPDOWNMENU_KEY_PREVIOUS_VALUE = "dd_prevValue";
   private static final String SUBMIT_KEY = "dd_submit";
   private static final char DELIMITER = '|';
   
   private OptionProvider optionProvider = null;
-  private Map maintainParameterMap = new HashMap(0);
   private List maintainParameterList = new ArrayList(0);
+  private Form externalForm = null;
+  
+  public DropDownMenuConverter(Form externalForm) {
+    this.externalForm = externalForm;
+  } 
 
   public static EntityPathValueContainer getResultByParsing(IWContext iwc) {
-    EntityPathValueContainer container = new EntityPathValueContainer();
+    String entityPathShortKey = null;
+    Integer id = null;
     String submitKey = getGeneralSubmitKey();
-    String action = "";
     if (iwc.isParameterSet(submitKey))  {
-      action = iwc.getParameter(submitKey);
+      String action = iwc.getParameter(submitKey);
       StringTokenizer tokenizer = new StringTokenizer(action, String.valueOf(DELIMITER));
       if (tokenizer.hasMoreTokens())  {
-        container.setEntityPathShortKey(tokenizer.nextToken());
+        // set shortkey
+        entityPathShortKey = tokenizer.nextToken();
       }
       if (tokenizer.hasMoreTokens())  {
-        container.setEntityId(tokenizer.nextToken());
+        // set id of entity
+        try {
+        id = new Integer(tokenizer.nextToken());
+        }
+        catch (NumberFormatException ex)  {
+          System.err.println("[DropDownMenuConverter] Could not retrieve id of entity. Message is: "+ ex.getMessage());
+          ex.printStackTrace(System.err);
+          id = null;
+        }
       }
-      String key = getDropdownMenuUniqueKey(container.getEntityId(), container.getEntityPathShortKey()).toString();
-      if (iwc.isParameterSet(key))  {
-        Object value = iwc.getParameter(key);
-        container.setValue(value);
-      }
+    }
+    return getResultByEntityIdAndEntityPathShortKey(id, entityPathShortKey, iwc);
+  }
+  
+  public static EntityPathValueContainer getResultByEntityIdAndEntityPathShortKey(Integer id, String entityPathShortKey, IWContext iwc)  {
+    EntityPathValueContainer container = new EntityPathValueContainer();
+    container.setEntityId(id);
+    container.setEntityPathShortKey(entityPathShortKey);
+    // set current chosen value
+    String key = getDropdownMenuUniqueKey(id, entityPathShortKey);
+    if (iwc.isParameterSet(key))  {
+      Object value = iwc.getParameter(key);
+      container.setValue(value);
+    }
+    // set previous value (that is the current value of the entity)
+    String keyPreviousValue = getDropDownMenuUniqueKeyPreviousValue(id, entityPathShortKey);
+    if (iwc.isParameterSet(keyPreviousValue))  {
+      Object value = iwc.getParameter(keyPreviousValue);
+      container.setPreviousValue(value);
     }
     return container;
   }
+    
 
   /* (non-Javadoc)
    * @see com.idega.block.entity.business.EntityToPresentationObjectConverter#getHeaderPresentationObject(com.idega.block.entity.data.EntityPath, com.idega.block.entity.presentation.EntityBrowser, com.idega.presentation.IWContext)
@@ -78,11 +107,6 @@ public class DropDownMenuConverter
   }
 
 
-  /** This method uses a copy of the specified map */
-  public void maintainParameters(Map maintainParameters) {
-    this.maintainParameterMap.putAll(maintainParameters);
-  }
-  
   /** This method uses a copy of the specified list */
   public void maintainParameters(List maintainParameters) {
     this.maintainParameterList.addAll(maintainParameters);
@@ -97,13 +121,14 @@ public class DropDownMenuConverter
     EntityBrowser browser,
     IWContext iwc) {
     Object value = getValue(entity,path,browser,iwc);  
-    Integer id = (Integer) ((IDOEntity) entity).getPrimaryKey();
+    Integer id = (Integer) ((EntityRepresentation) entity).getPrimaryKey();
+    // show drop down menu without a submit button if the entity is new
+    boolean newEntity = id.intValue() < 0;
     String shortKeyPath = path.getShortKey();
-    
     String uniqueKeyLink = getLinkUniqueKey(id, shortKeyPath);
     // decide to show a link or a drop down menu
-    if (iwc.isParameterSet(uniqueKeyLink)) {
-      // show text input with submitButton
+    if (newEntity || iwc.isParameterSet(uniqueKeyLink)) {
+      // show drop down menu with submitButton
       String uniqueKeyDropdownMenu = getDropdownMenuUniqueKey(id, shortKeyPath);
       DropdownMenu dropdownMenu = 
         getDropdownMenu(
@@ -113,29 +138,24 @@ public class DropDownMenuConverter
           path,
           browser,
           iwc);
-      SubmitButton button = new SubmitButton("OK", getGeneralSubmitKey(), getUniqueKey(id, shortKeyPath).toString());
-      // add maintain parameters
-      Iterator iterator = maintainParameterMap.entrySet().iterator();
-      while (iterator.hasNext())  {
-        Map.Entry entry = (Map.Entry) iterator.next();
-        button.addParameterToWindow((String) entry.getKey(), entry.getValue().toString());
-      }
-      button.setAsImageButton(true);
-      Table table = new Table(2,1);
+      // add old value as hidden value
+      externalForm.addParameter(DROPDOWNMENU_KEY_PREVIOUS_VALUE, value.toString());  
+      Table table = (newEntity) ? new Table(1,1) : new Table(2,1);
       table.add(dropdownMenu,1,1);
-      table.add(button,2,1);
+      // add submit button
+      if (! newEntity) {    
+        SubmitButton button = new SubmitButton("OK", getGeneralSubmitKey(), getUniqueKey(id, shortKeyPath).toString());
+        button.setAsImageButton(true);
+        table.add(button,2,1);
+      }
       return table;      
     } 
     else {
       // show link
-      Link link = new Link(value.toString());
+      String display = value.toString();
+      display = (display.length() == 0) ? "_" : display;
+      Link link = new Link(display);
       link.addParameter(uniqueKeyLink,"dummy_value");
-      // add maintain parameters with set values
-      Iterator iterator = maintainParameterMap.entrySet().iterator();
-      while (iterator.hasNext())  {
-        Map.Entry entry = (Map.Entry) iterator.next();
-        link.addParameter((String) entry.getKey(), entry.getValue().toString());
-      }
       // add maintain parameters
       Iterator iteratorList = maintainParameterList.iterator();
       while (iteratorList.hasNext())  {
@@ -152,7 +172,7 @@ public class DropDownMenuConverter
       EntityPath path,
       EntityBrowser browser,
       IWContext iwc)  {
-    Object object = path.getValue((GenericEntity) entity);
+    Object object = path.getValue((EntityRepresentation) entity);
     return (object == null) ? "" : object;
   }      
     
@@ -197,6 +217,11 @@ public class DropDownMenuConverter
     StringBuffer buffer = getUniqueKey(id, shortKeyOfPath).append(DELIMITER).append(DROPDOWNMENU_KEY);
     return buffer.toString();
   }
+  
+  private static String getDropDownMenuUniqueKeyPreviousValue(Integer id, String shortKeyOfPath) {
+    StringBuffer buffer = getUniqueKey(id, shortKeyOfPath).append(DELIMITER).append(DROPDOWNMENU_KEY_PREVIOUS_VALUE);
+    return buffer.toString();
+  }       
   
   private static String getGeneralSubmitKey()  {
     return SUBMIT_KEY;
