@@ -265,11 +265,6 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 
   public IWPresentationEvent getPresentationEvent() { 
     EntityBrowserEvent model = new  EntityBrowserEvent();
-    //EntityBrowserEvent model = (EntityBrowserEvent)initEvent(iwc,EntityBrowserEvent.class);
-    // necessary: set source!
-    //////model.setSource(myLocation);
-    /////model.setSource(presentationState.getLocation());
-    //model.setSource(getLocation());
     model.setSource(this);
     //model.setEntityName(entityName);
     String id = IWMainApplication.getEncryptedClassName(UserApplication.Top.class);
@@ -351,7 +346,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     }
             
     List visibleOrderedEntityPathes = getVisibleOrderedEntityPathes(multiPropertyHandler);
-    int numberOfRowsPerPage = multiPropertyHandler.getNumberOfRowsPerPage();
+    int numberOfRowsPerPage = getNumberOfRowsPerPage(multiPropertyHandler);
     
     // get the state of the former iterator
     SetIterator entityIterator = retrieveSetIterator(iwc, entities);
@@ -623,8 +618,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     return list;
   }           
   
-  private int getNumberOfRowsPerPage(EntityPropertyHandler propertyHandler) {
-    int rows = propertyHandler.getNumberOfRowsPerPage();
+  private int getNumberOfRowsPerPage(MultiEntityPropertyHandler multiPropertyHandler) {
+    int rows = multiPropertyHandler.getNumberOfRowsPerPage();
     if (rows != EntityPropertyHandler.DEFAULT_NUMBER_OF_ROWS_PER_PAGE)
       return rows;
     // rows was not set
