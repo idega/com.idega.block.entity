@@ -186,7 +186,8 @@ public class DropDownMenuConverter
   }
   
   protected PresentationObject getLink(Object value, String uniqueKeyLink, String id, IWContext iwc)  {
-    String display = value.toString();
+  	
+    String display = (value!=null) ? value.toString() : "";
     display = (display.length() == 0) ? "_" : display;
     if (! editable) {
       return new Text(display);
@@ -205,6 +206,7 @@ public class DropDownMenuConverter
       link.maintainParameter(parameter, iwc);
     }
     return link;
+  	
   }
   
   protected Object getValue(
