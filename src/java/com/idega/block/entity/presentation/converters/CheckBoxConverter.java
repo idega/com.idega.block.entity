@@ -28,13 +28,13 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
   
   private static final String DEFAULT_KEY = "selected";
   
-  private String key = null;
+  private String key = DEFAULT_KEY;
   
   public CheckBoxConverter() {
   }
     
   public CheckBoxConverter(String key) {
-    this.key = key;
+    setKeyForCheckBox(key);
   }  
   
   /** Gets all ids of the entities that are checked.
@@ -71,11 +71,11 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
 
   
   public void setKeyForCheckBox(String key) {
-    this.key = key;
+    this.key = (key == null || key.length() == 0) ? DEFAULT_KEY : key;      
   }
   
   public String getKeyForCheckBox() {
-    return (key == null || key.length() == 0) ? DEFAULT_KEY : key;
+    return key;
   }
   
 
