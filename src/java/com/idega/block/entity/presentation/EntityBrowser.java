@@ -145,6 +145,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   */
   private boolean acceptUserSettings = true;
   private boolean showSettingsButton = true;
+  private boolean showMirroredView = false;
   
   private String colorForEvenRows = null;
   private String colorForOddRows = null;
@@ -457,10 +458,23 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // set size of table
     int necessaryRows = entityIterator.getQuantity();
     int necessaryColumns = visibleOrderedEntityPathes.size();
-    // we need at least on column for buttons
-    necessaryColumns = (necessaryColumns == 0) ? 1 : necessaryColumns;
-    // plus rows for header and buttons
-    necessaryRows += 3;
+    if (showMirroredView) {
+      int temp = necessaryColumns;
+      necessaryColumns = necessaryRows;
+      necessaryRows = temp;
+    }
+    if (showMirroredView) {
+      // we need at least on column for buttons plus headers
+      necessaryColumns = (necessaryColumns == 0) ? 2 : necessaryColumns + 1;
+      // plus rows for buttons
+      necessaryRows += 2;
+    }
+    else {  
+      // we need at least on column for buttons 
+      necessaryColumns = (necessaryColumns == 0) ? 1 : necessaryColumns;
+      // plus rows for header and buttons
+      necessaryRows += 3;
+    }
     setSize(necessaryColumns, necessaryRows);
             
     // get now the table    
@@ -676,19 +690,24 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       EntityPath entityPath = (EntityPath) iterator.next();
       EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(entityPath); 
       PresentationObject presentation = converter.getHeaderPresentationObject(entityPath, this, iwc);
-      add(presentation, xAnchorPosition + i , yAnchorPosition + 2); 
+      if (showMirroredView) {
+        add(presentation, xAnchorPosition + 1, yAnchorPosition + 1 + i);
+      }
+      else {
+        add(presentation, xAnchorPosition + i , yAnchorPosition + 2);
+      } 
       i++;    
     }
     
     // fill table  
     
-    int y = 3;
+    int y = (showMirroredView) ? 2 : 3;
     while (entitySetIterator.hasNextInSet()) {
       Object genericEntity = entitySetIterator.next();
       Iterator visibleOrderedEntityPathesIterator = visibleOrderedEntityPathes.iterator();
       // set color of rows
 			setColorForRow(y);
-      int x = 1;
+      int x = (showMirroredView) ? 2 : 1;
       // fill columns
       currentIndexOfEntities = entitySetIterator.currentIndexRelativeToZero();
       currentRow = yAnchorPosition + y;
@@ -698,11 +717,22 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
         EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(path); 
         PresentationObject presentation = converter.getPresentationObject(genericEntity, path, this, iwc);
         add(presentation, currentColumn, currentRow);
-        // next column
-        x++; 
+ 
+        if (showMirroredView) {
+          y++;
+        }
+        else {
+          // next column
+          x++;
+        } 
       }
-      // next row
-      y++;
+      if (showMirroredView) {
+        x++;
+      }
+      else {
+        // nextRow
+        y++;
+      }
     }
     currentColumn = -1;
     currentRow = -1;
@@ -1181,6 +1211,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     this.showSettingsButton = (acceptUserSettings) ? showSettingButton : false; 
 	}
 
+  public void setShowMirroredView(boolean showMirroredView) {
+    this.showMirroredView = showMirroredView;
+  }
+  
 	/**
 	 * Sets the columnTextProxy.
 	 * @param columnTextProxy The columnTextProxy to set
