@@ -41,8 +41,10 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
   // flag 
   private boolean workWithExternalSubmitButton = true;
   
-  // if set the text input allows only float values
+  // if set to true the text input allows only float values
   private String setAsFloatMessage = null;
+  // if set to true the text input allows only social security numbers
+  private String setAsIcelandicSocialSecurityNumberMessage = null;
   
   public void setWorkWithExternalSubmitButton(boolean workWithExternalSubmitButton) {
     this.workWithExternalSubmitButton = workWithExternalSubmitButton;
@@ -50,6 +52,10 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
   
   public void setAsFloat(String setAsFloatMessage)  {
     this.setAsFloatMessage = setAsFloatMessage;
+  }
+  
+  public void setAsIcelandicSocialSecurityNumber(String setAsIcelandicSocialSecurityNumberMessage)  {
+    this.setAsIcelandicSocialSecurityNumberMessage = setAsIcelandicSocialSecurityNumberMessage;
   }
   
   public TextEditorConverter(Form externalForm) {
@@ -156,6 +162,9 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
       TextInput textInput = new TextInput( uniqueKeyTextInput, text);
       if (setAsFloatMessage != null) {
         textInput.setAsFloat(setAsFloatMessage);
+      }
+      else if (setAsIcelandicSocialSecurityNumberMessage != null) { 
+        textInput.setAsIcelandicSSNumber(setAsIcelandicSocialSecurityNumberMessage);
       }
 
       // add old value as hidden value
