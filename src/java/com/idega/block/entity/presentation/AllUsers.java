@@ -40,7 +40,7 @@ public class AllUsers extends Block {
     Collection coll = getAll(User.class);
     EntityBrowser browser = new EntityBrowser();
     browser.setLeadingEntity((User.class).getName());
-    browser.setEntities(coll);
+    browser.setEntities("users",coll);
     add(browser);
   }
      

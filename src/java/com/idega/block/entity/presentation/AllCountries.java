@@ -39,7 +39,7 @@ public class AllCountries extends Block {
     Collection coll = getAll(Country.class);
     EntityBrowser browser = new EntityBrowser();
     browser.setLeadingEntity((Country.class).getName());
-    browser.setEntities(coll);
+    browser.setEntities("contries", coll);
     add(browser);
   }
      
