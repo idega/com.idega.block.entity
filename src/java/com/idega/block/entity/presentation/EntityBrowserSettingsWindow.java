@@ -355,7 +355,9 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
 	private SelectionDoubleBox getColumnsChooserDoubleSelectionBox(IWResourceBundle resourceBundle, List availableColumns, List visibleColumns) {
 		// create selection double box and set parameter string
 		SelectionDoubleBox selectionDoubleBox = 
-      new SelectionDoubleBox(RIGHT_SELECTION_BOX_KEY,"Available columns","Visible Columns");
+      new SelectionDoubleBox(RIGHT_SELECTION_BOX_KEY,
+      		resourceBundle.getLocalizedString("available_columns","Available columns"),
+					resourceBundle.getLocalizedString("visible_columns","Visible Columns"));
     // set size
     selectionDoubleBox.getRightBox().setWidth("300");
     selectionDoubleBox.getLeftBox().setWidth("300");   
