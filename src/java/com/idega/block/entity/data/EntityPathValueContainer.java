@@ -24,7 +24,7 @@ public class EntityPathValueContainer {
   private boolean valueIsSet = false;
   private Object value;
   private Object previousValue = null;
-  private Integer entityId;
+  private Object entityId;
   
   public EntityPathValueContainer() {
     this(null);
@@ -34,17 +34,17 @@ public class EntityPathValueContainer {
     this(entityPathShortKey, null);
   }
   
-  public EntityPathValueContainer(String entityPathShortKey, Integer entityId)  {
+  public EntityPathValueContainer(String entityPathShortKey, Object entityId)  {
     this.entityPathShortKey = entityPathShortKey;
     this.entityId = entityId;
     valueIsSet = false;
   }
 
-  public EntityPathValueContainer(String entityPathShortKey, Integer entityId, Object value)  {
+  public EntityPathValueContainer(String entityPathShortKey, Object entityId, Object value)  {
     this(entityPathShortKey, entityId, value, null);  
   }
   
-  public EntityPathValueContainer(String entityPathShortKey, Integer entityId, Object value, Object previousValue)  {
+  public EntityPathValueContainer(String entityPathShortKey, Object entityId, Object value, Object previousValue)  {
     this.entityPathShortKey = entityPathShortKey;
     this.entityId = entityId;
     this.value = value;
@@ -72,9 +72,14 @@ public class EntityPathValueContainer {
   /**
    * @return
    */
-  public Integer getEntityId() {
+  public Object getEntityId() {
     return entityId;
   }
+  
+  public Integer getEntityIdConvertToInteger()	throws NumberFormatException {
+  	String id = entityId.toString();
+ 		return new Integer(id);
+  }  		
 
   /**
    * @return
@@ -89,6 +94,11 @@ public class EntityPathValueContainer {
   public Object getValue() {
     return value;
   }
+
+	public void setEntityId(Object entityId)	{
+		this.entityId = entityId;
+	} 
+
 
   /**
    * @param integer
