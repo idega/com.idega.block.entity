@@ -182,6 +182,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     this.leadingEntityName = leadingEntityName;
   }
   
+  public void setLeadingEntity(Class leadingEntityClass)  {
+    this.leadingEntityName = leadingEntityClass.getName();
+  }
+  
   /**
    * Usually this class uses its own form to handle the forward and the backward
    * buttons. In this case this flag is set to false.
