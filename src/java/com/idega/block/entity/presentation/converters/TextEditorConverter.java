@@ -124,7 +124,7 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
    
     Integer id = (Integer) ((EntityRepresentation) entity).getPrimaryKey();
     // show text input without a submit button if the entity is new 
-    boolean newEntity = id.intValue() < 0;
+    boolean newEntity = id.intValue() ==  -1;
     String shortKeyPath = path.getShortKey();
     String uniqueKeyLink = getLinkUniqueKey(id, shortKeyPath);
     boolean editEntity = false;
