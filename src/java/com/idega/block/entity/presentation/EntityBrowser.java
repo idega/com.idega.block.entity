@@ -699,40 +699,34 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       i++;    
     }
     
-    // fill table  
-    
-    int y = (showMirroredView) ? 2 : 3;
+    // fill table
+    int y = 3;
     while (entitySetIterator.hasNextInSet()) {
       Object genericEntity = entitySetIterator.next();
       Iterator visibleOrderedEntityPathesIterator = visibleOrderedEntityPathes.iterator();
       // set color of rows
 			setColorForRow(y);
-      int x = (showMirroredView) ? 2 : 1;
+      int x = 1;
       // fill columns
       currentIndexOfEntities = entitySetIterator.currentIndexRelativeToZero();
       while (visibleOrderedEntityPathesIterator.hasNext())  {
-        currentRow = yAnchorPosition + y;
-        currentColumn = xAnchorPosition + x;
+        if (showMirroredView) {
+          currentRow = yAnchorPosition + x + 1;
+          currentColumn = xAnchorPosition + y - 1;
+        }
+        else {
+          currentRow = yAnchorPosition + y;
+          currentColumn = xAnchorPosition + x;
+        }
         EntityPath path = (EntityPath) visibleOrderedEntityPathesIterator.next();
         EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(path); 
         PresentationObject presentation = converter.getPresentationObject(genericEntity, path, this, iwc);
         add(presentation, currentColumn, currentRow);
- 
-        if (showMirroredView) {
-          y++;
-        }
-        else {
-          // next column
-          x++;
-        } 
-      }
-      if (showMirroredView) {
+        // next column
         x++;
       }
-      else {
-        // nextRow
-        y++;
-      }
+      // nextRow
+      y++;
     }
     currentColumn = -1;
     currentRow = -1;
