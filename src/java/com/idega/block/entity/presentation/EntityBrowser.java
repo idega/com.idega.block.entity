@@ -154,6 +154,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   private int currentRow = -1;
   private int currentColumn = -1;
+  private int currentIndexOfEntities= -1;
   
   private String myId = null;
   
@@ -685,9 +686,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 			setColorForRow(y);
       int x = 1;
       // fill columns
+      currentIndexOfEntities = entitySetIterator.currentIndexRelativeToZero();
+      currentRow = yAnchorPosition + y;
       while (visibleOrderedEntityPathesIterator.hasNext())  {
         currentColumn = xAnchorPosition + x;
-        currentRow = yAnchorPosition + y;
         EntityPath path = (EntityPath) visibleOrderedEntityPathesIterator.next();
         EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(path); 
         PresentationObject presentation = converter.getPresentationObject(genericEntity, path, this, iwc);
@@ -700,6 +702,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     }
     currentColumn = -1;
     currentRow = -1;
+    currentIndexOfEntities = -1;
   }
 
 
@@ -1192,7 +1195,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 
 	/**
 	 * Returns the currentColumn.
-   * Returns -1 if the browser is not drawing a cell at the moment.
+   * Used within EntityToPresentationObjectConverters during printing a cell.
+   * Returns -1 if the browser is not printing the table.
 	 * @return int
 	 */
 	public int getCurrentColumn() {
@@ -1201,12 +1205,23 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 
 	/**
 	 * Returns the currentRow.
-   * Returns -1 if the browser is not drawing a cell at the moment.
+   * Used within EntityToPresentationObjectConverters during printing a cell.
+   * Returns -1 if the browser is not printing the table.
 	 * @return int
 	 */
 	public int getCurrentRow() {
 		return currentRow;
 	}
+  
+  /** 
+   * Returns the current index of the current entity within the specified collection of entities.
+   * Used within EntityToPresentationObjectConverters during printing a cell.
+   * First index is zero.
+   * Returns -1 if the browser is not printing the table.
+   */
+  public int getCurrentIndexOfEntities()  {
+    return currentIndexOfEntities;
+  }
 
 	/**
 	 * Sets the rowLimitForShowingBottomNavigation.
