@@ -30,12 +30,18 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
   
   private String key = DEFAULT_KEY;
   
+  private boolean editable = true;
+  
   public CheckBoxConverter() {
   }
     
   public CheckBoxConverter(String key) {
     setKeyForCheckBox(key);
   }  
+  
+  public void setEditable(boolean editable) {
+    this.editable = editable;
+  }
   
   /** Gets all ids of the entities that are checked.
    *  This method should only be used if the checkbox converter was instanciated using the default key.
@@ -112,7 +118,11 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
     EntityBrowser browser,
     IWContext iwc) {
     EntityRepresentation idoEntity = (EntityRepresentation) entity;
-    return new CheckBox(key, idoEntity.getPrimaryKey().toString());
+    CheckBox checkBox = new CheckBox(key, idoEntity.getPrimaryKey().toString());
+    if (! editable) {
+      checkBox.setDisabled(true);
+    }
+    return checkBox;
   }
 
 }

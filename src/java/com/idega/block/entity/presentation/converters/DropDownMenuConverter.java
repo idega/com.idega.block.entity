@@ -16,6 +16,7 @@ import com.idega.presentation.IWContext;
 import com.idega.presentation.PresentationObject;
 import com.idega.presentation.Table;
 import com.idega.presentation.text.Link;
+import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.DropdownMenu;
 import com.idega.presentation.ui.Form;
 import com.idega.presentation.ui.SubmitButton;
@@ -41,6 +42,7 @@ public class DropDownMenuConverter
   protected OptionProvider optionProvider = null;
   protected List maintainParameterList = new ArrayList(0);
   private Form externalForm = null;
+  private boolean  editable = true;
   
   
   // flag 
@@ -48,6 +50,10 @@ public class DropDownMenuConverter
   
   public void setWorkWithExternalSubmitButton(boolean workWithExternalSubmitButton) {
     this.workWithExternalSubmitButton = workWithExternalSubmitButton;
+  }
+
+  public void setEditable(boolean editable)  {
+    this.editable = editable;
   }
   
   public DropDownMenuConverter(Form externalForm) {
@@ -179,9 +185,12 @@ public class DropDownMenuConverter
       
   }
   
-  protected Link getLink(Object value, String uniqueKeyLink, String id, IWContext iwc)  {
+  protected PresentationObject getLink(Object value, String uniqueKeyLink, String id, IWContext iwc)  {
     String display = value.toString();
     display = (display.length() == 0) ? "_" : display;
+    if (! editable) {
+      return new Text(display);
+    }
     Link link = new Link(display);
     if (workWithExternalSubmitButton) {
       link.addParameter(ConverterConstants.EDIT_ENTITY_KEY, id);

@@ -14,6 +14,7 @@ import com.idega.presentation.IWContext;
 import com.idega.presentation.PresentationObject;
 import com.idega.presentation.Table;
 import com.idega.presentation.text.Link;
+import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.Form;
 import com.idega.presentation.ui.SubmitButton;
 import com.idega.presentation.ui.TextInput;
@@ -41,10 +42,17 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
   // flag 
   private boolean workWithExternalSubmitButton = true;
   
+  // flag if editable
+  private boolean editable = true;
+  
   // if set to true the text input allows only float values
   private String setAsFloatMessage = null;
   // if set to true the text input allows only social security numbers
   private String setAsIcelandicSocialSecurityNumberMessage = null;
+  
+  public void setEditable(boolean editable)  {
+    this.editable = editable;
+  }
   
   public void setWorkWithExternalSubmitButton(boolean workWithExternalSubmitButton) {
     this.workWithExternalSubmitButton = workWithExternalSubmitButton;
@@ -186,6 +194,9 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
     else {
       // show link
       text = (text.length() == 0) ? "_" : text;  
+      if (! editable) {
+        return new Text(text);
+      }
       Link link = new Link(text);
       if (workWithExternalSubmitButton) {
         link.addParameter(ConverterConstants.EDIT_ENTITY_KEY, id.toString());
