@@ -65,7 +65,7 @@ public class EditOkayButtonConverter implements EntityToPresentationObjectConver
     IWContext iwc) {
     
     Table table = new Table(2,1);
-		IWResourceBundle iwrb = iwc.getApplication().getBundle(getBundleIdentifier()).getResourceBundle(iwc.getCurrentLocale());
+		IWResourceBundle iwrb = iwc.getIWMainApplication().getBundle(getBundleIdentifier()).getResourceBundle(iwc.getCurrentLocale());
     
 
     Integer id = (Integer) ((EntityRepresentation) value).getPrimaryKey();

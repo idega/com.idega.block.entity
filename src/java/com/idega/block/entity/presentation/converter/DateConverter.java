@@ -45,7 +45,7 @@ public class DateConverter implements EntityToPresentationObjectConverter {
     if (object == null)  {
       return new Text("");
     }
-    Locale locale = iwc.getApplication().getSettings().getDefaultLocale();  
+    Locale locale = iwc.getIWMainApplication().getSettings().getDefaultLocale();  
     IWTimestamp timestamp = new IWTimestamp(object.toString());
     String date = timestamp.getLocaleDate(locale, DateFormat.LONG);
     return new Text(date);

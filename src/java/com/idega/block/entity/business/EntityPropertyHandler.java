@@ -49,7 +49,7 @@ public class EntityPropertyHandler {
   public EntityPropertyHandler(IWUserContext userContext, Class entityClass)  {
     this.entityClass = entityClass;
     this.userContext = userContext;
-    bundle = userContext.getApplicationContext().getApplication().getBundle(EntityBrowser.IW_BUNDLE_IDENTIFIER);
+    bundle = userContext.getApplicationContext().getIWMainApplication().getBundle(EntityBrowser.IW_BUNDLE_IDENTIFIER);
   }
   
       
