@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap; 
 
+import javax.swing.event.ChangeListener;
+
 
 import com.idega.block.entity.business.EntityPropertyHandler;
 import com.idega.block.entity.data.EntityPath;
@@ -27,18 +29,22 @@ import com.idega.idegaweb.IWResourceBundle;
 import com.idega.idegaweb.IWUserContext;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.Page;
+import com.idega.presentation.PresentationObject;
+import com.idega.presentation.StatefullPresentation;
 import com.idega.presentation.Table;
 import com.idega.presentation.text.Link;
 import com.idega.presentation.ui.Form;
 import com.idega.presentation.ui.SubmitButton;
 import com.idega.user.app.UserApplication;
+import com.idega.user.app.UserApplication.Top;
+import com.idega.user.presentation.BasicUserOverview;
 import com.idega.util.SetIterator;
 /**
  *@author     <a href="mailto:thomas@idega.is">Thomas Hilbig</a>
  *@version    1.0
  */
 
-public class EntityBrowser extends Table implements SpecifiedChoiceProvider {
+public class EntityBrowser extends Table implements SpecifiedChoiceProvider, StatefullPresentation {
   
   public final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.entity";
       
@@ -178,16 +184,18 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider {
     
     
     // event model stuff
-    // I am listening to my own events!
-    IWPresentationState state = getPresentationState((IWUserContext) iwc);
-    this.addIWActionListener( (IWActionListener) state);
-    
-    
-    
-    
+    EntityBrowserPS state = (EntityBrowserPS) getPresentationState((IWUserContext) iwc);
+    this.addActionListener( (IWActionListener) state);
+   
     
     // get resource bundle
     IWResourceBundle resourceBundle = getResourceBundle(iwc);
+
+
+    // get the entity name from the presentation state if it is not set
+    String name;
+    if (entityName.length() == 0 && (name = state.getEntityName()) != null)
+      entityName = name;
     
     
     // get entity name from one element of the entity collection
@@ -275,22 +283,31 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider {
     // add parameters for event handling (if the event model is used)
     // create an event
     EntityBrowserEvent model = new  EntityBrowserEvent();
+    //EntityBrowserEvent model = (EntityBrowserEvent)initEvent(iwc,EntityBrowserEvent.class);
     // necessary: set source!
     //////model.setSource(myLocation);
     /////model.setSource(presentationState.getLocation());
-    model.setSource(getLocation());
+    //model.setSource(getLocation());
+    model.setSource(this);
+    model.setEntityName(entityName);
+    String id = IWMainApplication.getEncryptedClassName(UserApplication.Top.class);
+    id = PresentationObject.COMPOUNDID_COMPONENT_DELIMITER + id;
+    model.setController(id);
+    //////////////////////////////////model.setControlFrameTarget("iwb_top");
     form.addEventModel(model);
-    form.setTarget("_top");
-    ////////form.setTarget("iwb_main");
+    //form.setTarget("iwb_top");
+    //form.setTarget("_top");
+    //form.setTarget("iwb_main");
     ////////form.setPageToSubmitTo(id);
     ////////String decript = IWMainApplication.getEncryptedClassName(UserApplicationMainArea.class);
-    String decript = IWMainApplication.getEncryptedClassName(UserApplication.class);
-    form.addParameter(Page.IW_FRAME_CLASS_PARAMETER, decript);
+    //String decript = IWMainApplication.getEncryptedClassName(BasicUserOverview.class);  // former UserApplication
+    //form.addParameter(Page.IW_FRAME_CLASS_PARAMETER, decript);
     ///////form.sendToControllerFrame();
     table.add(form, 3,1);
     // now add the table in the row that was created by merging the cells of the last row
     add(table, beginxpos, beginypos);
   }
+
 
 	private void setSize(int columns, int rows ) {
     // add the anchor positions
@@ -494,7 +511,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider {
     if(presentationState == null){
       try {
         IWStateMachine stateMachine = (IWStateMachine)IBOLookup.getSessionInstance(iwuc,IWStateMachine.class);
-        presentationState = (EntityBrowserPS)stateMachine.getStateFor(this.getLocation(),EntityBrowserPS.class);
+        presentationState = (EntityBrowserPS)stateMachine.getStateFor(getCompoundId(),EntityBrowserPS.class);
       }
       catch (RemoteException re) {
         throw new RuntimeException(re.getMessage());
@@ -504,32 +521,14 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider {
   }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  /** mandatory method for interface StatefullPresentation 
+   * 
+	*/
   
+  public Class getPresentationStateClass()  {
+    return EntityBrowserPS.class;
+  }
+
+
   
 }

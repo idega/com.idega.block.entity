@@ -18,6 +18,8 @@ public class EntityBrowserPS extends IWPresentationStateImpl implements IWAction
 
 
   private String parameter = null;
+  
+  private String entityName = null;
 
 
   public void reset(){
@@ -27,13 +29,13 @@ public class EntityBrowserPS extends IWPresentationStateImpl implements IWAction
   }
 
 
-//  public String getColor(){
-//    return color;
-//  }
-
-
   public String getParameter() {
     return parameter;
+  }
+  
+  
+  public String getEntityName() {
+    return entityName;
   }
 
 
@@ -43,6 +45,7 @@ public class EntityBrowserPS extends IWPresentationStateImpl implements IWAction
     if (e instanceof EntityBrowserEvent)  {
       IWContext mainIwc = e.getIWContext();
       parameter = mainIwc.getParameter(EntityBrowser.NEW_SUBSET_KEY);
+      entityName = ((EntityBrowserEvent)e).getEntityName();
       // why is this important?
       this.fireStateChanged();
     }
