@@ -32,7 +32,7 @@ public class EntityPath {
   
   public final static String DESCRIPTION_COLUMN_DELIMITER = ".";
   
-  private static int DEFAULT_SEARCH_DEPTH = 4; 
+  private static int DEFAULT_SEARCH_DEPTH = 2; 
   
   private Class sourceEntity = null;
   
