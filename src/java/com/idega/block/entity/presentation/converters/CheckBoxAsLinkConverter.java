@@ -66,7 +66,7 @@ public class CheckBoxAsLinkConverter extends CheckBoxConverter {
 
     boolean shouldBeChecked = shouldEntityBeChecked(idoEntity, id);
 
-    boolean disableCheckBox = true;
+    //boolean disableCheckBox = true;
     if (iwc.isParameterSet(ConverterConstants.EDIT_ENTITY_KEY)) {
       String idEditEntity = iwc.getParameter(ConverterConstants.EDIT_ENTITY_KEY);
       try {
