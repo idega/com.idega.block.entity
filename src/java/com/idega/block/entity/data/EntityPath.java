@@ -1,6 +1,5 @@
 package com.idega.block.entity.data;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -9,14 +8,8 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import javax.ejb.CreateException;
-
-
-
 import com.idega.data.EntityAttribute;
 import com.idega.data.GenericEntity;
-import com.idega.data.IDOHome;
-import com.idega.data.IDOLookup;
 import com.idega.idegaweb.IWResourceBundle;
 
 /**

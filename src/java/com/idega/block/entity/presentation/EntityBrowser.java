@@ -7,9 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
-import java.util.TreeMap; 
-
-
+import java.util.TreeMap;
 
 import com.idega.block.entity.business.EntityPropertyHandler;
 import com.idega.block.entity.business.EntityToPresentationObjectConverter;
@@ -22,11 +20,9 @@ import com.idega.builder.handler.SpecifiedChoiceProvider;
 import com.idega.business.IBOLookup;
 import com.idega.data.GenericEntity;
 import com.idega.event.IWActionListener;
-
 import com.idega.event.IWPresentationEvent;
 import com.idega.event.IWPresentationState;
 import com.idega.event.IWStateMachine;
-
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.idegaweb.IWUserContext;
@@ -38,7 +34,6 @@ import com.idega.presentation.text.Link;
 import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.DropdownMenu;
 import com.idega.presentation.ui.Form;
-import com.idega.presentation.ui.SubmitButton;
 import com.idega.user.app.UserApplication;
 import com.idega.util.SetIterator;
 /**

@@ -3,14 +3,12 @@ package com.idega.block.entity.event;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import com.idega.event.*;
+import com.idega.event.IWActionListener;
+import com.idega.event.IWPresentationEvent;
 import com.idega.event.IWPresentationStateImpl;
-
-import com.idega.block.entity.presentation.EntityBrowser;
-import com.idega.presentation.event.ResetPresentationEvent;
-import com.idega.presentation.IWContext;
 import com.idega.idegaweb.IWException;
-import com.idega.event.*;
+import com.idega.presentation.IWContext;
+import com.idega.presentation.event.ResetPresentationEvent;
 
 /**
  *@author     <a href="mailto:thomas@idega.is">Thomas Hilbig</a>

@@ -2,7 +2,6 @@ package com.idega.block.entity.event;
 
 import com.idega.event.IWPresentationEvent;
 import com.idega.presentation.IWContext;
-import com.idega.presentation.Page;
 
 /**
  *@author     <a href="mailto:thomas@idega.is">Thomas Hilbig</a>
