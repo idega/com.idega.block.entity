@@ -502,6 +502,11 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // get now the table    
     fillEntityTable(visibleOrderedEntityPathes , entityIterator, iwc);
     
+    //TODO: thi: enable the mirrored view to work together with the navigation panel
+    if (showMirroredView) {
+      return;
+    }
+    
     boolean enableForward = entityIterator.hasNextSet();
     boolean enableBack = entityIterator.hasPreviousSet(); 
     
