@@ -16,6 +16,7 @@ import com.idega.presentation.Table;
 import com.idega.presentation.text.Link;
 import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.Form;
+import com.idega.presentation.ui.Parameter;
 import com.idega.presentation.ui.SubmitButton;
 import com.idega.presentation.ui.TextInput;
 
@@ -204,6 +205,9 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
       else {
         link.addParameter(uniqueKeyLink,"dummy_value");
       }
+      // add some parameters from browser
+      Parameter showAllEntriesParameter = browser.getShowAllEntriesParameter();
+      link.addParameter(showAllEntriesParameter);
       // add maintain parameters
       Iterator iteratorList = maintainParameterList.iterator();
       while (iteratorList.hasNext())  {

@@ -13,6 +13,7 @@ import com.idega.presentation.PresentationObject;
 import com.idega.presentation.Table;
 import com.idega.presentation.text.Link;
 import com.idega.presentation.text.Text;
+import com.idega.presentation.ui.Parameter;
 import com.idega.presentation.ui.SubmitButton;
 
 /**
@@ -65,6 +66,7 @@ public class EditOkayButtonConverter implements EntityToPresentationObjectConver
     Table table = new Table(2,1);
 		IWResourceBundle iwrb = iwc.getApplication().getBundle(getBundleIdentifier()).getResourceBundle(iwc.getCurrentLocale());
     
+
     Integer id = (Integer) ((EntityRepresentation) value).getPrimaryKey();
     if (iwc.isParameterSet(ConverterConstants.EDIT_ENTITY_KEY)) {
       String idEditEntity = iwc.getParameter(ConverterConstants.EDIT_ENTITY_KEY);
@@ -75,14 +77,15 @@ public class EditOkayButtonConverter implements EntityToPresentationObjectConver
           button.setAsImageButton(true);
 		  table.add(button,1,1);
           if(addCancel){
+            Parameter showAllEntries = browser.getShowAllEntriesParameter();
            	Link cancel = new Link(iwrb.getLocalizedImageButton("cancel.button","cancel"));
+            cancel.addParameter(showAllEntries);
           	cancel.addParameter(ConverterConstants.SUBMIT_CANCEL_KEY,"true");
-          	
           	if(maintainParametersList!=null && !maintainParametersList.isEmpty()){
           		Iterator iter = maintainParametersList.iterator();
           		while (iter.hasNext()) {
 			      String param = (String) iter.next();
-				  cancel.maintainParameter(param,iwc);
+ 				  cancel.maintainParameter(param,iwc);
                 }
           		
           	}
