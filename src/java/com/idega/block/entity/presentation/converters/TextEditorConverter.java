@@ -102,8 +102,7 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
       // show text input with submitButton
       String uniqueKeyTextInput = getTextInputUniqueKey(id, shortKeyPath);
       TextInput textInput = new TextInput( uniqueKeyTextInput, text);
-      SubmitButton button = new SubmitButton(getGeneralSubmitKey(), "OK");
-      button.setValue(this.getUniqueKey(id, shortKeyPath).toString());
+      SubmitButton button = new SubmitButton("OK", getGeneralSubmitKey(), getUniqueKey(id, shortKeyPath).toString());
       // add maintain parameters
       Iterator iterator = maintainParameterMap.entrySet().iterator();
       while (iterator.hasNext())  {
