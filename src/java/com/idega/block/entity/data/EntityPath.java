@@ -307,7 +307,7 @@ public class EntityPath {
     if (nextEntityPath == null) {
       return;
     }
-    nextEntityPath.getClassOfValue();
+    nextEntityPath.getClassesOfValues(list);
   }
 
   private void getValues(List list, EntityRepresentation entity)  {
