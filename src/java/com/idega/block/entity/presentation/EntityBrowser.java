@@ -710,8 +710,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       int x = (showMirroredView) ? 2 : 1;
       // fill columns
       currentIndexOfEntities = entitySetIterator.currentIndexRelativeToZero();
-      currentRow = yAnchorPosition + y;
       while (visibleOrderedEntityPathesIterator.hasNext())  {
+        currentRow = yAnchorPosition + y;
         currentColumn = xAnchorPosition + x;
         EntityPath path = (EntityPath) visibleOrderedEntityPathesIterator.next();
         EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(path); 
