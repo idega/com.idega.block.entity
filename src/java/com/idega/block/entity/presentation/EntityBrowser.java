@@ -32,6 +32,7 @@ import com.idega.presentation.StatefullPresentation;
 import com.idega.presentation.Table;
 import com.idega.presentation.text.Link;
 import com.idega.presentation.text.Text;
+import com.idega.presentation.ui.CheckBox;
 import com.idega.presentation.ui.DropdownMenu;
 import com.idega.presentation.ui.Form;
 import com.idega.presentation.ui.HiddenInput;
@@ -46,6 +47,7 @@ import com.idega.util.SetIterator;
 public class EntityBrowser extends Table implements SpecifiedChoiceProvider, StatefullPresentation {
   
   public final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.entity";
+  
 
   private final static String NEW_SUBSET_KEY = "new_subset_key";
   
@@ -55,9 +57,24 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   private final static String BOTTOM_FORM_KEY = "bottom_form_key";
   
+  private final static String EXTERNAL_FORM_KEY = "external_form_key";
+  
+  private final static String SHOW_ALL_KEY = "show_all_key";
+  
+  private final static String All_ENTITIES_WERE_SHOWN = "all_entities_were_shown";
+  
+  public final static String REQUEST_KEY = "re_key";
+  
+  public final static String REQUEST_FROM_HEADER_FORM_KEY = HEADER_FORM_KEY + REQUEST_KEY;
+  public final static String REQUEST_FROM_BOTTOM_FORM_KEY = BOTTOM_FORM_KEY + REQUEST_KEY;
+  public final static String REQUEST_FROM_EXTERNAL_FORM_SHOW_ALL_ENTITIES_KEY
+     = EXTERNAL_FORM_KEY + REQUEST_KEY; 
+  
   // this parameter enables the entity browser to remove the 
   // stored state in the session
   private final static String LAST_USED_MY_ID_KEY = "last_my_id_key";
+  private final static String HEADER_FORM_LAST_USED_MY_ID_KEY = HEADER_FORM_KEY + LAST_USED_MY_ID_KEY;
+  private final static String BOTTOM_FORM_LAST_USED_MY_ID_KEY = BOTTOM_FORM_KEY + LAST_USED_MY_ID_KEY;
   
   private final static String NEXT_SUBSET = "next";
   
@@ -73,10 +90,15 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   // some important default settings for the view
   private int defaultNumberOfRowsPerPage = 1;
+  private int MAX_ROWS_PER_PAGE = 500;
+  
+  // this flag is set by a checkbox 
+  private boolean showAllEntities = false;
+  
   private int defaultNumberOfLinksPreviousToCurrentSet = 4;
   private int defaultNumberOfLinksAfterCurrentSet = 4;
   
-  private int pageLimitForShowingBottomNavigation = 15;
+  private int rowLimitForShowingBottomNavigation = 15;
   private boolean showHeaderNavigation = true;
   private boolean showBottomNavigation = true;
   
@@ -137,8 +159,12 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private Collection mandatoryParameters = null;
   
   public static void releaseBrowser(IWContext iwc) {
-    if (iwc.isParameterSet(LAST_USED_MY_ID_KEY))  {
-      String id = iwc.getParameter(LAST_USED_MY_ID_KEY);
+    if (iwc.isParameterSet(HEADER_FORM_LAST_USED_MY_ID_KEY))  {
+      String id = iwc.getParameter(HEADER_FORM_LAST_USED_MY_ID_KEY);
+      SetIterator.releaseStoredState(iwc, id);
+    } 
+    if (iwc.isParameterSet(BOTTOM_FORM_LAST_USED_MY_ID_KEY)) {
+      String id = iwc.getParameter(BOTTOM_FORM_LAST_USED_MY_ID_KEY);
       SetIterator.releaseStoredState(iwc, id);
     }  
   }
@@ -400,6 +426,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     }
             
     List visibleOrderedEntityPathes = getVisibleOrderedEntityPathes(multiPropertyHandler);
+    // check if all entities should be shown
+    parseAndDoActionNumberOfRowsPerPage(iwc, state);
     int numberOfRowsPerPage = getNumberOfRowsPerPage(multiPropertyHandler);
     
     // get and save the state of the former iterator BEFORE changing the iterator
@@ -412,7 +440,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // parse action use as key the state of the iterator:
     // If there is a reload of the page the action "next subset" or
     // "previous subset" will no be performed again.
-    parseAndDoAction(iwc, formerStateOfIterator, entityIterator);
+    parseAndDoAction(iwc, state, formerStateOfIterator, entityIterator);
     // set size of table
     int necessaryRows = entityIterator.getQuantity();
     int necessaryColumns = visibleOrderedEntityPathes.size();
@@ -432,13 +460,17 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     String currentStateOfIterator = entityIterator.getStateAsString();
     // store state in session
     entityIterator.storeStateInSession(iwc, keyForEntityCollection, getMyId());
-    // set hidden input (import for releasing)
+    // set hidden input (important for releasing)
     if (useExternalForm)  {     
-      HiddenInput hiddenInputLastUsedMyId = new HiddenInput(LAST_USED_MY_ID_KEY, getMyId());
+      HiddenInput hiddenInputLastUsedMyId = new HiddenInput(HEADER_FORM_LAST_USED_MY_ID_KEY, getMyId());
+      HiddenInput hiddenAllEntitiesWereShown = 
+        new HiddenInput(REQUEST_FROM_EXTERNAL_FORM_SHOW_ALL_ENTITIES_KEY, (new Boolean(showAllEntities)).toString());
       add(hiddenInputLastUsedMyId);
+      add(hiddenAllEntitiesWereShown);
     }
-    
-    if (showHeaderNavigation && (enableBack || enableForward)) 
+    boolean showHeaderNavigationPanel = 
+      (showHeaderNavigation && (enableBack || enableForward));
+    if (showHeaderNavigationPanel)  {  
       setNavigationPanel( HEADER_FORM_KEY, 
                           iwc, 
                           resourceBundle, 
@@ -448,11 +480,14 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
                           enableForward,
                           1,
                           necessaryColumns);
-    if (showBottomNavigation 
-        && (enableBack || enableForward) 
-        && ( (! showHeaderNavigation) || 
-             (entityIterator.getIncrement() > pageLimitForShowingBottomNavigation)) )                      
-    setNavigationPanel( BOTTOM_FORM_KEY, 
+    }
+    boolean showBottomNavigationPanel =
+      (showBottomNavigation 
+            && (enableBack || enableForward) 
+            && ( (! showHeaderNavigation) || 
+                 (entityIterator.getIncrement() > rowLimitForShowingBottomNavigation)) );
+    if (showBottomNavigationPanel)  {                       
+      setNavigationPanel( BOTTOM_FORM_KEY, 
                         iwc, 
                         resourceBundle, 
                         entityIterator, 
@@ -460,9 +495,35 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
                         enableBack, 
                         enableForward,
                         necessaryRows,
-                        necessaryColumns);                       
-    
+                        necessaryColumns);
+    }
+    // special case:
+    // if both panel were not set, set the settings button now...
+    if (!showHeaderNavigationPanel && !showBottomNavigationPanel) {
+      setOnlySettingsButton(resourceBundle,necessaryRows,necessaryColumns);
+    }
   }
+  
+  private void setOnlySettingsButton(
+      IWResourceBundle resourceBundle, 
+      int bottomRightCornerX, 
+      int bottomRightCornerY) {
+    // get the desired row and merge it
+    int panelBeginxpos = xAnchorPosition + 1;
+    int panelBeginypos = yAnchorPosition + bottomRightCornerX;
+    int panelEndxpos = xAnchorPosition + bottomRightCornerY;
+    int panelEndypos = panelBeginypos;
+    // merge cell
+    mergeCells(panelBeginxpos, panelBeginypos, panelEndxpos, panelEndypos);
+    // create table
+    Table panelTable = new Table(1,1);
+    // add settings 
+    panelTable.add(getSettingsButton(resourceBundle),1,1);
+    // now add the table in the row that was created by merging the cells of the last row
+    add(panelTable, panelBeginxpos, panelBeginypos);
+  }     
+    
+    
 
   private void setNavigationPanel(
       String formKey, 
@@ -482,19 +543,23 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // merge cell
     mergeCells(panelBeginxpos, panelBeginypos, panelEndxpos, panelEndypos);
     // create table
-    Table panelTable = new Table(2,1);
+    Table panelTable = new Table(3,1);
     // add settings 
-    panelTable.add(getSettingsButton(resourceBundle),2,1);
+    panelTable.add(getSettingsButton(resourceBundle),3,1);
+    // add show all check box
+    panelTable.add(getShowAllCheckBox(formKey, resourceBundle),2,1);
     // get links
     Table goAndBackButtonPanel = 
       getForwardAndBackButtons(formKey,iwc, resourceBundle, entityIterator, currentStateOfIterator, enableBack, enableForward);   
     panelTable.add(goAndBackButtonPanel,1,1);
     // add form 
     PresentationObject panel;
+    HiddenInput hiddenInputRequestFrom = new HiddenInput(formKey + REQUEST_KEY);
     if (! useExternalForm)  {
-      HiddenInput hiddenInputLastUsedMyId = new HiddenInput(LAST_USED_MY_ID_KEY, getMyId());
+      HiddenInput hiddenInputLastUsedMyId = new HiddenInput(formKey + LAST_USED_MY_ID_KEY, getMyId());
       Form panelForm = new Form();
       panelForm.add(hiddenInputLastUsedMyId);
+      panelForm.add(hiddenInputRequestFrom);
       if (useEventSystem)
         panelForm.addEventModel(getPresentationEvent(),iwc);
       panelForm.add(panelTable);
@@ -502,6 +567,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     }
     else  {
       panel = panelTable;
+      add(hiddenInputRequestFrom);
     }
     // now add the table in the row that was created by merging the cells of the last row
     add(panel, panelBeginxpos, panelBeginypos);
@@ -575,9 +641,49 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 		  setRowColor(rowNumber, colorForEvenRows);
 	}
   
-  private void parseAndDoAction(IWContext iwc, String formerStateOfIterator, SetIterator setIterator)  {
-    // event system
-    EntityBrowserPS state = (EntityBrowserPS) getPresentationState((IWUserContext) iwc);
+  private void parseAndDoActionNumberOfRowsPerPage(IWContext iwc, EntityBrowserPS state)  {
+    String allEntitiesWereShownFromRequest;
+    // handle external form
+    if ((allEntitiesWereShownFromRequest = getAction(iwc, state, REQUEST_FROM_EXTERNAL_FORM_SHOW_ALL_ENTITIES_KEY)) != null)  {
+      boolean allEntitiesWereShown = new Boolean(allEntitiesWereShownFromRequest).booleanValue();
+      boolean showAllEntitiesHeader = (getAction(iwc, state, HEADER_FORM_KEY + SHOW_ALL_KEY) != null);
+      boolean showAllEntitiesBottom = (getAction(iwc, state, BOTTOM_FORM_KEY + SHOW_ALL_KEY) != null);
+      boolean headerFormExists = (getAction(iwc, state,REQUEST_FROM_HEADER_FORM_KEY) != null);
+      boolean bottomFormExists = (getAction(iwc, state,REQUEST_FROM_BOTTOM_FORM_KEY) != null);
+      if (headerFormExists && !bottomFormExists && showAllEntitiesHeader) {
+        showAllEntities = true;
+      }
+      else if (!headerFormExists && bottomFormExists && showAllEntitiesBottom)  {
+        showAllEntities = true;
+      }
+      else if (!allEntitiesWereShown && (showAllEntitiesHeader || showAllEntitiesBottom)) {
+        showAllEntities = true;
+      }
+      else if (allEntitiesWereShown && showAllEntitiesHeader && showAllEntitiesBottom) {
+        showAllEntities = true;
+      }
+      else  {
+        showAllEntities = false;
+      }
+    }
+    else if (getAction(iwc, state,REQUEST_FROM_HEADER_FORM_KEY) != null)  {
+      String allEntitiesWereShown = getAction(iwc, state, HEADER_FORM_KEY + SHOW_ALL_KEY);
+      showAllEntities = (allEntitiesWereShown != null);
+    }
+    else if (getAction(iwc, state,REQUEST_FROM_BOTTOM_FORM_KEY) != null)  {
+      String allEntitiesWereShown = getAction(iwc, state, BOTTOM_FORM_KEY + SHOW_ALL_KEY);
+      showAllEntities = (allEntitiesWereShown != null);
+    }
+    else {
+      String showAllEntitiesString = getAction(iwc, state, All_ENTITIES_WERE_SHOWN);
+      if (showAllEntitiesString != null)  {
+        showAllEntities = new Boolean(showAllEntitiesString).booleanValue();
+      }
+    }
+  } 
+
+  
+  private void parseAndDoAction(IWContext iwc, EntityBrowserPS state, String formerStateOfIterator, SetIterator setIterator)  {
     if (! parseAndDoActionForForm(HEADER_FORM_KEY,iwc,state,formerStateOfIterator,setIterator))
       parseAndDoActionForForm(BOTTOM_FORM_KEY,iwc,state,formerStateOfIterator,setIterator);
     }
@@ -587,12 +693,14 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       IWContext iwc, 
       EntityBrowserPS state,
       String formerStateOfIterator, 
-      SetIterator setIterator)  {      
+      SetIterator setIterator)  {    
+
     String keyForwardBack = getUniqueKeyForSubmitButton(formKey,NEW_SUBSET_KEY, formerStateOfIterator);
     String keySelectionFromList = getUniqueKeyForSubmitButton(formKey ,NEW_SUBSET_FROM_LIST_KEY, formerStateOfIterator);
     
 		String forwardBackAction = getAction(iwc, state, keyForwardBack);
     String selectionFromListAction = getAction(iwc, state, keySelectionFromList); 
+
     // action from list
     // current subset has always subset number zero
     int i;
@@ -617,13 +725,15 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 	private String getAction(IWContext iwc, EntityBrowserPS state, String keySubmit) {
 		String action = null;
 		String parameter = null;
-		if (state.isParameterSet(keySubmit))
+		if (state.isParameterSet(keySubmit))  {
 		  parameter = state.getParameter(keySubmit);
-		
-		if (parameter != null && parameter.length() != 0)   
+    }
+		if (parameter != null && parameter.length() != 0) {
 		  action = parameter;       
-		else if (iwc.isParameterSet(keySubmit))  
+    }
+		else if (iwc.isParameterSet(keySubmit)) {  
 		  action = iwc.getParameter(keySubmit);
+    }
 		return action;
 	}
 
@@ -810,6 +920,20 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     table.add(link);
     return table;
   }
+  
+  private Table getShowAllCheckBox(String formKey, IWResourceBundle resourceBundle)  {
+    Text showAll = new Text(resourceBundle.getLocalizedString("eb_show_all","show all"));
+    showAll.setFontStyle(FONT_STYLE_FOR_LINK);
+    StringBuffer buffer = new StringBuffer(formKey);
+    buffer.append(SHOW_ALL_KEY);
+    CheckBox showAllCheckBox = new CheckBox(buffer.toString());
+    showAllCheckBox.setChecked(showAllEntities);
+    showAllCheckBox.setToSubmit();
+    Table table = new Table(2,1);
+    table.add(showAllCheckBox, 1,1);
+    table.add(showAll,2,1);
+    return table;
+  }
     
   private String getUniqueKeyForSubmitButton(String formKey, String prefix, String stateOfIterator)  {
     StringBuffer buffer = new StringBuffer();
@@ -874,6 +998,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }           
   
   private int getNumberOfRowsPerPage(MultiEntityPropertyHandler multiPropertyHandler) {
+    if (showAllEntities && entities != null)  {
+      int rowsPerPage;
+      return ((rowsPerPage = entities.size()) > MAX_ROWS_PER_PAGE) ? MAX_ROWS_PER_PAGE : rowsPerPage;
+    }
     if (! acceptUserSettings) {
       return defaultNumberOfRowsPerPage;
     }
@@ -1007,11 +1135,11 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 	}
 
 	/**
-	 * Sets the pageLimitForShowingBottomNavigation.
-	 * @param pageLimitForShowingBottomNavigation The pageLimitForShowingBottomNavigation to set
+	 * Sets the rowLimitForShowingBottomNavigation.
+	 * @param rowLimitForShowingBottomNavigation The rowLimitForShowingBottomNavigation to set
 	 */
-	public void setPageLimitForShowingBottomNavigation(int pageLimitForShowingBottomNavigation) {
-		this.pageLimitForShowingBottomNavigation = pageLimitForShowingBottomNavigation;
+	public void setPageLimitForShowingBottomNavigation(int rowLimitForShowingBottomNavigation) {
+		this.rowLimitForShowingBottomNavigation = rowLimitForShowingBottomNavigation;
 	}
 
   public void setShowNavigation(boolean showHeaderNavigation, boolean showBottomNavigation) {
@@ -1048,7 +1176,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   private Link getLinkInstanceWithMandatoryParameters(String text) {
     Link link = new Link(text);
-    link.addParameter(LAST_USED_MY_ID_KEY, getMyId());
+    link.addParameter(HEADER_FORM_LAST_USED_MY_ID_KEY, getMyId());
+    link.addParameter(All_ENTITIES_WERE_SHOWN, (new Boolean(showAllEntities)).toString());
     if (mandatoryParameters == null)  {
        return link;
     }
