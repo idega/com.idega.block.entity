@@ -257,7 +257,8 @@ public class EntityPath {
       String currentColumnName = (String) iterator.next();
       // that is a little bit tricky: the column can be 
       // a reference to another entity or a real value like a String, Integer, Date and so on.
-      // If the path is well-defined, there will be no CastException.
+      // If the path is well-defined, there will be no CastException, because the very last value 
+      // is not casted to EntityRepresentation.
       value = ((EntityRepresentation) value).getColumnValue(currentColumnName);    
     }
     return value;
