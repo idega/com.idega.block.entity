@@ -18,10 +18,11 @@ public class EntityPropertyDefaultValues {
   static { 
     dictionary = new HashMap();
     
+    /*
     String next = EntityPath.SHORT_KEY_NEXT_ENTITY_PATH_DELIMITER; 
     String endOfName = EntityPath.SHORT_KEY_ENTITY_NAME_COLUMN_NAME_DELIMITER;
     String c = EntityPath.SHORT_KEY_COLUMN_NAME_DELIMITER;
-    
+    */
    
     String[] user = new String[] {};
                     
