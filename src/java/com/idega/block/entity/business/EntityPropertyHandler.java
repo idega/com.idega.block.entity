@@ -36,9 +36,7 @@ public class EntityPropertyHandler {
   private Class entityClass = null;
   
   private SortedMap allEntityPathes = null;
-  
-  private List defaultEntityPathes = null;
-  
+ 
   // cached value
   private IWPropertyList entityProperties = null;
   

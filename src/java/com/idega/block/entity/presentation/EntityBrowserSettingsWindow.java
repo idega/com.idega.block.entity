@@ -58,8 +58,6 @@ public class EntityBrowserSettingsWindow extends IWAdminWindow {
   
   private List defaultShortKeys;
   
-  private List defaultPathes;
-  
   private int defaultNumberOfRows = 1;
   
   public EntityBrowserSettingsWindow() {

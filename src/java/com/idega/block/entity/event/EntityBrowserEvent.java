@@ -10,34 +10,34 @@ import com.idega.presentation.IWContext;
 public class EntityBrowserEvent extends IWPresentationEvent {
   
   
-  private static final String ENTITY_NAME = "entity_name";
+  private static final String EVENT_NAME = "event_name";
 
-  private String entityName = null;
+  private String eventName = null;
 
 	/**
 	 * @see com.idega.event.IWPresentationEvent#initializeEvent(com.idega.presentation.IWContext)
 	 */
   public boolean initializeEvent(IWContext iwc) {
     // null if parameter is not set
-    entityName = iwc.getParameter(ENTITY_NAME);
+    eventName = iwc.getParameter(EVENT_NAME);
     return true;
 	}
   
 	/**
-	 * Returns the entityName.
+	 * Returns the name of the event 
 	 * @return String
 	 */
-	public String getEntityName() {
-		return entityName;
+	public String getEventName() {
+		return eventName;
 	}
 
 	/**
-	 * Sets the entityName.
-	 * @param entityName The entityName to set
+	 * Sets the name of this event.
+	 * @param eventName The name of the event
 	 */
-	public void setEntityName(String entityName) {
-		this.entityName = entityName;
-    addParameter(EntityBrowserEvent.ENTITY_NAME, entityName);
+	public void setEventName(String eventName) {
+		this.eventName = eventName;
+    addParameter(EVENT_NAME, eventName);
 	}
 
 }

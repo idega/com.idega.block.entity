@@ -80,8 +80,6 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   private final static String PREVIOUS_SUBSET = "previous";
  
-  private final static String VIEW_ACTION = "view_action";
-  
   private static final String SET_ENTIY_METHOD_IDENTIFIER = 
     ":method:1:implied:void:setLeadingEntity:java.lang.String:";
     

@@ -16,34 +16,20 @@ import com.idega.presentation.event.ResetPresentationEvent;
  */
 public class EntityBrowserPS extends IWPresentationStateImpl implements IWActionListener {
 
-
-
   private Hashtable parameterValues = null;
-  
-  private String entityName = null;
-
 
   public void reset(){
     parameterValues = null;
-    entityName = null;
     super.reset();
-
   }
 
   public boolean isParameterSet(String parameter) {
     return (parameterValues != null && parameterValues.containsKey(parameter));
   }
 
-
   public String getParameter(String parameter) {
     return (parameterValues != null) ? (String) parameterValues.get(parameter) : null;
   }
-  
-  
-  public String getEntityName() {
-    return entityName;
-  }
-
 
   public void actionPerformed(IWPresentationEvent e)throws IWException{
     
@@ -58,12 +44,9 @@ public class EntityBrowserPS extends IWPresentationStateImpl implements IWAction
         if (mainIwc.isParameterSet(parameter)) 
           parameterValues.put(parameter, mainIwc.getParameter(parameter));
       }
-      entityName = ((EntityBrowserEvent)e).getEntityName();
       this.fireStateChanged();
     }
-    
-
-    if(e instanceof ResetPresentationEvent){
+    if (e instanceof ResetPresentationEvent) {
       this.reset();
       this.fireStateChanged();
     }
