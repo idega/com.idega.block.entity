@@ -168,6 +168,7 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
       }
       else if (setAsIcelandicSocialSecurityNumberMessage != null) { 
         textInput.setAsIcelandicSSNumber(setAsIcelandicSocialSecurityNumberMessage);
+        textInput.setAsNotEmpty(setAsIcelandicSocialSecurityNumberMessage);
       }
 
       // add old value as hidden value
