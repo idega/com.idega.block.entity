@@ -5,7 +5,7 @@
   <pomVersion>3</pomVersion>
   <name>idegaWeb Entity Block</name>
   <artifactId>com.idega.block.entity</artifactId>
-  <currentVersion>1.1.0</currentVersion>
+  <currentVersion>1.2.0-SNAPSHOT</currentVersion>
   <inceptionYear>2000</inceptionYear>
   <shortDescription>Entity</shortDescription>
   <versions>
@@ -55,8 +55,8 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.core</artifactId>
-      <version>3.0.0</version>
-      <!--<version>SNAPSHOT</version>-->
+      <!--<version>3.0.0</version>-->
+      <version>SNAPSHOT</version>
 
       <type>jar</type>
       <url>http://www.idega.com/</url>
@@ -67,8 +67,8 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.builder</artifactId>
-      <version>1.4.0</version>
-      <!--<version>SNAPSHOT</version>-->
+      <!--<version>1.4.0</version>-->
+      <version>SNAPSHOT</version>
 
       <type>jar</type>
       <url>http://www.idega.com/</url>
