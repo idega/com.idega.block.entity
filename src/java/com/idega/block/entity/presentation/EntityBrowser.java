@@ -18,7 +18,7 @@ import com.idega.block.entity.event.EntityBrowserPS;
 import com.idega.builder.business.IBPropertyHandler;
 import com.idega.builder.handler.SpecifiedChoiceProvider;
 import com.idega.business.IBOLookup;
-import com.idega.data.GenericEntity;
+import com.idega.data.EntityRepresentation;
 import com.idega.event.IWActionListener;
 import com.idega.event.IWPresentationEvent;
 import com.idega.event.IWPresentationState;
@@ -1109,7 +1109,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
             
         public PresentationObject getPresentationObject(Object genericEntity, EntityPath path, EntityBrowser browser, IWContext iwc)  {
           StringBuffer displayValues = new StringBuffer();
-          List list = path.getValues((GenericEntity) genericEntity);
+          List list = path.getValues((EntityRepresentation) genericEntity);
           Iterator valueIterator = list.iterator();
           while (valueIterator.hasNext()) {
             Object object = valueIterator.next();
