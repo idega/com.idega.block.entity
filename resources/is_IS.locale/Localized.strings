@@ -1,4 +1,6 @@
-=
+=\=\=\=\=\=\=
+<<<<<<<=Localized.strings
+>>>>>>>=1.3
 Address.CITY=Address.CITY
 Address.IC_ADDRESS_ID=Address.IC_ADDRESS_ID
 Address.PROVINCE=Address.PROVINCE
@@ -186,6 +188,7 @@ User.FIRST_NAME+User.MIDDLE_NAME+User.LAST_NAME=Nafn
 User.LAST_NAME=User.LAST_NAME
 User.MIDDLE_NAME=User.MIDDLE_NAME
 User.PERSONAL_ID=Kennitala
+UserName=UserName
 back=BACK
 close=Loka
 com.idega.core.accesscontrol.data.ICPermission.GROUP_ID=
@@ -200,8 +203,10 @@ excel_key=excel_key
 execute_key=
 forward=FORWARD
 generate_report=
+gpw_delete_owner=Ey\u00F0a
 gpw_recurse_ch_of_gr=Og \u00E1 undirh\u00F3pa
 group_name_key=group_name_key
+group_permission_window.override=
 html_key=html_key
 input_is_mandatory=The input is mandatory
 input_must_be_an_integer=The input must be an integer
