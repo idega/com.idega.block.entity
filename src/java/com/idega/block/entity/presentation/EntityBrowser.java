@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -134,7 +135,11 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   // use tree map because of the order of the elements
   private TreeMap defaultColumns = new TreeMap();
   private TreeMap mandatoryColumns = new TreeMap();
-
+  
+  // map that assign a color to each column
+  // set this variable to null because in most cases this feature is not used
+  private Map entityPathShortKeyColorMap = null;
+  private Map entityPathShortKeyAlignmentMap = null;
   
   private boolean useExternalForm = false;
   private boolean useEventSystem = true;
@@ -481,9 +486,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     }
     if (showMirroredView) {
       // we need at least on column for buttons plus headers
-      necessaryColumns = (necessaryColumns == 0) ? 2 : necessaryColumns + 1;
+      necessaryColumns = (necessaryColumns == 0) ? 2 : necessaryColumns;
       // plus rows for buttons
-      necessaryRows += 2;
+      necessaryRows = necessaryRows;
     }
     else {  
       // we need at least on column for buttons 
@@ -495,6 +500,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
             
     // get now the table    
     fillEntityTable(visibleOrderedEntityPathes , entityIterator, iwc);
+    
+    if (showMirroredView) {
+      return;
+    }
 
     boolean enableForward = entityIterator.hasNextSet();
     boolean enableBack = entityIterator.hasPreviousSet(); 
@@ -679,7 +688,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
     
 
-	private void setSize(int columns, int rows ) {
+  private void setSize(int columns, int rows ) {
     // add the anchor positions
     columns += xAnchorPosition;
     rows += yAnchorPosition;
@@ -716,7 +725,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(entityPath); 
       PresentationObject presentation = converter.getHeaderPresentationObject(entityPath, this, iwc);
       if (showMirroredView) {
-        add(presentation, xAnchorPosition + 1, yAnchorPosition + 1 + i);
+        add(presentation, xAnchorPosition + 1, yAnchorPosition + i);
       }
       else {
         add(presentation, xAnchorPosition + i , yAnchorPosition + 2);
@@ -732,23 +741,31 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       Object genericEntity = entitySetIterator.next();
       Iterator visibleOrderedEntityPathesIterator = visibleOrderedEntityPathes.iterator();
       // set color of rows
-			setColorForRow(y, colorForOddRowsIsSet, colorForEvenRowsIsSet);
+      if (showMirroredView) {
+        currentColumn = xAnchorPosition + y - 1;
+      }
+      else {
+        currentRow = yAnchorPosition + y;
+      }
+      setColorForRow(currentColumn, currentRow, colorForOddRowsIsSet, colorForEvenRowsIsSet);
       int x = 1;
       // fill columns
       currentIndexOfEntities = entitySetIterator.currentIndexRelativeToZero();
       while (visibleOrderedEntityPathesIterator.hasNext())  {
         if (showMirroredView) {
-          currentRow = yAnchorPosition + x + 1;
-          currentColumn = xAnchorPosition + y - 1;
+          currentRow = yAnchorPosition + x;
         }
         else {
-          currentRow = yAnchorPosition + y;
           currentColumn = xAnchorPosition + x;
         }
         EntityPath path = (EntityPath) visibleOrderedEntityPathesIterator.next();
         EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(path); 
         PresentationObject presentation = converter.getPresentationObject(genericEntity, path, this, iwc);
         add(presentation, currentColumn, currentRow);
+        // set some settings for the current column
+        String shortKey = path.getShortKey();
+        setColorForColumn(shortKey, currentColumn, currentRow);
+        setAlignmentForColumn(shortKey, currentColumn, currentRow);
         // next column
         x++;
       }
@@ -759,27 +776,54 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     currentRow = -1;
     currentIndexOfEntities = -1;
   }
+  
+  private void setAlignmentForColumn(String entityPathShortKey, int column, int row) {
+    if (entityPathShortKeyAlignmentMap == null) {
+      return;
+    }
+    String alignment = (String) entityPathShortKeyAlignmentMap.get(entityPathShortKey);
+    if (alignment == null)  {
+      return;
+    }
+    setAlignment(column, row, alignment);
+  }
 
+  private void setColorForColumn(String entityPathShortKey, int column, int row) {
+    if (entityPathShortKeyColorMap == null) {
+      return;
+    }
+    String color = (String) entityPathShortKeyColorMap.get(entityPathShortKey);
+    if (color == null)  {
+      return; 
+    }
+    if (showMirroredView) {
+      setRowColor(row, color);
+    }
+    else {
+      setColumnColor(column, color);
+    }
+  }
 
-	private void setColorForRow(int rowNumber, boolean colorForOddRowsIsSet, boolean colorForEvenRowsIsSet) {
-		boolean oddRow = ((rowNumber % 2) == 0);
-		if (colorForOddRowsIsSet && oddRow) {
-      if (showMirroredView) {
-        setColumnColor(rowNumber, colorForOddRows);
+  private void setColorForRow(int column, int row, boolean colorForOddRowsIsSet, boolean colorForEvenRowsIsSet) {
+  	if (showMirroredView)  {
+      boolean oddColumn = ((column % 2) == 0);
+      if (colorForOddRowsIsSet && oddColumn) { 
+        setColumnColor(column, colorForOddRows);
       }
-      else {
-		    setRowColor(rowNumber, colorForOddRows);
+      else if (colorForEvenRowsIsSet && !oddColumn)  {
+        setColumnColor(column, colorForEvenRows);
+      } 
+    }
+    else {
+      boolean oddRow = ((row % 2) == 0);
+  	  if (colorForOddRowsIsSet && oddRow) {
+        setRowColor(row, colorForOddRows);
       }
-    }   
-		else if (colorForEvenRowsIsSet && (! oddRow))  {
-      if (showMirroredView) {
-        setColumnColor(rowNumber, colorForEvenRows);
-      }
-      else { 
-		    setRowColor(rowNumber, colorForEvenRows);
+      else if (colorForEvenRowsIsSet && (! oddRow))  {
+        setRowColor(row, colorForEvenRows);
       }
     }
-	}
+  }
   
   private void parseAndDoActionNumberOfRowsPerPage(IWContext iwc, EntityBrowserPS state)  {
     String allEntitiesWereShownFromRequest;
@@ -1217,6 +1261,42 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   public Class getPresentationStateClass()  {
     return EntityBrowserPS.class;
   }
+  
+  /** Sets the alignment for the specified column.
+   * 
+   * @param entityPathShortKey
+   * @param alignment
+   */
+  public void setAlignmentForColumn(String entityPathShortKey, String alignment)  {
+    if (entityPathShortKeyAlignmentMap == null) {
+      entityPathShortKeyAlignmentMap = new HashMap();
+    }
+    entityPathShortKeyAlignmentMap.put(entityPathShortKey, alignment);
+  }
+  
+  /** Sets the color for the specified column.
+   * 
+   * @param colorForColumnr
+   */
+  public void setColorForColumn(String entityPathShortKey, String color)  {
+    if (entityPathShortKeyColorMap == null) {
+      entityPathShortKeyColorMap = new HashMap();
+    }
+    entityPathShortKeyColorMap.put(entityPathShortKey, color);
+  }
+  
+  /** Sets the color for the specified columns.
+   * 
+   * @param entityPathShortKeyColorMap - map, uses entity path short keys as keys and color strings as value
+   */
+  
+  public void setColorForColumns(Map entityPathShortKeyColorMap)  {
+    if (this.entityPathShortKeyColorMap == null) {
+      this.entityPathShortKeyColorMap = new HashMap();
+    }
+    this.entityPathShortKeyColorMap.putAll(entityPathShortKeyColorMap);
+
+  }
 
   /** Sets the color for the header row
    * @param colorForHeader
@@ -1225,31 +1305,31 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     this.colorForHeader = colorForHeader;
   }
   
-	/**
-	 * Sets the colorForEvenRows.
-	 * @param colorForEvenRows The colorForEvenRows to set
-	 */
-	public void setColorForEvenRows(String colorForEvenRows) {
-		this.colorForEvenRows = colorForEvenRows;
-	}
-
-	/**
-	 * Sets the colorForOddRows.
-	 * @param colorForOddRows The colorForOddRows to set
-	 */
-	public void setColorForOddRows(String colorForOddRows) {
-		this.colorForOddRows = colorForOddRows;
-	}
-
-	/**
-	 * Sets the showSettingButton.
-	 * @param showSettingButton The showSettingButton to set
-	 */
-	public void setAcceptUserSettingsShowUserSettingsButton(boolean acceptUserSettings, boolean showSettingButton) {
-		this.acceptUserSettings = acceptUserSettings;
+  /**
+   * Sets the colorForEvenRows.
+   * @param colorForEvenRows The colorForEvenRows to set
+   */
+  public void setColorForEvenRows(String colorForEvenRows) {
+  	this.colorForEvenRows = colorForEvenRows;
+  }
+  
+  /**
+   * Sets the colorForOddRows.
+   * @param colorForOddRows The colorForOddRows to set
+   */
+  public void setColorForOddRows(String colorForOddRows) {
+  	this.colorForOddRows = colorForOddRows;
+  }
+  
+  /**
+   * Sets the showSettingButton.
+   * @param showSettingButton The showSettingButton to set
+   */
+  public void setAcceptUserSettingsShowUserSettingsButton(boolean acceptUserSettings, boolean showSettingButton) {
+  	this.acceptUserSettings = acceptUserSettings;
     // if acceptUserSettings is false do never show the user settings button!
     this.showSettingsButton = (acceptUserSettings) ? showSettingButton : false; 
-	}
+  }
   
   /** Changes the view: shows the columns as rows and vice versa.
    * @param showMirroredView - default value is false.
