@@ -1,4 +1,4 @@
-#Mon Sep 01 12:17:44 CEST 2003
+#Fri Oct 24 01:18:02 CEST 2003
 Address.CITY=City
 Address.IC_ADDRESS_ID=Address.IC_ADDRESS_ID
 Address.PROVINCE=Address.PROVINCE
@@ -179,9 +179,15 @@ com.idega.core.accesscontrol.data.ICPermission.GROUP_ID=com.idega.core.accesscon
 create=create
 create_new_group=
 delete=delete
+design_layout_key=design_layout_key
 eb_show_all=show all
 edit=edit
+edit_key=edit_key
+excel_key=excel_key
+execute_key=execute_key
 forward=FORWARD
+generate_report=
+html_key=html_key
 input_is_mandatory=The input is mandatory
 input_must_be_an_integer=The input must be an integer
 interface\ com.idega.core.data.Address.STREET_NAME\:interface\ com.idega.core.data.Address.STREET_NUMBER\:interface\ com.idega.core.data.Address.P_O_BOX\:interface\ com.idega.core.data.PostalCode.POSTAL_CODE_ID|POSTAL_CODE\:interface\ com.idega.core.data.Address.CITY\:interface\ com.idega.core.data.Country.IC_COUNTRY_ID|COUNTRY_NAME=interface com.idega.core.data.Address.STREET_NAME\:interface com.idega.core.data.Address.STREET_NUMBER\:interface com.idega.core.data.Address.P_O_BOX\:interface com.idega.core.data.PostalCode.POSTAL_CODE_ID|POSTAL_CODE\:interface com.idega.core.data.Address.CITY\:interface com.idega.core.data.Country.IC_COUNTRY_ID|COUNTRY_NAME
@@ -189,9 +195,11 @@ interface\ com.idega.core.data.Email.ADDRESS=interface com.idega.core.data.Email
 interface\ com.idega.core.data.PhoneType.IC_PHONE_TYPE_ID|TYPE_DISPLAY_NAME\:interface\ com.idega.core.data.Phone.PHONE_NUMBER=interface com.idega.core.data.PhoneType.IC_PHONE_TYPE_ID|TYPE_DISPLAY_NAME\:interface com.idega.core.data.Phone.PHONE_NUMBER
 interface\ com.idega.user.data.User.FIRST_NAME\:interface\ com.idega.user.data.User.MIDDLE_NAME\:interface\ com.idega.user.data.User.LAST_NAME=interface com.idega.user.data.User.FIRST_NAME\:interface com.idega.user.data.User.MIDDLE_NAME\:interface com.idega.user.data.User.LAST_NAME
 interface\ com.idega.user.data.User.PERSONAL_ID=interface com.idega.user.data.User.PERSONAL_ID
+name_key=name_key
 number_of_rows_per_page\:=Number of rows per page\:
 of=of
 owner=owner
+pdf_key=pdf_key
 read=read
 save=SAVE
 setting=setting

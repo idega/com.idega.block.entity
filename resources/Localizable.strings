@@ -1,4 +1,4 @@
-#Tue Sep 09 17:03:07 CEST 2003
+#Fri Oct 24 12:54:49 CEST 2003
 Address.CITY=
 Address.IC_ADDRESS_ID=
 Address.PROVINCE=
@@ -179,9 +179,15 @@ com.idega.core.accesscontrol.data.ICPermission.GROUP_ID=
 create=
 create_new_group=
 delete=
+design_layout_key=
 eb_show_all=
 edit=
+edit_key=
+excel_key=
+execute_key=
 forward=
+generate_report=
+html_key=
 input_is_mandatory=
 input_must_be_an_integer=
 interface\ com.idega.core.data.Address.STREET_NAME\:interface\ com.idega.core.data.Address.STREET_NUMBER\:interface\ com.idega.core.data.Address.P_O_BOX\:interface\ com.idega.core.data.PostalCode.POSTAL_CODE_ID|POSTAL_CODE\:interface\ com.idega.core.data.Address.CITY\:interface\ com.idega.core.data.Country.IC_COUNTRY_ID|COUNTRY_NAME=
@@ -189,9 +195,11 @@ interface\ com.idega.core.data.Email.ADDRESS=
 interface\ com.idega.core.data.PhoneType.IC_PHONE_TYPE_ID|TYPE_DISPLAY_NAME\:interface\ com.idega.core.data.Phone.PHONE_NUMBER=
 interface\ com.idega.user.data.User.FIRST_NAME\:interface\ com.idega.user.data.User.MIDDLE_NAME\:interface\ com.idega.user.data.User.LAST_NAME=
 interface\ com.idega.user.data.User.PERSONAL_ID=
+name_key=
 number_of_rows_per_page\:=
 of=
 owner=
+pdf_key=
 read=
 save=
 setting=
