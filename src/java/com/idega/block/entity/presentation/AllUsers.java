@@ -16,7 +16,6 @@ import com.idega.data.IDOLookup;
 import com.idega.presentation.Block;
 import com.idega.presentation.IWContext;
 import com.idega.user.data.User;
-import com.idega.user.data.UserHome;
 
 /**
  * 
@@ -40,7 +39,7 @@ public class AllUsers extends Block {
   public void main(IWContext iwc) throws Exception {  
     Collection coll = getAll(User.class);
     EntityBrowser browser = new EntityBrowser();
-    browser.setEntity((User.class).getName());
+    browser.setLeadingEntity((User.class).getName());
     browser.setEntities(coll);
     add(browser);
   }

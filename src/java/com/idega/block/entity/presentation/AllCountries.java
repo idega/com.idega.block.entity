@@ -38,7 +38,7 @@ public class AllCountries extends Block {
   public void main(IWContext iwc) throws Exception {  
     Collection coll = getAll(Country.class);
     EntityBrowser browser = new EntityBrowser();
-    browser.setEntity((Country.class).getName());
+    browser.setLeadingEntity((Country.class).getName());
     browser.setEntities(coll);
     add(browser);
   }
