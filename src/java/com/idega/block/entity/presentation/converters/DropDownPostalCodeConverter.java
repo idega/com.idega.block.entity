@@ -138,9 +138,9 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
   public void setCountry(Country country) {
     if (this.country == null || (! this.country.equals(country)))  {
       this.country = country;
-      try {
+//      try {
         this.countryName = country.getName();
-      }
+/*      }
       catch (RemoteException ex) {
         System.err.println(
           "[DropDownPostalCodeConverter]: Can't retrieve name of country. Message is: "
@@ -148,7 +148,7 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
         ex.printStackTrace(System.err);
         throw new RuntimeException("[DropDownPostalCodeConverter]: Can't retrieve name of country.");
       }
-      countryHasChanged = true;
+*/      countryHasChanged = true;
     }
     
   }
