@@ -42,8 +42,9 @@ public class DropDownMenuConverter
   
   protected OptionProvider optionProvider = null;
   protected List maintainParameterList = new ArrayList(0);
+  protected boolean  editable = true;
   private Form externalForm = null;
-  private boolean  editable = true;
+
   
   
   // flag 
@@ -135,9 +136,6 @@ public class DropDownMenuConverter
     EntityPath path,
     EntityBrowser browser,
     IWContext iwc) {
-    	  	
-    Object value = getValue(entity,path,browser,iwc);
-    if( value == null ) value = "";
     
     Integer id = (Integer) ((EntityRepresentation) entity).getPrimaryKey();
     // show drop down menu without a submit button if the entity is new
@@ -161,6 +159,7 @@ public class DropDownMenuConverter
         editEntity ||
         iwc.isParameterSet(uniqueKeyLink)) {
       // show drop down menu with submitButton
+      Object value = getValueForDropDownMenu(entity, path, browser, iwc);
       String uniqueKeyDropdownMenu = getDropdownMenuUniqueKey(id, shortKeyPath);
       DropdownMenu dropdownMenu = 
         getDropdownMenu(
@@ -184,7 +183,8 @@ public class DropDownMenuConverter
     } 
     else {
       // show link
-      return getLink(value, uniqueKeyLink, entity,  id.toString(), path, browser, iwc);
+      Object value = getValueForLink(entity, path, browser, iwc);
+      return getLink(value, uniqueKeyLink, id.toString(), browser, iwc);
       
     }
       
@@ -193,21 +193,14 @@ public class DropDownMenuConverter
   protected PresentationObject getLink(
       Object value, 
       String uniqueKeyLink, 
-      Object entity,
       String id,  
-      EntityPath path, 
       EntityBrowser browser, 
       IWContext iwc)  {
-  	Map options = (optionProvider == null) ? new HashMap(0) : optionProvider.getOptions(entity,path,browser,iwc);  
-    String valueAsString = (value!=null) ? value.toString() : "";
-    String displayFromOptions = (String) options.get(valueAsString);
-    if (displayFromOptions == null || displayFromOptions.length() == 0) {
-      displayFromOptions = "_";
-    }
+    String display = value.toString();
     if (! editable) {
-      return new Text(displayFromOptions);
+      return new Text(display);
     }
-    Link link = new Link(displayFromOptions);
+    Link link = new Link(display);
     if (workWithExternalSubmitButton) {
       link.addParameter(ConverterConstants.EDIT_ENTITY_KEY, id);
     }
@@ -226,6 +219,32 @@ public class DropDownMenuConverter
   	
   }
   
+  /** Overwrite this method if necessary */
+  protected Object getValueForLink(
+      Object entity,
+      EntityPath path,
+      EntityBrowser browser,
+      IWContext iwc)  {
+    Map options = (optionProvider == null) ? new HashMap(0) : optionProvider.getOptions(entity,path,browser,iwc);  
+    Object value = path.getValue((EntityRepresentation) entity);
+    String valueAsString = (value!=null) ? value.toString() : "";
+    String displayFromOptions = (String) options.get(valueAsString);
+    if (displayFromOptions == null || displayFromOptions.length() == 0) {
+      displayFromOptions = "_";
+    }
+    return displayFromOptions;
+  }
+
+  /** Overwrite this method if necessary */  
+  protected Object getValueForDropDownMenu(
+      Object entity,
+      EntityPath path,
+      EntityBrowser browser,
+      IWContext iwc)  {
+        return getValue(entity, path, browser, iwc);
+      }  
+  
+    /** Overwrite this method if necessary */ 
   protected Object getValue(
       Object entity,
       EntityPath path,
@@ -234,6 +253,9 @@ public class DropDownMenuConverter
     Object object = path.getValue((EntityRepresentation) entity);
     return (object == null) ? "" : object;
   }      
+
+
+
     
   
   protected DropdownMenu getDropdownMenu(
@@ -259,7 +281,7 @@ public class DropDownMenuConverter
       // add to options without localization
       String preselectionAsString = preselection.toString();
       if (! options.containsKey(preselectionAsString)) {
-        dropdownMenu.addMenuElement(preselectionAsString, preselectionAsString);
+        dropdownMenu.addMenuElement("", "");
       }
       dropdownMenu.setSelectedElement(preselectionAsString);
     }

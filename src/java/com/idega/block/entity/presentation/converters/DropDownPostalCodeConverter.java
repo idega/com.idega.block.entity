@@ -16,6 +16,7 @@ import com.idega.business.IBOLookup;
 import com.idega.core.business.AddressBusiness;
 import com.idega.core.data.Country;
 import com.idega.core.data.PostalCode;
+import com.idega.data.EntityRepresentation;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.ui.DropdownMenu;
@@ -134,6 +135,21 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
   public void setOptionProvider(OptionProvider optionProvider)  {
     // do nothing
   }
+  
+  /** Overwrite this method if necessary */
+  protected Object getValueForLink(
+      Object entity,
+      EntityPath path,
+      EntityBrowser browser,
+      IWContext iwc)  {
+    Object value = path.getValue((EntityRepresentation) entity);
+    String valueAsString = (value ==null ) ? "" : value.toString();
+    if (valueAsString.length() == 0) {
+      valueAsString = "_";
+    }
+    return valueAsString;
+  }
+
   
   public void setCountry(Country country) {
     if (this.country == null || (! this.country.equals(country)))  {
