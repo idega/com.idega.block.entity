@@ -68,6 +68,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
   private List optionShortKeys;
   
   private int defaultNumberOfRows = 1;
+  private List visibleColumns = null;
   
   public EntityBrowserSettingsWindow() {
     setResizable(true);
@@ -237,6 +238,8 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     		}
     	}
     }
+    // get the user settings for the columns
+    visibleColumns = multiEntityPropertyHandler.getVisibleOrderedEntityPathes();
     return true;
   }
     
@@ -264,7 +267,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     
     List allColumnsColl = new ArrayList();
     // get existing settings of the user
-    List visibleColumns = multiEntityPropertyHandler.getVisibleOrderedEntityPathes();
+
     // if the user has not chosen any columns use default pathes else 
     // add the default values to the available columns list
     List targetListForDefaultPathes = (visibleColumns.isEmpty()) ? visibleColumns : allColumnsColl; 
@@ -297,7 +300,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     
     Help help = getHelp(HELP_TEXT_KEY);
         
-    // choose visible columns and order of the them 
+    // choose visible columns and order of them 
 		SelectionDoubleBox selectionDoubleBox = getColumnsChooserDoubleSelectionBox(resourceBundle, availableColumns, visibleColumns);
     // how many rows per page
     IntegerInput rowsInput = getNumberPerPageInputField(numberOfRowsPerPage, iwuc);
@@ -423,7 +426,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
   private void setVisibleColumns(String[] selectedKeys) {
     // if the selected keys equals to the default keys do nothing
     List selectedKeysList = Arrays.asList(selectedKeys);
-    if (defaultShortKeys.equals(selectedKeysList))
+    if (defaultShortKeys.equals(selectedKeysList) && visibleColumns.isEmpty())
       return;
     List entityPathes = new ArrayList();
     Iterator iterator = selectedKeysList.iterator();
@@ -432,7 +435,8 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
       EntityPath path = multiEntityPropertyHandler.getEntityPath(shortKey);
       entityPathes.add(path);
     }
-    multiEntityPropertyHandler.setVisibleOrderedEntityPathes(entityPathes);    
+    multiEntityPropertyHandler.setVisibleOrderedEntityPathes(entityPathes); 
+    visibleColumns = entityPathes;
   }
  
   
