@@ -41,14 +41,21 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
   // flag 
   private boolean workWithExternalSubmitButton = true;
   
+  // if set the text input allows only float values
+  private String setAsFloatMessage = null;
+  
   public void setWorkWithExternalSubmitButton(boolean workWithExternalSubmitButton) {
     this.workWithExternalSubmitButton = workWithExternalSubmitButton;
+  }
+  
+  public void setAsFloat(String setAsFloatMessage)  {
+    this.setAsFloatMessage = setAsFloatMessage;
   }
   
   public TextEditorConverter(Form externalForm) {
     this.externalForm = externalForm;
   }
-
+  
   public static EntityPathValueContainer getResultByParsing(IWContext iwc) {
     String submitKey = getGeneralSubmitKey();
     String entityPathShortKey = null;
@@ -147,6 +154,9 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
       // show text input with submitButton
       String uniqueKeyTextInput = getTextInputUniqueKey(id, shortKeyPath);
       TextInput textInput = new TextInput( uniqueKeyTextInput, text);
+      if (setAsFloatMessage != null) {
+        textInput.setAsFloat(setAsFloatMessage);
+      }
 
       // add old value as hidden value
       externalForm.addParameter(getTextInputUniqueKeyPreviousValue(id, shortKeyPath), text);  
