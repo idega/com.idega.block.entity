@@ -10,6 +10,7 @@ import java.util.SortedMap;
 import com.idega.block.entity.business.EntityPropertyHandler;
 import com.idega.block.entity.business.MultiEntityPropertyHandler;
 import com.idega.block.entity.data.EntityPath;
+import com.idega.block.help.presentation.Help;
 import com.idega.idegaweb.IWConstants;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.idegaweb.IWUserContext;
@@ -50,6 +51,10 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
   // view settings
   private final static int SIZE_OF_INPUTFIELD = 3;
   private final static int MAX_LENGTH_OF_INPUTFIELD = 3;
+  
+  private final static String HELP_TEXT_KEY = "entity_browser_settings_window";
+  
+  private String mainStyleClass = "main";
 
  
   private MultiEntityPropertyHandler multiEntityPropertyHandler = null;
@@ -62,8 +67,8 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
   
   public EntityBrowserSettingsWindow() {
     setResizable(true);
-    setWidth(700);
-    setHeight(430);
+    setWidth(720);
+    setHeight(460);
   }
   
   public String getBundleIdentifier(){
@@ -230,6 +235,8 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     
     // get resourceBundle
     IWResourceBundle resourceBundle = getResourceBundle(iwuc);
+    
+    Help help = getHelp(HELP_TEXT_KEY);
         
     // choose visible columns and order of the them 
 		SelectionDoubleBox selectionDoubleBox = getColumnsChooserDoubleSelectionBox(resourceBundle, availableColumns, visibleColumns);
@@ -237,28 +244,39 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     IntegerInput rowsInput = getNumberPerPageInputField(numberOfRowsPerPage, iwuc);
     // close Button
     SubmitButton closeButton = 
-      new SubmitButton(resourceBundle.getLocalizedImageButton("close","CLOSE"),FORM_SUBMIT_KEY,ACTION_CLOSE);
+      new SubmitButton(resourceBundle.getLocalizedString("close","CLOSE"),FORM_SUBMIT_KEY,ACTION_CLOSE);
+      closeButton.setAsImageButton(true);
     // save Button 
     SubmitButton saveButton = 
-      new SubmitButton(resourceBundle.getLocalizedImageButton("save","SAVE"), FORM_SUBMIT_KEY,ACTION_SAVE_FORM);
+      new SubmitButton(resourceBundle.getLocalizedString("save","SAVE"), FORM_SUBMIT_KEY,ACTION_SAVE_FORM);
+      saveButton.setAsImageButton(true);
     // create form 
     // add selection double box
-    Table formTable = new Table(1,3);
+    Table formTable = new Table(2,3);
+    formTable.setStyleClass(mainStyleClass);
+    formTable.mergeCells(1,1,2,1);
+    formTable.mergeCells(1,2,2,2);
     formTable.add(selectionDoubleBox,1,1);
     // add inputField for number of rows
     Table inputTable = new Table(2,1);
     inputTable.setAlignment("bottom");
     Text descriptionInput = new Text(getLocalizedString("number_of_rows_per_page:", "Number of rows per page:", iwuc));
-    descriptionInput.setFontFace(Text.FONT_FACE_VERDANA);
-    descriptionInput.setFontSize(2);
+//    descriptionInput.setFontFace(Text.FONT_FACE_VERDANA);
+//    descriptionInput.setFontSize(2);
     inputTable.add(descriptionInput, 1,1);
     inputTable.add(rowsInput,2,1);
     formTable.add(inputTable,1,2);
+    //helpTable
+    Table helpTable = new Table(1,1);
+    helpTable.add(help,1,1);
     // add buttons
     Table buttonTable = new Table(2,1);
     buttonTable.add(closeButton,1,1);
     buttonTable.add(saveButton,2,1);
-    formTable.add(buttonTable,1,3);
+    formTable.setAlignment(1,3, "left");
+    formTable.setAlignment(2,3,"right");
+    formTable.add(helpTable,1,3);
+    formTable.add(buttonTable,2,3);
     Form form = new Form();  
     form.add(formTable);
     // the name of the entity is necessary for initializing this class
