@@ -96,6 +96,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private Collection entities = null;
   
   // an unique key for the collection 
+  // (only important if you use more than one entityBrowser on a web site)  
   private String keyForEntityCollection = "";
   
   private IWPresentationState presentationState = null;
@@ -251,8 +252,17 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     mandatoryColumns.put(Integer.toString(orderNumber), entityPathShortKey);  
   }
 
-
-    
+  /**
+   * Sets the collection of entities that this browser should show. You have to 
+   * set a non empty collection otherwise this browser will show nothing.
+   * 
+   * @param keyForEntityCollection  
+   * very important if you use more than one entityBrowser on a web site, because
+   * this key is used to identify the different states of the collections in the session.
+   * Just use an unique string like "havannna", "paris" or "w123".
+   * 
+   * @param a collection of entities
+   */
   public void setEntities(String keyForEntityCollection, Collection entities)  {
     this.keyForEntityCollection = keyForEntityCollection;
     this.entities = entities;
