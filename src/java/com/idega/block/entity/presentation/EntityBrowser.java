@@ -70,6 +70,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   public final static String REQUEST_FROM_BOTTOM_FORM_KEY = BOTTOM_FORM_KEY + REQUEST_KEY;
   public final static String REQUEST_FROM_EXTERNAL_FORM_SHOW_ALL_ENTITIES_KEY
      = EXTERNAL_FORM_KEY + REQUEST_KEY; 
+     
+  public final static String EXTERNAL_FORM_SHOW_ALL_ENTITIES_KEY = "req_show_all_entities";
   
   // this parameter enables the entity browser to remove the 
   // stored state in the session
@@ -822,8 +824,12 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   private void parseAndDoActionNumberOfRowsPerPage(IWContext iwc, EntityBrowserPS state)  {
     String allEntitiesWereShownFromRequest;
+    String allEntitiesString;
+    if ((allEntitiesString = getAction(iwc, state, EXTERNAL_FORM_SHOW_ALL_ENTITIES_KEY)) != null) {
+        showAllEntities = (new Boolean(allEntitiesString)).booleanValue();
+    }
     // handle external form
-    if ((allEntitiesWereShownFromRequest = getAction(iwc, state, REQUEST_FROM_EXTERNAL_FORM_SHOW_ALL_ENTITIES_KEY)) != null)  {
+    else if ((allEntitiesWereShownFromRequest = getAction(iwc, state, REQUEST_FROM_EXTERNAL_FORM_SHOW_ALL_ENTITIES_KEY)) != null)  {
       boolean allEntitiesWereShown = new Boolean(allEntitiesWereShownFromRequest).booleanValue();
       boolean showAllEntitiesHeader = (getAction(iwc, state, HEADER_FORM_KEY + SHOW_ALL_KEY) != null);
       boolean showAllEntitiesBottom = (getAction(iwc, state, BOTTOM_FORM_KEY + SHOW_ALL_KEY) != null);
@@ -841,7 +847,11 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       else if (allEntitiesWereShown && showAllEntitiesHeader && showAllEntitiesBottom) {
         showAllEntities = true;
       }
-      else  {
+      // condition below is not tested very well...
+      else if (allEntitiesWereShown && showAllEntitiesBottom) {
+        showAllEntities = true;
+      }
+      else {
         showAllEntities = false;
       }
     }
@@ -1416,6 +1426,11 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       this.mandatoryParameters = new ArrayList(mandatoryParameters);
     }
     this.mandatoryParameters.addAll(mandatoryParameters);
+  }
+  
+  public Parameter getShowAllEntriesParameter() {
+    Parameter parameter = new Parameter(EXTERNAL_FORM_SHOW_ALL_ENTITIES_KEY, Boolean.toString(showAllEntities));
+    return parameter;
   }
       
   
