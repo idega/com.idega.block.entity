@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+
 import com.idega.block.entity.business.EntityToPresentationObjectConverter;
 import com.idega.block.entity.data.EntityPath;
 import com.idega.block.entity.data.EntityPathValueContainer;
@@ -151,7 +152,6 @@ public class DropDownMenuConverter
       EntityPath path,
       EntityBrowser browser,
       IWContext iwc)  {
-    IDOEntity idoEntity = (IDOEntity) entity;
     Object object = path.getValue((GenericEntity) entity);
     return (object == null) ? "" : object;
   }      
