@@ -107,6 +107,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
         "font-family:arial; font-size:9pt; text-align: justify;";
   private final static String FONT_STYLE_FOR_LINK = STYLE;
   
+  private String styledLink = "styledLinkGeneral";
+  
   private String leadingEntityName = null;
   
   // foreign entities
@@ -1027,8 +1029,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // use links
     Link goBackLink = getLinkInstanceWithMandatoryParameters(resourceBundle.getLocalizedString("back","Back"));
     Link goForwardLink = getLinkInstanceWithMandatoryParameters(resourceBundle.getLocalizedString("forward","Forward"));
-    goBackLink.setFontStyle(FONT_STYLE_FOR_LINK);
-    goForwardLink.setFontStyle(FONT_STYLE_FOR_LINK);
+//    goBackLink.setFontStyle(FONT_STYLE_FOR_LINK);
+//    goForwardLink.setFontStyle(FONT_STYLE_FOR_LINK);
     if (useEventSystem) {
       goBackLink.addEventModel(getPresentationEvent(),iwc);
       goForwardLink.addEventModel(getPresentationEvent(),iwc);
@@ -1109,7 +1111,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       IWResourceBundle resourceBundle, 
       SetIterator setIterator, 
       String currentStateOfIterator)  {
-    List listOfLinks = new ArrayList(); 
+    List listOfLinks = new ArrayList();
     // trick: use the same key as the drop down menu
     String key = getUniqueKeyForSubmitButton(formKey, NEW_SUBSET_FROM_LIST_KEY, currentStateOfIterator);    
     int size = setIterator.size();
@@ -1143,7 +1145,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
         buffer.append(lastNumberOfSubset);
       }
       Link link = getLinkInstanceWithMandatoryParameters(buffer.toString());
-      link.setFontStyle(FONT_STYLE_FOR_LINK);
+//      link.setFontStyle(FONT_STYLE_FOR_LINK);
       if (preNumber == 0)
         link.setBold();
       if (useEventSystem)
@@ -1181,7 +1183,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       return null;
     } 
     Text showAll = new Text(resourceBundle.getLocalizedString("eb_show_all","show all"));
-    showAll.setFontStyle(FONT_STYLE_FOR_LINK);
+//	changed to set the font style to match the new style:
+		showAll.setStyleClass(styledLink);
+ //   showAll.setFontStyle(FONT_STYLE_FOR_LINK);
     StringBuffer buffer = new StringBuffer(formKey);
     buffer.append(SHOW_ALL_KEY);
     CheckBox showAllCheckBox = new CheckBox(buffer.toString());
@@ -1521,6 +1525,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   private Link getLinkInstanceWithMandatoryParameters(String text) {
     Link link = new Link(text);
+    //added to match styled Links
+    link.setStyleClass(styledLink);
     link.addParameter(HEADER_FORM_LAST_USED_MY_ID_KEY, getMyId());
     link.addParameter(All_ENTITIES_WERE_SHOWN, (new Boolean(showAllEntities)).toString());
     if (mandatoryParameters == null)  {
