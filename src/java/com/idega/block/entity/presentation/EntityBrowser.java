@@ -137,8 +137,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private EntityToPresentationObjectConverter defaultConverter = null;
   
   // use tree map because of the order of the elements
-  private TreeMap defaultColumns = new TreeMap();
-  private TreeMap mandatoryColumns = new TreeMap();
+  private TreeMap defaultColumns = null;
+  private TreeMap mandatoryColumns = null;
+  private TreeMap optionColumns = null;
   
   // map that assign a color to each column
   // set this variable to null because in most cases this feature is not used
@@ -302,6 +303,20 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     return list;
   }
   
+  /**Sets an option column, that is the column is shown in the settings window
+  *  
+  *  Set  a  shortKey of an entity path with an order number. It is not
+  * necessary to have order numbers that covers a complete range of integers
+  * like e.g. 0 to 10. The order numbers are only used to determine the order of
+  * the columns. Therefore it is well defined if the numbers are spread e.g. 2,
+  * 7, 122 and 412 (example with four columns).
+   */
+  public void setOptionColumn(int orderNumber, String entityPathShortKey)  {
+  	if (optionColumns == null) {
+  		optionColumns = new TreeMap();
+  	}
+  	optionColumns.put(new Integer(orderNumber), entityPathShortKey);    
+  }  
   
   
   /**Sets the default columns, that is these columns are only shown if the user has not chosen
@@ -312,11 +327,11 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   * like e.g. 0 to 10. The order numbers are only used to determine the order of
   * the columns. Therefore it is well defined if the numbers are spread e.g. 2,
   * 7, 122 and 412 (example with four columns).
-   * 
-   * if you change the name of this method please change the 
-   * corresponding method identifier variable SET_DEFAULT_COLUMNS_METHOD_IDENTIFIER 
-   */ 
+   */
   public void setDefaultColumn(int orderNumber, String entityPathShortKey)  {
+  	if (defaultColumns == null) {
+  		defaultColumns = new TreeMap();
+  	}
     defaultColumns.put(new Integer(orderNumber), entityPathShortKey);    
   }  
 
@@ -332,6 +347,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
    * numbers are spread e.g. 2, 7, 122 and 412 (example with four columns).
    */
   public void setMandatoryColumn(int orderNumber, String entityPathShortKey) {
+  	if (mandatoryColumns == null) {
+  		mandatoryColumns = new TreeMap();
+  	}
     mandatoryColumns.put(new Integer(orderNumber), entityPathShortKey);  
   }
 
@@ -1211,7 +1229,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     Link link = new Link(settings);
     link.setWindowToOpen(EntityBrowserSettingsWindow.class);
     link.addParameter(EntityBrowserSettingsWindow.LEADING_ENTITY_NAME_KEY, leadingEntityName);
-    EntityBrowserSettingsWindow.setParameters(link, entityNames, defaultColumns.values(), defaultNumberOfRowsPerPage );
+    Collection defaultColumnValues = (defaultColumns == null) ? null : defaultColumns.values();
+    Collection optionColumnValues = (optionColumns == null) ? null : optionColumns.values();
+    EntityBrowserSettingsWindow.setParameters(link, entityNames, defaultColumnValues , optionColumnValues, defaultNumberOfRowsPerPage );
         
     link.setAsImageButton(true);
     Table table = new Table();
@@ -1271,33 +1291,37 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
   
   private List getVisibleOrderedEntityPathes(MultiEntityPropertyHandler multiPropertyHandler)  {
-    List columnsSetByUserList;
     // if the user settings should not be accepted set the columns 
     // that are set by the user to an empty collection
-    if (acceptUserSettings) {
-      columnsSetByUserList = multiPropertyHandler.getVisibleOrderedEntityPathes();
-    }
-    else {
-      columnsSetByUserList = new ArrayList();
-    }
+    List columnsSetByUserList = (acceptUserSettings) ? multiPropertyHandler.getVisibleOrderedEntityPathes() : null;
     // use arrayList because the returned collection of a tree map does not support add operations
-    List mandatoryColumns = new ArrayList(this.mandatoryColumns.values());
+     List tempMandatoryColumns = (mandatoryColumns == null) ? null : new ArrayList(mandatoryColumns.values());
     // columnsSetByUserList is empty...  
     // there are no visible columns set by the user, therefore show the default columns  
     // default columns is a tree map values returns an ordered collection
-    if (columnsSetByUserList.isEmpty()) {
-      Collection defaultColumns = this.defaultColumns.values();
-      mandatoryColumns.addAll(defaultColumns);
+    if ( (columnsSetByUserList == null || columnsSetByUserList.isEmpty())
+					&& defaultColumns != null) {
+      Collection tempDefaultColumns = defaultColumns.values();
+      if (tempMandatoryColumns == null) {
+      	tempMandatoryColumns = new ArrayList(tempDefaultColumns);
+      }
+      else {
+      	tempMandatoryColumns.addAll(tempDefaultColumns);
+      }
     }
     List list = new ArrayList();
-    Iterator mandatoryColumnsIterator = mandatoryColumns.iterator();
-    while (mandatoryColumnsIterator.hasNext()) {
-      String shortKey = (String) mandatoryColumnsIterator.next();
-      EntityPath path = multiPropertyHandler.getEntityPath(shortKey);
-      if (path != null)
-        list.add(path);
+    if (tempMandatoryColumns != null) {
+    	Iterator mandatoryColumnsIterator = tempMandatoryColumns.iterator();
+    	while (mandatoryColumnsIterator.hasNext()) {
+    		String shortKey = (String) mandatoryColumnsIterator.next();
+    		EntityPath path = multiPropertyHandler.getEntityPath(shortKey);
+    		if (path != null)
+    			list.add(path);
+    	}
     }
-    list.addAll(columnsSetByUserList);
+    if (columnsSetByUserList != null) {
+    	list.addAll(columnsSetByUserList);
+    }
     return list;
   }           
   

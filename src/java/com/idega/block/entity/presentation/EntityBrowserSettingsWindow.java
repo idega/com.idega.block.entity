@@ -39,6 +39,8 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
   // use the method getParamterKeyForEntityName to get this key
   public final static String ENTITY_NAME_KEY_PREFIX = "e_n_";
   public final static String DEFAULT_SHORT_KEY_KEY_PREFIX = "s_k_";
+  public final static String OPTION_SHORT_KEY_KEY_PREFIX = "s_k_o_";
+  
   public final static String DEFAULT_NUMBER_OF_ROWS_KEY = "default_rows_key";
   
   private final static String FORM_SUBMIT_KEY = "browser_setting_mode";
@@ -62,6 +64,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
   private SortedMap allPathes;
   
   private List defaultShortKeys;
+  private List optionShortKeys;
   
   private int defaultNumberOfRows = 1;
   
@@ -75,6 +78,22 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     return EntityBrowser.IW_BUNDLE_IDENTIFIER;
   }  
 
+  public static void setParameters(Link link, Collection entityNames, Collection defaultShortKeys, Collection optionShortKeys, int defaultNumberOfRows) {
+  	if (optionShortKeys != null) {
+  		Iterator iterator = optionShortKeys.iterator();
+  		int i = 0;
+  		while (iterator.hasNext()) {
+  			String shortKeyOption = (String) iterator.next();
+  			StringBuffer buffer = new StringBuffer(OPTION_SHORT_KEY_KEY_PREFIX);
+  			buffer.append(i++);
+  			link.addParameter(buffer.toString(), shortKeyOption);
+  		}
+  	}
+  	setParameters(link, entityNames, defaultShortKeys, defaultNumberOfRows);
+  }
+  			
+  
+  
   public static void setParameters(Link link, Collection entityNames, Collection defaultShortKeys, int defaultNumberOfRows) {
     if (entityNames != null)  {
       Iterator iterator = entityNames.iterator();
@@ -97,6 +116,20 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
       }
     }
     link.addParameter(DEFAULT_NUMBER_OF_ROWS_KEY, Integer.toString(defaultNumberOfRows));
+  }
+ 
+  public static void setParameters(Form form, Collection entityNames, Collection defaultShortKeys, Collection optionShortKeys, int defaultNumberOfRows) {
+  	if (optionShortKeys != null) {
+  		Iterator iterator = optionShortKeys.iterator();
+  		int i = 0;
+  		while (iterator.hasNext()) {
+  			String shortKeyOption = (String) iterator.next();
+  			StringBuffer buffer = new StringBuffer(OPTION_SHORT_KEY_KEY_PREFIX);
+  			buffer.append(i++);
+  			form.addParameter(buffer.toString(), shortKeyOption);
+  		}
+  	}
+  	setParameters(form, entityNames, defaultShortKeys, defaultNumberOfRows);
   }
   
   public static void setParameters(Form form, Collection entityNames, Collection defaultShortKeys, int defaultNumberOfRows) {
@@ -155,6 +188,16 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
         buffer.append(i++);
         key = buffer.toString();
       }
+      // get the option short keys
+      optionShortKeys = new ArrayList();
+      key = OPTION_SHORT_KEY_KEY_PREFIX + "0";
+      i = 1;
+      while (iwc.isParameterSet(key)) {
+        optionShortKeys.add(iwc.getParameter(key));
+        StringBuffer buffer = new StringBuffer(OPTION_SHORT_KEY_KEY_PREFIX);
+        buffer.append(i++);
+        key = buffer.toString();
+      }
       // get the default short keys
       defaultShortKeys = new ArrayList();
       key = DEFAULT_SHORT_KEY_KEY_PREFIX + "0";
@@ -177,7 +220,18 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
       return false;
     }
     // set available entity pathes
-    allPathes = multiEntityPropertyHandler.getAllEntityPathes();
+    // if option short keys are set do not fetch all entity pathes
+    if (optionShortKeys.isEmpty())  {
+    	allPathes = multiEntityPropertyHandler.getAllEntityPathes();
+    }
+    else {
+    	Iterator optionShortKeysIterator = optionShortKeys.iterator();
+    	while (optionShortKeysIterator.hasNext())  {
+    		String shortKey = (String) optionShortKeysIterator.next();
+    		EntityPath path = multiEntityPropertyHandler.getEntityPath(shortKey);
+    		allPathes.put(shortKey, path);
+    	}
+    }
     return true;
   }
     
@@ -280,7 +334,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     form.add(formTable);
     // the name of the entity is necessary for initializing this class
     form.add(new HiddenInput(LEADING_ENTITY_NAME_KEY, multiEntityPropertyHandler.getLeadingEntityClassName()));
-    EntityBrowserSettingsWindow.setParameters(form, multiEntityPropertyHandler.getEntityNames(),defaultShortKeys, defaultNumberOfRows); 
+    EntityBrowserSettingsWindow.setParameters(form, multiEntityPropertyHandler.getEntityNames(),defaultShortKeys, optionShortKeys,defaultNumberOfRows); 
     //get the iwcontext for the add-method in StyledIWAdminWindow
     IWContext iwc = IWContext.getInstance();  
     // finally add form        
