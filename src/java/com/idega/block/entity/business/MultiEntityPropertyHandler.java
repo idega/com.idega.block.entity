@@ -37,10 +37,18 @@ public class MultiEntityPropertyHandler {
     // add the leading entity class also to the map
     this.addEntity(leadingEntityClass);
   }
-  
+ 
   public MultiEntityPropertyHandler(IWUserContext userContext, String leadingEntityClassName) throws ClassNotFoundException {
     this(userContext, Class.forName(leadingEntityClassName));
   }
+  
+  /**
+   * This contructor is used if defining a leading entity is impossible.
+   * All returned entity pathes are DummyEntityPathes.
+   */
+	public MultiEntityPropertyHandler(IWUserContext userContext) {	
+		this.userContext = userContext;
+	}
  
   public void addEntity(String entityClassName) throws ClassNotFoundException {
     Class entityClass = Class.forName(entityClassName);
