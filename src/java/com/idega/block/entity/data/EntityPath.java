@@ -9,7 +9,9 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import com.idega.data.EntityAttribute;
+import com.idega.data.EntityRepresentation;
 import com.idega.data.GenericEntity;
+import com.idega.data.IDOEntity;
 import com.idega.idegaweb.IWResourceBundle;
 
 /**
@@ -238,14 +240,17 @@ public class EntityPath {
   /** Returns an object or null
    * @return the value of this entity path without the next entity path
    */
-  public Object getValue(GenericEntity entity)  {
+  public Object getValue(EntityRepresentation entity)  {
     Iterator iterator = pathToEntity.iterator();
     // start 
     Object value = entity; 
     // sometimes you can not go down the complete path because some columns are null
     while (iterator.hasNext() && value != null )  {
       String currentColumnName = (String) iterator.next();
-      value = ( (GenericEntity) value ).getColumnValue(currentColumnName);    
+      // that is a little bit tricky: the column can be 
+      // a reference to another entity or a real value like a String, Integer, Date and so on.
+      // If the path is well-defined, there will be no CastException.
+      value = ((EntityRepresentation) value).getColumnValue(currentColumnName);    
     }
     return value;
   }
@@ -253,7 +258,7 @@ public class EntityPath {
   /** @return values of this entity path plus all the values of the next
    * entity pathes
    */
-  public List getValues(GenericEntity entity)  {
+  public List getValues(EntityRepresentation entity)  {
     List list = new ArrayList();
     getValues(list, entity);
     return list;
@@ -273,7 +278,7 @@ public class EntityPath {
     return entityPath;
   } 
 
-  private void getValues(List list, GenericEntity entity)  {
+  private void getValues(List list, EntityRepresentation entity)  {
     list.add(getValue(entity));
     if (nextEntityPath == null)
       return;
@@ -289,7 +294,9 @@ public class EntityPath {
       int maximumSearchDepth) {       
     // entering a new layer....
     currentLayer++;
-		GenericEntity entity = getEntity(currentEntityClass);
+    //TODO thomas: change this by using IDOEntity and EntityDefinition classes       
+    // entering a new layer....
+		GenericEntity entity = (GenericEntity) getEntity(currentEntityClass);
     if (entity == null)
       return new TreeMap();
     Collection coll = entity.getAttributes();
@@ -324,7 +331,7 @@ public class EntityPath {
     //TODO thomas: change this by using IDOEntity and EntityDefinition classes       
     // entering a new layer....
     currentLayer++;
-    GenericEntity entity = getEntity(currentEntityClass);
+    GenericEntity entity = (GenericEntity) getEntity(currentEntityClass);
     if (entity == null)
       return null;
     EntityAttribute attribute = entity.getAttribute((String) columnNames.get(currentLayer));
@@ -343,8 +350,8 @@ public class EntityPath {
   }  
 
 
-  private static GenericEntity getEntity(Class currentEntityClass) {
-    return (GenericEntity) GenericEntity.getStaticInstanceIDO(currentEntityClass);
+  private static IDOEntity getEntity(Class currentEntityClass) {
+    return GenericEntity.getStaticInstanceIDO(currentEntityClass);
 	}  
 
 }
