@@ -167,12 +167,18 @@ public class EntityPath {
    */  
   public String getShortKey() {
     StringBuffer buffer = new StringBuffer();
-    getShortKey(buffer);
+    getShortKey(buffer, true);
     return buffer.toString();
   }
     
-
-  private void getShortKey(StringBuffer buffer) {
+  /** Gets only the section of the short key of this instance */
+  public String getShortKeySection() {
+  	StringBuffer buffer = new StringBuffer();
+  	getShortKey(buffer, false);
+  	return buffer.toString();
+  }
+  
+  private void getShortKey(StringBuffer buffer, boolean getCompletePath) {
     int lastIndex =  pathToEntity.size() - 1;
     if (lastIndex < 0)
       return;
@@ -193,9 +199,9 @@ public class EntityPath {
       buffer.append(columnName); 
     }
     // go to the next entity path
-    if (nextEntityPath != null) {
+    if (nextEntityPath != null && getCompletePath) {
       buffer.append(SHORT_KEY_NEXT_ENTITY_PATH_DELIMITER);
-      nextEntityPath.getShortKey(buffer);
+      nextEntityPath.getShortKey(buffer, true);
     }
   }
 
