@@ -179,7 +179,7 @@ public class DropDownMenuConverter
       // sometimes the preselection does not exist, 
       // add to options without localization
       String preselectionAsString = preselection.toString();
-      if (! options.containsKey(preselection)) {
+      if (! options.containsKey(preselectionAsString)) {
         dropdownMenu.addMenuElement(preselectionAsString, preselectionAsString);
       }
       dropdownMenu.setSelectedElement(preselectionAsString);
