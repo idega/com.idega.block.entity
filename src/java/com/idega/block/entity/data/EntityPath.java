@@ -320,7 +320,8 @@ public class EntityPath {
     ( EntityPath motherEntityPath, 
       Class currentEntityClass, 
       int currentLayer, 
-      List columnNames) {       
+      List columnNames) {    
+    //TODO thomas: change this by using IDOEntity and EntityDefinition classes       
     // entering a new layer....
     currentLayer++;
     GenericEntity entity = getEntity(currentEntityClass);
@@ -343,7 +344,7 @@ public class EntityPath {
 
 
   private static GenericEntity getEntity(Class currentEntityClass) {
-    return (GenericEntity) GenericEntity.getStaticInstance(currentEntityClass);
+    return (GenericEntity) GenericEntity.getStaticInstanceIDO(currentEntityClass);
 	}  
 
 }
