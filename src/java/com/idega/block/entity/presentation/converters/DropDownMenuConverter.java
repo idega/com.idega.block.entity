@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-
 import com.idega.block.entity.business.EntityToPresentationObjectConverter;
 import com.idega.block.entity.data.EntityPath;
 import com.idega.block.entity.data.EntityPathValueContainer;
@@ -37,7 +36,7 @@ public class DropDownMenuConverter
   private static final String SUBMIT_KEY = "dd_submit";
   private static final char DELIMITER = '|';
   
-  private List options = new ArrayList();
+  private OptionProvider optionProvider = null;
   private Map maintainParameterMap = new HashMap(0);
   private List maintainParameterList = new ArrayList(0);
 
@@ -73,9 +72,8 @@ public class DropDownMenuConverter
       return browser.getDefaultConverter().getHeaderPresentationObject(entityPath, browser, iwc); 
   }
 
-  /** This method uses a copy of the specified list */
-  public void addOptions(List options)  {
-    this.options = options;
+  public void setOptionProvider(OptionProvider optionProvider)  {
+    this.optionProvider = optionProvider;   
   }
 
 
@@ -97,10 +95,8 @@ public class DropDownMenuConverter
     EntityPath path,
     EntityBrowser browser,
     IWContext iwc) {
-    IDOEntity idoEntity = (IDOEntity) entity;
-    Object object = path.getValue((GenericEntity) entity);
-    String text = (object == null) ? "" : object.toString();      
-    Integer id = (Integer) idoEntity.getPrimaryKey();
+    Object value = getValue(entity,path,browser,iwc);  
+    Integer id = (Integer) ((IDOEntity) entity).getPrimaryKey();
     String shortKeyPath = path.getShortKey();
     
     String uniqueKeyLink = getLinkUniqueKey(id, shortKeyPath);
@@ -108,7 +104,14 @@ public class DropDownMenuConverter
     if (iwc.isParameterSet(uniqueKeyLink)) {
       // show text input with submitButton
       String uniqueKeyDropdownMenu = getDropdownMenuUniqueKey(id, shortKeyPath);
-      DropdownMenu dropdownMenu = getDropdownMenu(text, uniqueKeyDropdownMenu);
+      DropdownMenu dropdownMenu = 
+        getDropdownMenu(
+          value, 
+          uniqueKeyDropdownMenu,
+          entity,
+          path,
+          browser,
+          iwc);
       SubmitButton button = new SubmitButton("OK", getGeneralSubmitKey(), getUniqueKey(id, shortKeyPath).toString());
       // add maintain parameters
       Iterator iterator = maintainParameterMap.entrySet().iterator();
@@ -124,7 +127,7 @@ public class DropDownMenuConverter
     } 
     else {
       // show link
-      Link link = new Link(text);
+      Link link = new Link(value.toString());
       link.addParameter(uniqueKeyLink,"dummy_value");
       // add maintain parameters with set values
       Iterator iterator = maintainParameterMap.entrySet().iterator();
@@ -143,21 +146,42 @@ public class DropDownMenuConverter
       
   }
   
-  private DropdownMenu getDropdownMenu(String preselection, String name)  {
+  protected Object getValue(
+      Object entity,
+      EntityPath path,
+      EntityBrowser browser,
+      IWContext iwc)  {
+    IDOEntity idoEntity = (IDOEntity) entity;
+    Object object = path.getValue((GenericEntity) entity);
+    return (object == null) ? "" : object;
+  }      
+    
+  
+  private DropdownMenu getDropdownMenu(
+      Object preselection, 
+      String name,
+      Object entity,
+      EntityPath path,
+      EntityBrowser browser,
+      IWContext iwc)  {
+    Map options = (optionProvider == null) ? new HashMap(0) : optionProvider.getOptions(entity,path,browser,iwc);  
     DropdownMenu dropdownMenu = new DropdownMenu(name);
-    Iterator iterator = options.iterator();
+    Iterator iterator = options.entrySet().iterator();
     while (iterator.hasNext()) {
-      String option = (String) iterator.next();
+      Map.Entry option = (Map.Entry) iterator.next();
+      String value = option.getKey().toString();
+      String display = option.getValue().toString();
       // key is option, value is option
-      dropdownMenu.addMenuElement(option);
+      dropdownMenu.addMenuElement(value, display);
     }
     // set preselection
     if (preselection != null) {
-      // sometimes the preselection does not exist
-      if (! options.contains(preselection)) {
-        dropdownMenu.addMenuElement(preselection);
+      // sometimes the preselection does not exist, 
+      // add to options without localization
+      if (! options.containsKey(preselection)) {
+        dropdownMenu.addMenuElement(preselection.toString(), preselection.toString());
       }
-      dropdownMenu.setSelectedElement(preselection);
+      dropdownMenu.setSelectedElement(preselection.toString());
     }
     return dropdownMenu;
   }
