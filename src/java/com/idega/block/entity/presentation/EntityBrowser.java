@@ -724,11 +724,19 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     int quantity = setIterator.getQuantity();
     int preNumber = setIterator.getNegativeNumberOfPreviousSetsRelativeToCurrentSet();
     int afterNumber = setIterator.getPositiveNumberOfNextSetsRelativeToCurrentSet();
+    // adjust number of possible links previous and after current set
+    int numberOfLinksAfterCurrentSet = defaultNumberOfLinksAfterCurrentSet;
+    int numberOfLinksPreviousToCurrentSet = -defaultNumberOfLinksPreviousToCurrentSet;
+    //  prenumber is negative
+    if (preNumber >  -defaultNumberOfLinksPreviousToCurrentSet)
+      numberOfLinksAfterCurrentSet += ( defaultNumberOfLinksPreviousToCurrentSet + preNumber);
+    if (afterNumber < defaultNumberOfLinksAfterCurrentSet)
+      numberOfLinksPreviousToCurrentSet -= (defaultNumberOfLinksAfterCurrentSet - afterNumber);
     // prenumber is negative 
-    preNumber = (preNumber <  -defaultNumberOfLinksPreviousToCurrentSet) ? 
-      -defaultNumberOfLinksPreviousToCurrentSet : preNumber; 
-    afterNumber = (afterNumber > defaultNumberOfLinksAfterCurrentSet) ?
-      defaultNumberOfLinksAfterCurrentSet : afterNumber;
+    preNumber = (preNumber <  numberOfLinksPreviousToCurrentSet) ? 
+      numberOfLinksPreviousToCurrentSet : preNumber; 
+    afterNumber = (afterNumber > numberOfLinksAfterCurrentSet) ?
+      numberOfLinksAfterCurrentSet : afterNumber;
     int number = setIterator.currentFirstIndexSetRelativeToZero() + 1; // plus one because it starts with zero
     // prenumber is negative
     number += (preNumber * increment);
