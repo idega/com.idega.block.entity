@@ -26,20 +26,20 @@ import com.idega.presentation.ui.SubmitButton;
  */
 public class EditOkayButtonConverter implements EntityToPresentationObjectConverter {
 	
-	boolean addCancel = false;
+  boolean addCancel = true;
 	List maintainParametersList = null;
 
-	/**
+    /**
 	 * @return
 	 */
-	public List getMaintainParametersList() {
+	public List getParametersToMaintain() {
 		return maintainParametersList;
 	}
 
 	/**
 	 * @param maintainParametersList
 	 */
-	public void setMaintainParametersList(List maintainParametersList) {
+	public void maintainParameters(List maintainParametersList) {
 		this.maintainParametersList = maintainParametersList;
 	}
 
@@ -73,19 +73,17 @@ public class EditOkayButtonConverter implements EntityToPresentationObjectConver
         if (id.equals(primaryKey))  {
           SubmitButton button = new SubmitButton(iwrb.getLocalizedString("ok.button","ok"), ConverterConstants.EDIT_ENTITY_SUBMIT_KEY, id.toString());
           button.setAsImageButton(true);
-					table.add(button,1,1);
-          
+		  table.add(button,1,1);
           if(addCancel){
-          	
-          	Link cancel = new Link(iwrb.getLocalizedImageButton("cancel.button","cancel"));
+           	Link cancel = new Link(iwrb.getLocalizedImageButton("cancel.button","cancel"));
           	cancel.addParameter(ConverterConstants.SUBMIT_CANCEL_KEY,"true");
           	
           	if(maintainParametersList!=null && !maintainParametersList.isEmpty()){
           		Iterator iter = maintainParametersList.iterator();
           		while (iter.hasNext()) {
-								String param = (String) iter.next();
-								cancel.maintainParameter(param,iwc);
-							}
+			      String param = (String) iter.next();
+				  cancel.maintainParameter(param,iwc);
+                }
           		
           	}
           	table.add(cancel,2,1);
@@ -105,8 +103,8 @@ public class EditOkayButtonConverter implements EntityToPresentationObjectConver
   	this.addCancel = addCancel;
   }
   
-	public String getBundleIdentifier(){
-		 return EntityBrowser.IW_BUNDLE_IDENTIFIER;
-	 }
+  public String getBundleIdentifier(){
+    return EntityBrowser.IW_BUNDLE_IDENTIFIER;
+  }
 
 }
