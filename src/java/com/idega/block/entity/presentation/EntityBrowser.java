@@ -99,7 +99,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private int defaultNumberOfLinksPreviousToCurrentSet = 4;
   private int defaultNumberOfLinksAfterCurrentSet = 4;
   
-  private int rowLimitForShowingBottomNavigation = 15;
+  private int rowLimitForShowingBottomNavigation = 10;
   private boolean showHeaderNavigation = true;
   private boolean showBottomNavigation = true;
   
@@ -618,6 +618,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // special case:
     // if both panel were not set, set the settings button now...
     if (!showHeaderNavigationPanel && !showBottomNavigationPanel) {
+    	if (entityIterator.getIncrement() > rowLimitForShowingBottomNavigation) {
+    		setOnlySettingsButtonHeader(HEADER_FORM_KEY, enableBack, enableForward, resourceBundle, 1, necessaryColumns);
+    	}
       setOnlySettingsButton(BOTTOM_FORM_KEY, enableBack, enableForward, resourceBundle,necessaryRows,necessaryColumns);
     }
     // special case:
@@ -658,6 +661,40 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // now add the table in the row that was created by merging the cells of the last row
     add(panelTable, panelBeginxpos, panelBeginypos);
   }
+ 
+  private void setOnlySettingsButtonHeader(
+      String formKey,
+      boolean enableBack,
+      boolean enableForward, 
+      IWResourceBundle resourceBundle, 
+      int bottomRightCornerY, 
+      int bottomRightCornerX) {
+    // get the desired row and merge it
+    int panelBeginxpos = xAnchorPosition + 1;
+    int panelBeginypos = yAnchorPosition + bottomRightCornerY;
+    int panelEndxpos = xAnchorPosition + bottomRightCornerX;
+    int panelEndypos = panelBeginypos;
+    // merge cell
+    mergeCells(panelBeginxpos, panelBeginypos, panelEndxpos, panelEndypos);
+    // create table
+    Table panelTable = new Table(3,1);
+    // add settings 
+    panelTable.add(getSettingsButton(resourceBundle),2,1);
+    // add show all check box
+    Table showAllTable = getShowAllCheckBox(formKey, enableBack, enableForward, resourceBundle);
+    if (showAllTable != null) {
+      panelTable.add(showAllTable,1,1);   
+    }
+    // add additional presentation objects
+    //Table table = getAdditionalPresentationObjects();
+    //panelTable.add(table , 3, 1);
+    // now add the table in the row that was created by merging the cells of the last row
+    add(panelTable, panelBeginxpos, panelBeginypos);
+    if (useExternalForm)	{
+    	  HiddenInput hiddenInputRequestFrom = new HiddenInput(formKey + REQUEST_KEY);
+    	  add(hiddenInputRequestFrom);
+    }
+  }     
     
   
   private void setOnlySettingsButton(
@@ -688,6 +725,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     panelTable.add(table , 3, 1);
     // now add the table in the row that was created by merging the cells of the last row
     add(panelTable, panelBeginxpos, panelBeginypos);
+    if (useExternalForm)	{
+    	  HiddenInput hiddenInputRequestFrom = new HiddenInput(formKey + REQUEST_KEY);
+    	  add(hiddenInputRequestFrom);
+    }
   }     
     
     
@@ -914,9 +955,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       else if (allEntitiesWereShown && showAllEntitiesHeader && showAllEntitiesBottom) {
         showAllEntities = true;
       }
-      // condition below is not tested very well...
-      else if (allEntitiesWereShown && showAllEntitiesBottom) {
-        showAllEntities = true;
+      else if( allEntitiesWereShown && !headerFormExists && showAllEntitiesBottom) {
+      	showAllEntities = true;
       }
       else {
         showAllEntities = false;
