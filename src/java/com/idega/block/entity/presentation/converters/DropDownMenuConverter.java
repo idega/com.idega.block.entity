@@ -36,7 +36,7 @@ public class DropDownMenuConverter
   private static final String DROPDOWNMENU_KEY = "dd_input";
   private static final String DROPDOWNMENU_KEY_PREVIOUS_VALUE = "dd_prevValue";
   private static final String SUBMIT_KEY = "dd_submit";
-  private static final char DELIMITER = '#';
+  private static final char DELIMITER = '<';
   
   private OptionProvider optionProvider = null;
   private List maintainParameterList = new ArrayList(0);
