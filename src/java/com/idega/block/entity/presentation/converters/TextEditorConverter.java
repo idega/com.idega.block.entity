@@ -127,7 +127,7 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
       TextInput textInput = new TextInput( uniqueKeyTextInput, text);
 
       // add old value as hidden value
-      externalForm.addParameter(TEXTINPUT_KEY_PREVIOUS_VALUE, text);  
+      externalForm.addParameter(getTextInputUniqueKeyPreviousValue(id, shortKeyPath), text);  
 
       Table table = (newEntity) ? new Table(1,1) : new Table(2,1);
       table.add(textInput,1,1);

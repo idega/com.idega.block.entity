@@ -139,7 +139,7 @@ public class DropDownMenuConverter
           browser,
           iwc);
       // add old value as hidden value
-      externalForm.addParameter(DROPDOWNMENU_KEY_PREVIOUS_VALUE, value.toString());  
+      externalForm.addParameter(getDropDownMenuUniqueKeyPreviousValue(id, shortKeyPath), value.toString());  
       Table table = (newEntity) ? new Table(1,1) : new Table(2,1);
       table.add(dropdownMenu,1,1);
       // add submit button
