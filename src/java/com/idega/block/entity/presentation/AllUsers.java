@@ -41,6 +41,7 @@ public class AllUsers extends Block {
     EntityBrowser browser = new EntityBrowser();
     browser.setLeadingEntity((User.class).getName());
     browser.setEntities("users",coll);
+    browser.setUseEventSystem(false);
     add(browser);
   }
      
