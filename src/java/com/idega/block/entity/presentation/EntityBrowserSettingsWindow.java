@@ -237,7 +237,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     	}
     }
     // get the user settings for the columns
-    visibleColumns = multiEntityPropertyHandler.getVisibleOrderedEntityPathes();
+    visibleColumns = multiEntityPropertyHandler.getVisibleOrderedEntityPathes(iwc.getParameter(EntityBrowser.ENTITY_BROWSER_IDENTIFICATION_NAME));
     return true;
   }
     
@@ -250,7 +250,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     }
   }
   
-  private void setContent(IWUserContext iwuc) {
+  private void setContent(IWContext iwc) {
     // get all columns of the corresponding table
 
     if (allPathes == null)  {
@@ -258,7 +258,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
       return; 
     }
     
-    int numberOfRowsPerPage = multiEntityPropertyHandler.getNumberOfRowsPerPage();
+    int numberOfRowsPerPage = multiEntityPropertyHandler.getNumberOfRowsPerPage(iwc.getParameter(EntityBrowser.ENTITY_BROWSER_IDENTIFICATION_NAME));
     // if the user has not set the desired number of rows per page fetch default value 
     if (numberOfRowsPerPage == EntityPropertyHandler.NUMBER_OF_ROWS_PER_PAGE_NOT_SET)
       numberOfRowsPerPage = defaultNumberOfRows;
@@ -294,14 +294,14 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     }
     
     // get resourceBundle
-    IWResourceBundle resourceBundle = getResourceBundle(iwuc);
+    IWResourceBundle resourceBundle = getResourceBundle(iwc);
     
     Help help = getHelp(HELP_TEXT_KEY);
         
     // choose visible columns and order of them 
 		SelectionDoubleBox selectionDoubleBox = getColumnsChooserDoubleSelectionBox(resourceBundle, availableColumns, visibleColumns);
     // how many rows per page
-    IntegerInput rowsInput = getNumberPerPageInputField(numberOfRowsPerPage, iwuc);
+    IntegerInput rowsInput = getNumberPerPageInputField(numberOfRowsPerPage, iwc);
     // close Button
     SubmitButton closeButton = 
       new SubmitButton(resourceBundle.getLocalizedString("close","CLOSE"),FORM_SUBMIT_KEY,ACTION_CLOSE);
@@ -319,7 +319,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     formTable.add(selectionDoubleBox,1,1);
     // add inputField for number of rows
     Table inputTable = new Table(2,1);
-    Text descriptionInput = new Text(getLocalizedString("number_of_rows_per_page:", "Number of rows per page:", iwuc));
+    Text descriptionInput = new Text(getLocalizedString("number_of_rows_per_page:", "Number of rows per page:", iwc));
 //    descriptionInput.setFontFace(Text.FONT_FACE_VERDANA);
 //    descriptionInput.setFontSize(2);
     inputTable.add(descriptionInput, 1,1);
@@ -340,9 +340,9 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     form.add(formTable);
     // the name of the entity is necessary for initializing this class
     form.add(new HiddenInput(LEADING_ENTITY_NAME_KEY, multiEntityPropertyHandler.getLeadingEntityClassName()));
+    form.add(new HiddenInput(EntityBrowser.ENTITY_BROWSER_IDENTIFICATION_NAME, iwc.getParameter(EntityBrowser.ENTITY_BROWSER_IDENTIFICATION_NAME)));
     EntityBrowserSettingsWindow.setParameters(form, multiEntityPropertyHandler.getEntityNames(),defaultShortKeys, optionShortKeys,defaultNumberOfRows); 
     //get the iwcontext for the add-method in StyledIWAdminWindow
-    IWContext iwc = IWContext.getInstance();  
     // finally add form        
     add(form,iwc);
   }
@@ -408,14 +408,14 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
         String[] selectedColumns =
           (iwc.isParameterSet(RIGHT_SELECTION_BOX_KEY)) ?
            iwc.getParameterValues(RIGHT_SELECTION_BOX_KEY) : new String[] {};
-        setVisibleColumns(selectedColumns);
+        setVisibleColumns(selectedColumns, iwc.getParameter(EntityBrowser.ENTITY_BROWSER_IDENTIFICATION_NAME));
         if (iwc.isParameterSet(INPUTFIELD_KEY)) {
           // set value
           String numberOfRowsPerPage = iwc.getParameter(INPUTFIELD_KEY);
           // get absolute value
           int numberOfRows = Math.abs(Integer.parseInt(numberOfRowsPerPage));
           if (numberOfRows > 0)
-            multiEntityPropertyHandler.setNumberOfRowsPerPage(numberOfRows);
+            multiEntityPropertyHandler.setNumberOfRowsPerPage(numberOfRows,iwc.getParameter(EntityBrowser.ENTITY_BROWSER_IDENTIFICATION_NAME));
         }
       }
     }
@@ -423,7 +423,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
   }
       
   
-  private void setVisibleColumns(String[] selectedKeys) {
+  private void setVisibleColumns(String[] selectedKeys, String identificationName) {
     // if the selected keys equals to the default keys do nothing
     List selectedKeysList = Arrays.asList(selectedKeys);
     if (defaultShortKeys.equals(selectedKeysList) && visibleColumns.isEmpty())
@@ -435,7 +435,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
       EntityPath path = multiEntityPropertyHandler.getEntityPath(shortKey);
       entityPathes.add(path);
     }
-    multiEntityPropertyHandler.setVisibleOrderedEntityPathes(entityPathes); 
+    multiEntityPropertyHandler.setVisibleOrderedEntityPathes(entityPathes, identificationName); 
     visibleColumns = entityPathes;
   }
  

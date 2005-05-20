@@ -84,8 +84,11 @@ public class EntityPropertyHandler {
   } 
   
 
-  public List getVisibleOrderedEntityPathes() {
-    List entityPathKeyNames = getListFromProperty(getRootProperties(), VISIBLE_COLUMN_KEY);
+  public List getVisibleOrderedEntityPathes(String identificationName) {
+    String keyName = VISIBLE_COLUMN_KEY;
+    if (identificationName != null && !identificationName.equals(""))
+      keyName = identificationName+"."+keyName;
+    List entityPathKeyNames = getListFromProperty(getRootProperties(), keyName);
     Iterator iterator = entityPathKeyNames.iterator();
     List entityPathes = new ArrayList();
     while (iterator.hasNext())  {
@@ -101,23 +104,32 @@ public class EntityPropertyHandler {
     return entityPathes;
   }
  
-  public void setVisibleOrderedEntityPathes(List entityPathes) {
+  public void setVisibleOrderedEntityPathes(List entityPathes, String identificationName) {
     Iterator iterator = entityPathes.iterator();
     List serializationList = new ArrayList();
     while (iterator.hasNext())  {
       EntityPath entityPath = (EntityPath) iterator.next();
       String serialization = (String) entityPath.getSerialization();
       serializationList.add(serialization);
-    } 
-    setListIntoProperty(getRootProperties(), VISIBLE_COLUMN_KEY, serializationList);
+    }
+    String keyName = VISIBLE_COLUMN_KEY;
+    if (identificationName != null && !identificationName.equals(""))
+        keyName = identificationName+"."+keyName;
+    setListIntoProperty(getRootProperties(), keyName, serializationList);
   }
  
-  public void setNumberOfRowsPerPage(int numberOfRowsPerPage) {
-    setValueIntoProperty(getRootProperties(), NUMBER_OF_ROWS_PER_PAGE_KEY, Integer.toString(numberOfRowsPerPage));
+  public void setNumberOfRowsPerPage(int numberOfRowsPerPage, String identificationName) {
+      String keyName = NUMBER_OF_ROWS_PER_PAGE_KEY;
+      if (identificationName != null && !identificationName.equals(""))
+          keyName = identificationName+"."+keyName;
+      setValueIntoProperty(getRootProperties(), keyName, Integer.toString(numberOfRowsPerPage));
   }
  
-  public int getNumberOfRowsPerPage() {
-    String result = getValueFromProperty(getRootProperties(), NUMBER_OF_ROWS_PER_PAGE_KEY);
+  public int getNumberOfRowsPerPage(String identificationName) {
+    String keyName = NUMBER_OF_ROWS_PER_PAGE_KEY;
+    if (identificationName != null && !identificationName.equals(""))
+        keyName = identificationName+"."+keyName;
+    String result = getValueFromProperty(getRootProperties(), keyName);
     if (result == null)
       return NUMBER_OF_ROWS_PER_PAGE_NOT_SET;
     return Integer.parseInt(result);

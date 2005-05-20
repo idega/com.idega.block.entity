@@ -156,20 +156,20 @@ public class MultiEntityPropertyHandler {
   }
 
 
-  public int getNumberOfRowsPerPage() {
-    return getLeadingEntityPropertyHandler().getNumberOfRowsPerPage();
+  public int getNumberOfRowsPerPage(String identificationName) {
+    return getLeadingEntityPropertyHandler().getNumberOfRowsPerPage(identificationName);
   }
   
-  public void setNumberOfRowsPerPage(int numberOfRowsPerPage) {
-    getLeadingEntityPropertyHandler().setNumberOfRowsPerPage(numberOfRowsPerPage);  
+  public void setNumberOfRowsPerPage(int numberOfRowsPerPage, String identificationName) {
+    getLeadingEntityPropertyHandler().setNumberOfRowsPerPage(numberOfRowsPerPage, identificationName);  
   }
   
-  public List getVisibleOrderedEntityPathes() {
-    return getLeadingEntityPropertyHandler().getVisibleOrderedEntityPathes();
+  public List getVisibleOrderedEntityPathes(String identificationName) {
+    return getLeadingEntityPropertyHandler().getVisibleOrderedEntityPathes(identificationName);
   }  
 
-  public void setVisibleOrderedEntityPathes(List entityPathes)  {
-    getLeadingEntityPropertyHandler().setVisibleOrderedEntityPathes(entityPathes);    
+  public void setVisibleOrderedEntityPathes(List entityPathes, String identificationName)  {
+    getLeadingEntityPropertyHandler().setVisibleOrderedEntityPathes(entityPathes, identificationName);    
   }
 
   private EntityPropertyHandler getLeadingEntityPropertyHandler()  {

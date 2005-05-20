@@ -79,6 +79,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private final static String LAST_USED_MY_ID_KEY = "last_my_id_key";
   private final static String HEADER_FORM_LAST_USED_MY_ID_KEY = HEADER_FORM_KEY + LAST_USED_MY_ID_KEY;
   private final static String BOTTOM_FORM_LAST_USED_MY_ID_KEY = BOTTOM_FORM_KEY + LAST_USED_MY_ID_KEY;
+  protected final static String ENTITY_BROWSER_IDENTIFICATION_NAME = "entity_browser_identification_name";
   
   private final static String NEXT_SUBSET = "next";
   
@@ -580,7 +581,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     List visibleOrderedEntityPathes = getVisibleOrderedEntityPathes(multiPropertyHandler);
     // check if all entities should be shown
     parseAndDoActionNumberOfRowsPerPage(iwc, state);
-    int numberOfRowsPerPage = getNumberOfRowsPerPage(multiPropertyHandler);
+    int numberOfRowsPerPage = getNumberOfRowsPerPage(multiPropertyHandler, getName());
     
     // get and save the state of the former iterator BEFORE changing the iterator
     SetIterator entityIterator = retrieveSetIterator(iwc, entities);
@@ -1371,6 +1372,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     GenericButton settingsButton = new GenericButton(settings);
     settingsButton.setWindowToOpen(EntityBrowserSettingsWindow.class);
     settingsButton.addParameter(EntityBrowserSettingsWindow.LEADING_ENTITY_NAME_KEY, leadingEntityName);
+    settingsButton.addParameter(ENTITY_BROWSER_IDENTIFICATION_NAME, getName());
     Collection defaultColumnValues = (defaultColumns == null) ? null : defaultColumns.values();
     Collection optionColumnValues = (optionColumns == null) ? null : optionColumns.values();
     EntityBrowserSettingsWindow.setParameters(settingsButton, entityNames, defaultColumnValues , optionColumnValues, defaultNumberOfRowsPerPage );
@@ -1439,7 +1441,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private List getVisibleOrderedEntityPathes(MultiEntityPropertyHandler multiPropertyHandler)  {
     // if the user settings should not be accepted set the columns 
     // that are set by the user to an empty collection
-    List columnsSetByUserList = (acceptUserSettings) ? multiPropertyHandler.getVisibleOrderedEntityPathes() : null;
+    List columnsSetByUserList = (acceptUserSettings) ? multiPropertyHandler.getVisibleOrderedEntityPathes(getName()) : null;
     // use arrayList because the returned collection of a tree map does not support add operations
      List tempMandatoryColumns = (mandatoryColumns == null) ? null : new ArrayList(mandatoryColumns.values());
     // columnsSetByUserList is empty...  
@@ -1471,7 +1473,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     return list;
   }           
   
-  private int getNumberOfRowsPerPage(MultiEntityPropertyHandler multiPropertyHandler) {
+  private int getNumberOfRowsPerPage(MultiEntityPropertyHandler multiPropertyHandler, String identificationName) {
     if (showAllEntities && entities != null)  {
       int rowsPerPage;
       return ((rowsPerPage = entities.size()) > MAX_ROWS_PER_PAGE) ? MAX_ROWS_PER_PAGE : rowsPerPage;
@@ -1479,7 +1481,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     if (! acceptUserSettings) {
       return defaultNumberOfRowsPerPage;
     }
-    int rowsTemp = multiPropertyHandler.getNumberOfRowsPerPage();
+    int rowsTemp = multiPropertyHandler.getNumberOfRowsPerPage(identificationName);
     if (rowsTemp == EntityPropertyHandler.NUMBER_OF_ROWS_PER_PAGE_NOT_SET)
       return defaultNumberOfRowsPerPage;
     return rowsTemp;
