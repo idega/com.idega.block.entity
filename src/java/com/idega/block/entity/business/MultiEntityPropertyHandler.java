@@ -15,6 +15,7 @@ import java.util.TreeSet;
 
 import com.idega.block.entity.data.EntityPath;
 import com.idega.idegaweb.IWUserContext;
+import com.idega.repository.data.RefactorClassRegistry;
 
 /**
  *@author     <a href="mailto:thomas@idega.is">Thomas Hilbig</a>
@@ -39,7 +40,7 @@ public class MultiEntityPropertyHandler {
   }
  
   public MultiEntityPropertyHandler(IWUserContext userContext, String leadingEntityClassName) throws ClassNotFoundException {
-    this(userContext, Class.forName(leadingEntityClassName));
+    this(userContext, RefactorClassRegistry.forName(leadingEntityClassName));
   }
   
   /**
@@ -51,7 +52,7 @@ public class MultiEntityPropertyHandler {
 	}
  
   public void addEntity(String entityClassName) throws ClassNotFoundException {
-    Class entityClass = Class.forName(entityClassName);
+    Class entityClass = RefactorClassRegistry.forName(entityClassName);
     addEntity(entityClass); 
   }
  

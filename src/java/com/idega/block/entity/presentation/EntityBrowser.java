@@ -40,6 +40,7 @@ import com.idega.presentation.ui.HiddenInput;
 import com.idega.presentation.ui.Parameter;
 import com.idega.presentation.ui.ScrollTable;
 import com.idega.presentation.ui.StyledButton;
+import com.idega.repository.data.RefactorClassRegistry;
 import com.idega.util.SetIterator;
 /**
  *@author     <a href="mailto:thomas@idega.is">Thomas Hilbig</a>
@@ -324,7 +325,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       return new ArrayList();
     // create the desired collection   
     try {
-      entityClass = Class.forName(anEntityClassName);
+      entityClass = RefactorClassRegistry.forName(anEntityClassName);
 
     }
     catch (ClassNotFoundException e)  {

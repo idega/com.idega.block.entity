@@ -16,6 +16,7 @@ import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWProperty;
 import com.idega.idegaweb.IWPropertyList;
 import com.idega.idegaweb.IWUserContext;
+import com.idega.repository.data.RefactorClassRegistry;
 import com.idega.user.business.UserProperties;
 
 /**
@@ -54,7 +55,7 @@ public class EntityPropertyHandler {
   
       
   public EntityPropertyHandler(IWUserContext userContext, String entityClassName) throws ClassNotFoundException {
-    this(userContext, Class.forName(entityClassName));
+    this(userContext, RefactorClassRegistry.forName(entityClassName));
   }
  
  

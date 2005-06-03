@@ -13,6 +13,7 @@ import com.idega.data.EntityRepresentation;
 import com.idega.data.GenericEntity;
 import com.idega.data.IDOEntity;
 import com.idega.idegaweb.IWResourceBundle;
+import com.idega.repository.data.RefactorClassRegistry;
 
 /**
  *@author     <a href="mailto:thomas@idega.is">Thomas Hilbig</a>
@@ -77,7 +78,7 @@ public class EntityPath {
       if ((size = columnNames.size()) < 2)
         throw new ClassNotFoundException("EntityPath could not be created from string: " + serialization); 
       String sourceName = (String) columnNames.get(0);
-      Class sourceEntity = Class.forName(sourceName);
+      Class sourceEntity = RefactorClassRegistry.forName(sourceName);
       // remove target name 
       columnNames.remove(size-1);
       EntityPath createdEntityPath;
