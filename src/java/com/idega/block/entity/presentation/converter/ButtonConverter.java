@@ -116,8 +116,10 @@ public class ButtonConverter implements EntityToPresentationObjectConverter {
 		EntityRepresentation idoEntity = (EntityRepresentation) value;
 		String id = idoEntity.getPrimaryKey().toString();
 		SubmitButton submitButton;
-		if (displayName == null) {
-			submitButton = new SubmitButton(image, getGeneralSubmitKey(), getUniqueKey(id, shortKeyPath).toString(), setOnClick);
+		// clone the image because JSF stores the image as facet with only one parent (and removes the image from the old parent)
+		Image tempImage = (Image) image.clone();
+		if (displayName == null)  {   
+			submitButton = new SubmitButton( tempImage, getGeneralSubmitKey(), getUniqueKey(id, shortKeyPath).toString(), setOnClick);
 		}
 		else {
 		 	submitButton = new SubmitButton( displayName, getGeneralSubmitKey(), getUniqueKey(id, shortKeyPath).toString(), setOnClick);
