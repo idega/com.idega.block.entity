@@ -1544,7 +1544,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     if(presentationState == null){
       try {
         IWStateMachine stateMachine = (IWStateMachine)IBOLookup.getSessionInstance(iwuc,IWStateMachine.class);
-        presentationState = (EntityBrowserPS)stateMachine.getStateFor(getCompoundId(),EntityBrowserPS.class);
+        presentationState = stateMachine.getStateFor(getCompoundId(),EntityBrowserPS.class);
       }
       catch (RemoteException re) {
         throw new RuntimeException(re.getMessage());

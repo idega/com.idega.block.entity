@@ -110,7 +110,7 @@ public class EntityPropertyHandler {
     List serializationList = new ArrayList();
     while (iterator.hasNext())  {
       EntityPath entityPath = (EntityPath) iterator.next();
-      String serialization = (String) entityPath.getSerialization();
+      String serialization = entityPath.getSerialization();
       serializationList.add(serialization);
     }
     String keyName = VISIBLE_COLUMN_KEY;
