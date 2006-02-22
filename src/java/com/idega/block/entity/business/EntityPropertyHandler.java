@@ -10,9 +10,6 @@ import java.util.StringTokenizer;
 import com.idega.block.entity.data.DummyEntityPath;
 import com.idega.block.entity.data.EntityPath;
 import com.idega.block.entity.data.EntityPropertyDefaultValues;
-import com.idega.block.entity.presentation.EntityBrowser;
-
-import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWProperty;
 import com.idega.idegaweb.IWPropertyList;
 import com.idega.idegaweb.IWUserContext;
@@ -44,13 +41,9 @@ public class EntityPropertyHandler {
   // cached value
   private IWUserContext userContext = null;
   
-  private IWBundle bundle = null;
-  
-  
   public EntityPropertyHandler(IWUserContext userContext, Class entityClass)  {
     this.entityClass = entityClass;
     this.userContext = userContext;
-    bundle = userContext.getApplicationContext().getIWMainApplication().getBundle(EntityBrowser.IW_BUNDLE_IDENTIFIER);
   }
   
       
