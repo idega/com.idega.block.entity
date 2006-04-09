@@ -19,16 +19,16 @@ public class EntityBrowserPS extends IWPresentationStateImpl implements IWAction
   private Hashtable parameterValues = null;
 
   public void reset(){
-    parameterValues = null;
+    this.parameterValues = null;
     super.reset();
   }
 
   public boolean isParameterSet(String parameter) {
-    return (parameterValues != null && parameterValues.containsKey(parameter));
+    return (this.parameterValues != null && this.parameterValues.containsKey(parameter));
   }
 
   public String getParameter(String parameter) {
-    return (parameterValues != null) ? (String) parameterValues.get(parameter) : null;
+    return (this.parameterValues != null) ? (String) this.parameterValues.get(parameter) : null;
   }
 
   public void actionPerformed(IWPresentationEvent e)throws IWException{
@@ -37,12 +37,13 @@ public class EntityBrowserPS extends IWPresentationStateImpl implements IWAction
     if (e instanceof EntityBrowserEvent)  {
       // store all parameters
       IWContext mainIwc = e.getIWContext();
-      parameterValues = new Hashtable();
+      this.parameterValues = new Hashtable();
       Enumeration enumeration = mainIwc.getParameterNames();
       while (enumeration.hasMoreElements()) {
         String parameter = (String) enumeration.nextElement();
-        if (mainIwc.isParameterSet(parameter)) 
-          parameterValues.put(parameter, mainIwc.getParameter(parameter));
+        if (mainIwc.isParameterSet(parameter)) {
+					this.parameterValues.put(parameter, mainIwc.getParameter(parameter));
+				}
       }
       this.fireStateChanged();
     }

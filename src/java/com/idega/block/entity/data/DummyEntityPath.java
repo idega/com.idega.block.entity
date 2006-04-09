@@ -19,12 +19,12 @@ public class DummyEntityPath extends EntityPath {
   
   
   public Object getValue()  {
-    return VALUE_OF_A_DUMMY_ENTITYPATH;
+    return this.VALUE_OF_A_DUMMY_ENTITYPATH;
   }
   
   
   public  String getShortKey()  {
-    return shortKey;
+    return this.shortKey;
   }
   
   public String getSerialization() {
@@ -34,12 +34,12 @@ public class DummyEntityPath extends EntityPath {
       serialization
         .append(name)
         .append(SERIALIZATION_DELIMITER)
-        .append(shortKey);
+        .append(this.shortKey);
      return serialization.toString();
   }
   
   public String getDescription()  {
-    return shortKey;
+    return this.shortKey;
   }      
   
 }

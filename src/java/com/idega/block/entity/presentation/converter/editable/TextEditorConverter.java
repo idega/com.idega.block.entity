@@ -78,9 +78,9 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
   }
   
   private void setAsFloatOrDoubleOrIclandicSocialSecurityNumber(String setAsFloatMessage, String setAsDoubleMessage, String setAsIcelandicSocialSecurityNumberMessage) {	
-  	isFloatField = setAsFloatMessage != null;
-  	isDoubleField = setAsDoubleMessage != null;
-  	isIcelandicSocialSecurityNumberField  = setAsIcelandicSocialSecurityNumberMessage != null;
+  	this.isFloatField = setAsFloatMessage != null;
+  	this.isDoubleField = setAsDoubleMessage != null;
+  	this.isIcelandicSocialSecurityNumberField  = setAsIcelandicSocialSecurityNumberMessage != null;
   	this.setAsFloatMessage = setAsFloatMessage;
   	this.setAsDoubleMessage = setAsDoubleMessage;
   	this.setAsIcelandicSocialSecurityNumberMessage = setAsIcelandicSocialSecurityNumberMessage;
@@ -195,19 +195,19 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
       if (isRequestSender)	{
       	textInput.setInFocusOnPageLoad(true);
       }
-      if (isFloatField) {
-        textInput.setAsFloat(setAsFloatMessage);
+      if (this.isFloatField) {
+        textInput.setAsFloat(this.setAsFloatMessage);
       }
-      else if (isDoubleField) {
-      	textInput.setAsDouble(setAsDoubleMessage);
+      else if (this.isDoubleField) {
+      	textInput.setAsDouble(this.setAsDoubleMessage);
       }
-      else if (isIcelandicSocialSecurityNumberField) { 
-        textInput.setAsIcelandicSSNumber(setAsIcelandicSocialSecurityNumberMessage);
-        textInput.setAsNotEmpty(setAsIcelandicSocialSecurityNumberMessage);
+      else if (this.isIcelandicSocialSecurityNumberField) { 
+        textInput.setAsIcelandicSSNumber(this.setAsIcelandicSocialSecurityNumberMessage);
+        textInput.setAsNotEmpty(this.setAsIcelandicSocialSecurityNumberMessage);
       }
 
       // add old value as hidden value
-      externalForm.addParameter(getTextInputUniqueKeyPreviousValue(id, shortKeyPath), text);  
+      this.externalForm.addParameter(getTextInputUniqueKeyPreviousValue(id, shortKeyPath), text);  
 
       Table table = (newEntity) ? new Table(1,1) : new Table(2,1);
       table.add(textInput,1,1);
@@ -223,11 +223,11 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
       Object value = getValueForLink(entity, path, browser, iwc);
       String text = value.toString();
       text = (text.length() == 0) ? "_" : text;  
-      if (! editable) {
+      if (! this.editable) {
         return new Text(text);
       }
       Link link = new Link(text);
-      if (workWithExternalSubmitButton) {
+      if (this.workWithExternalSubmitButton) {
         link.addParameter(ConverterConstants.EDIT_ENTITY_KEY, id.toString());
         link.addParameter(uniqueKeyLink,"dummy_Value");
       }
@@ -238,7 +238,7 @@ public class TextEditorConverter implements EntityToPresentationObjectConverter{
       Parameter showAllEntriesParameter = browser.getShowAllEntriesParameter();
       link.addParameter(showAllEntriesParameter);
       // add maintain parameters
-      Iterator iteratorList = maintainParameterList.iterator();
+      Iterator iteratorList = this.maintainParameterList.iterator();
       while (iteratorList.hasNext())  {
         String parameter = (String) iteratorList.next();
         link.maintainParameter(parameter, iwc);

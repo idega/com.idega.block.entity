@@ -154,7 +154,7 @@ public class DropDownMenuConverter
     String shortKeyPath = path.getShortKey();
     String uniqueKeyLink = getLinkUniqueKey(id, shortKeyPath);
     boolean isRequestSender =  iwc.isParameterSet(uniqueKeyLink);
-    if (showAlwaysDropDownMenu) {
+    if (this.showAlwaysDropDownMenu) {
     	editEntity = true;
     }
     else if (iwc.isParameterSet(ConverterConstants.EDIT_ENTITY_KEY)) {
@@ -187,7 +187,7 @@ public class DropDownMenuConverter
       if (isRequestSender)	{
       	dropdownMenu.setInFocusOnPageLoad(true);
       }
-      externalForm.addParameter(getDropDownMenuUniqueKeyPreviousValue(id, shortKeyPath), value.toString());  
+      this.externalForm.addParameter(getDropDownMenuUniqueKeyPreviousValue(id, shortKeyPath), value.toString());  
       Table table = (newEntity) ? new Table(1,1) : new Table(2,1);
       table.add(dropdownMenu,1,1);
       // add submit button
@@ -214,11 +214,11 @@ public class DropDownMenuConverter
       EntityBrowser browser, 
       IWContext iwc)  {
     String display = value.toString();
-    if (! editable) {
+    if (! this.editable) {
       return new Text(display);
     }
     Link link = new Link(display);
-    if (workWithExternalSubmitButton) {
+    if (this.workWithExternalSubmitButton) {
       link.addParameter(ConverterConstants.EDIT_ENTITY_KEY, id);
       link.addParameter(uniqueKeyLink,"dummy_value");
     }
@@ -226,7 +226,7 @@ public class DropDownMenuConverter
       link.addParameter(uniqueKeyLink,"dummy_value");
     }
     // add maintain parameters
-    Iterator iteratorList = maintainParameterList.iterator();
+    Iterator iteratorList = this.maintainParameterList.iterator();
     while (iteratorList.hasNext())  {
       String parameter = (String) iteratorList.next();
       link.maintainParameter(parameter, iwc);
@@ -243,7 +243,7 @@ public class DropDownMenuConverter
       EntityPath path,
       EntityBrowser browser,
       IWContext iwc)  {
-    Map options = (optionProvider == null) ? new HashMap(0) : optionProvider.getOptions(entity,path,browser,iwc);  
+    Map options = (this.optionProvider == null) ? new HashMap(0) : this.optionProvider.getOptions(entity,path,browser,iwc);  
     Object value = getValue(entity, path, browser, iwc);
     String valueAsString = (value!=null) ? value.toString() : "";
     String displayFromOptions = (String) options.get(valueAsString);
@@ -283,7 +283,7 @@ public class DropDownMenuConverter
       EntityPath path,
       EntityBrowser browser,
       IWContext iwc)  {
-    Map options = (optionProvider == null) ? new HashMap(0) : optionProvider.getOptions(entity,path,browser,iwc);  
+    Map options = (this.optionProvider == null) ? new HashMap(0) : this.optionProvider.getOptions(entity,path,browser,iwc);  
     DropdownMenu dropdownMenu = new DropdownMenu(name);
     Iterator iterator = options.entrySet().iterator();
     while (iterator.hasNext()) {
@@ -298,7 +298,7 @@ public class DropDownMenuConverter
       // sometimes the preselection does not exist, 
       // add to options without localization
       String preselectionAsString = preselection.toString();
-      if ((! options.containsKey(preselectionAsString) && addEntryForNonExistingValue)) {
+      if ((! options.containsKey(preselectionAsString) && this.addEntryForNonExistingValue)) {
         dropdownMenu.addMenuElement("", "");
       }
       dropdownMenu.setSelectedElement(preselectionAsString);

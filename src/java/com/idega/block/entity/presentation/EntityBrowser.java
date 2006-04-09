@@ -242,7 +242,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
   
   public Text getDefaultTextProxy() {
-		return defaultTextProxy;
+		return this.defaultTextProxy;
   }
   
   public void setDefaultNumberOfRows(int defaultNumberOfRows) {
@@ -253,17 +253,17 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   /** if you change the name of this method please change the 
    *  corresponding method identifier variable SET_ENTIY_METHOD_IDENTIFIER */
   public void setLeadingEntity(String leadingEntityName)  {
-  	leadingEntityIsUndefined = false;
+  	this.leadingEntityIsUndefined = false;
     this.leadingEntityName = leadingEntityName;
   }
   
   public void setLeadingEntity(Class leadingEntityClass)  {
-  	leadingEntityIsUndefined = false;
+  	this.leadingEntityIsUndefined = false;
     this.leadingEntityName = leadingEntityClass.getName();
   }
   
   public void setLeadingEntityIsUndefined()	{
-  	leadingEntityIsUndefined = true;
+  	this.leadingEntityIsUndefined = true;
   }
   
   /**
@@ -286,18 +286,21 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
   
   public void addEntity(String entityName)  {
-    if (entityNames == null)
-      entityNames = new ArrayList();
-    if (entityNames.contains(entityName))
-      return;
-    entityNames.add(entityName);
+    if (this.entityNames == null) {
+			this.entityNames = new ArrayList();
+		}
+    if (this.entityNames.contains(entityName)) {
+			return;
+		}
+    this.entityNames.add(entityName);
   }
   
   public void removeEntity(String entityName) {
-    if (entityNames == null)
-      return;
+    if (this.entityNames == null) {
+			return;
+		}
     // it does not matter if it does not exist
-    entityNames.remove(entityName);
+    this.entityNames.remove(entityName);
   }
   
   /** this method should only be used by the IWPropertyHandler 
@@ -320,9 +323,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       // get the set property value from the handler
       anEntityClassName = propertyHandler.getPropertyValue(iwc, ICObjectInstanceID, SET_ENTIY_METHOD_IDENTIFIER);
     }
-    else
-      // the specified method is not handled here
+		else {
+			// the specified method is not handled here
       return new ArrayList();
+		}
     // create the desired collection   
     try {
       entityClass = RefactorClassRegistry.forName(anEntityClassName);
@@ -355,10 +359,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   * 7, 122 and 412 (example with four columns).
    */
   public void setOptionColumn(int orderNumber, String entityPathShortKey)  {
-  	if (optionColumns == null) {
-  		optionColumns = new TreeMap();
+  	if (this.optionColumns == null) {
+  		this.optionColumns = new TreeMap();
   	}
-  	optionColumns.put(new Integer(orderNumber), entityPathShortKey);    
+  	this.optionColumns.put(new Integer(orderNumber), entityPathShortKey);    
   }  
   
   
@@ -372,10 +376,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   * 7, 122 and 412 (example with four columns).
    */
   public void setDefaultColumn(int orderNumber, String entityPathShortKey)  {
-  	if (defaultColumns == null) {
-  		defaultColumns = new TreeMap();
+  	if (this.defaultColumns == null) {
+  		this.defaultColumns = new TreeMap();
   	}
-    defaultColumns.put(new Integer(orderNumber), entityPathShortKey);    
+    this.defaultColumns.put(new Integer(orderNumber), entityPathShortKey);    
   }  
 
 
@@ -390,10 +394,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
    * numbers are spread e.g. 2, 7, 122 and 412 (example with four columns).
    */
   public void setMandatoryColumn(int orderNumber, String entityPathShortKey) {
-  	if (mandatoryColumns == null) {
-  		mandatoryColumns = new TreeMap();
+  	if (this.mandatoryColumns == null) {
+  		this.mandatoryColumns = new TreeMap();
   	}
-    mandatoryColumns.put(new Integer(orderNumber), entityPathShortKey);  
+    this.mandatoryColumns.put(new Integer(orderNumber), entityPathShortKey);  
   }
 
 	public void setMandatoryColumnWithConverter(int orderNumber, String entityPathShortKey, EntityToPresentationObjectConverter converter)	{
@@ -469,24 +473,26 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   public void setEntityToPresentationConverter(String pathShortKey, EntityToPresentationObjectConverter converter) {
     // lazy initialization (in most cases you do not need this map)
-    if (entityToPresentationConverters == null)
-      entityToPresentationConverters = new HashMap();
-    entityToPresentationConverters.put(pathShortKey, converter);
+    if (this.entityToPresentationConverters == null) {
+			this.entityToPresentationConverters = new HashMap();
+		}
+    this.entityToPresentationConverters.put(pathShortKey, converter);
   }
   
   private EntityToPresentationObjectConverter getEntityToPresentationConverter(EntityPath path)  {
     EntityToPresentationObjectConverter converter;
     if  (  
       // are there any converters at all?  
-           entityToPresentationConverters == null 
+           this.entityToPresentationConverters == null 
       // use the shortkey to find a suitable converter
         || ((( converter = (EntityToPresentationObjectConverter) 
-           entityToPresentationConverters.get(path.getShortKey())) == null ) 
+           this.entityToPresentationConverters.get(path.getShortKey())) == null ) 
       // the key was not found, try to get a converter for the class
         && (( converter = (EntityToPresentationObjectConverter)
-           entityToPresentationConverters.get(path.getSourceEntityClass().getName())) == null )))
-      // okay we give up! return default converter
-        return getDefaultConverter(); 
+           this.entityToPresentationConverters.get(path.getSourceEntityClass().getName())) == null ))) {
+			// okay we give up! return default converter
+			return getDefaultConverter();
+		} 
     return converter;
   }
 
@@ -498,10 +504,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
   
   public void addPresentationObjectToBottom(PresentationObject presentationObject) {
-    if (additionalPresentationObjects == null)  {
-      additionalPresentationObjects = new ArrayList();
+    if (this.additionalPresentationObjects == null)  {
+      this.additionalPresentationObjects = new ArrayList();
     }
-    additionalPresentationObjects.add(presentationObject);
+    this.additionalPresentationObjects.add(presentationObject);
   }
     
   public void main(IWContext iwc) throws Exception { 
@@ -515,17 +521,17 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     
     // get entity name from one element of the entity collection
     // if the entity name is not set and the collection is not empty
-    if (leadingEntityIsUndefined)	{
-    	leadingEntityName = "leading entity name is undefined";
+    if (this.leadingEntityIsUndefined)	{
+    	this.leadingEntityName = "leading entity name is undefined";
     }
-    else if ( leadingEntityName == null || leadingEntityName.length() == 0 )  {
-      if (entities == null || entities.isEmpty()) {
+    else if ( this.leadingEntityName == null || this.leadingEntityName.length() == 0 )  {
+      if (this.entities == null || this.entities.isEmpty()) {
         setErrorContent();
         return;
       }
     // sometimes entities is a collection of collections
       Class objectClass;
-      Object object = entities.iterator().next();
+      Object object = this.entities.iterator().next();
       if (object instanceof Collection) {
         Collection coll = (Collection) object;
         if  (! coll.isEmpty())  {
@@ -542,7 +548,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       Class[] interfaces = objectClass.getInterfaces();
       if (interfaces.length > 0)  {
         Class firstInterfaceClass = interfaces[0];
-        leadingEntityName = firstInterfaceClass.getName();
+        this.leadingEntityName = firstInterfaceClass.getName();
       }
       else {
         setErrorContent();
@@ -553,26 +559,26 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // get user properties, set MultiPropertyhandler
     MultiEntityPropertyHandler multiPropertyHandler;
     try {
-      multiPropertyHandler = (leadingEntityIsUndefined) ?
+      multiPropertyHandler = (this.leadingEntityIsUndefined) ?
       	new MultiEntityPropertyHandler(iwc) : 
-      	new MultiEntityPropertyHandler(iwc, leadingEntityName);
+      	new MultiEntityPropertyHandler(iwc, this.leadingEntityName);
     }
     catch (ClassNotFoundException e)  {
-      System.err.println("[EntityBrowser] Class was not recognized: " + leadingEntityName + " Message was: " +
+      System.err.println("[EntityBrowser] Class was not recognized: " + this.leadingEntityName + " Message was: " +
       e.getMessage());
       // e.printStackTrace(System.err);
       setErrorContent();
       return;
     }
-    if (entityNames != null)  {
-      Iterator iterator = entityNames.iterator();
+    if (this.entityNames != null)  {
+      Iterator iterator = this.entityNames.iterator();
       while (iterator.hasNext())  {
         try {
           multiPropertyHandler.addEntity((String) iterator.next());
         }
         catch (ClassNotFoundException e)  {
           // do not show the error content, continue!
-          System.err.println("[EntityBrowser] Class was not recognized: " + leadingEntityName + " Message was: " +
+          System.err.println("[EntityBrowser] Class was not recognized: " + this.leadingEntityName + " Message was: " +
           e.getMessage());
           //e.printStackTrace(System.err);
         }
@@ -585,7 +591,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     int numberOfRowsPerPage = getNumberOfRowsPerPage(multiPropertyHandler, getName());
     
     // get and save the state of the former iterator BEFORE changing the iterator
-    SetIterator entityIterator = retrieveSetIterator(iwc, entities);
+    SetIterator entityIterator = retrieveSetIterator(iwc, this.entities);
     String formerStateOfIterator = entityIterator.getStateAsString();
     // set properties (it does not matter if they have change or not)
     entityIterator.setIncrement(numberOfRowsPerPage);
@@ -598,17 +604,17 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // set size of table
     int necessaryRows = entityIterator.sizeSet();
     int necessaryColumns = visibleOrderedEntityPathes.size();
-    if (showMirroredView) {
+    if (this.showMirroredView) {
       int temp = necessaryColumns;
       necessaryColumns = necessaryRows;
       necessaryRows = temp;
     }
-    if (showMirroredView) {
+    if (this.showMirroredView) {
       // we need at least on column for buttons plus headers
       necessaryColumns = (necessaryColumns == 0) ? 2 : necessaryColumns;
       // plus rows for buttons
     }
-    else if (useScrollbars) {
+    else if (this.useScrollbars) {
     	// use one cell to put the scrallable table into it
     	necessaryColumns = 1;
     	necessaryRows = 3;
@@ -622,7 +628,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     setSize(necessaryColumns, necessaryRows);
             
     // get now the table    
-    if (useScrollbars) {
+    if (this.useScrollbars) {
     	fillScrollableEntityTable(visibleOrderedEntityPathes, entityIterator, iwc);
     }
     else {
@@ -630,7 +636,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     }
     
     //TODO: thi: enable the mirrored view to work together with the navigation panel
-    if (showMirroredView) {
+    if (this.showMirroredView) {
       return;
     }
     
@@ -640,17 +646,17 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // get current subset position
     String currentStateOfIterator = entityIterator.getStateAsString();
     // store state in session
-    entityIterator.storeStateInSession(iwc, keyForEntityCollection, getMyId());
+    entityIterator.storeStateInSession(iwc, this.keyForEntityCollection, getMyId());
     // set hidden input (important for releasing)
-    if (useExternalForm)  {     
+    if (this.useExternalForm)  {     
       HiddenInput hiddenInputLastUsedMyId = new HiddenInput(HEADER_FORM_LAST_USED_MY_ID_KEY, getMyId());
       HiddenInput hiddenAllEntitiesWereShown = 
-        new HiddenInput(REQUEST_FROM_EXTERNAL_FORM_SHOW_ALL_ENTITIES_KEY, (new Boolean(showAllEntities)).toString());
+        new HiddenInput(REQUEST_FROM_EXTERNAL_FORM_SHOW_ALL_ENTITIES_KEY, (new Boolean(this.showAllEntities)).toString());
       add(hiddenInputLastUsedMyId);
       add(hiddenAllEntitiesWereShown);
     }
     boolean showHeaderNavigationPanel = 
-      (showHeaderNavigation && (enableBack || enableForward));
+      (this.showHeaderNavigation && (enableBack || enableForward));
     if (showHeaderNavigationPanel)  {  
       setNavigationPanel( HEADER_FORM_KEY, 
                           iwc, 
@@ -664,10 +670,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
                           false);
     }
     boolean showBottomNavigationPanel =
-      (showBottomNavigation 
+      (this.showBottomNavigation 
             && (enableBack || enableForward) 
-            && ( (! showHeaderNavigation) || 
-                 (entityIterator.getIncrement() > rowLimitForShowingBottomNavigation)) );
+            && ( (! this.showHeaderNavigation) || 
+                 (entityIterator.getIncrement() > this.rowLimitForShowingBottomNavigation)) );
     if (showBottomNavigationPanel)  {                       
       setNavigationPanel( BOTTOM_FORM_KEY, 
                         iwc, 
@@ -683,7 +689,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // special case:
     // if both panel were not set, set the settings button now...
     if (!showHeaderNavigationPanel && !showBottomNavigationPanel) {
-    	if (entityIterator.getIncrement() > rowLimitForShowingBottomNavigation) {
+    	if (entityIterator.getIncrement() > this.rowLimitForShowingBottomNavigation) {
     		setOnlySettingsButtonHeader(HEADER_FORM_KEY, enableBack, enableForward, resourceBundle, 1, necessaryColumns);
     	}
       setOnlySettingsButton(BOTTOM_FORM_KEY, enableBack, enableForward, resourceBundle,necessaryRows,necessaryColumns);
@@ -696,12 +702,12 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
   
   private Table getAdditionalPresentationObjects() {
-    if (additionalPresentationObjects == null)  {
+    if (this.additionalPresentationObjects == null)  {
       return null;
     }
-    int size = additionalPresentationObjects.size();
+    int size = this.additionalPresentationObjects.size();
     Table table = new Table(size, 1);
-    Iterator iterator = additionalPresentationObjects.iterator();
+    Iterator iterator = this.additionalPresentationObjects.iterator();
     int x = 1;
     while (iterator.hasNext())  {
       PresentationObject presentationObject = (PresentationObject) iterator.next();
@@ -717,9 +723,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       return;
     }
     // get the desired row and merge it
-    int panelBeginxpos = xAnchorPosition + 1;
-    int panelBeginypos = yAnchorPosition + bottomRightCornerY;
-    int panelEndxpos = xAnchorPosition + bottomRightCornerX;
+    int panelBeginxpos = this.xAnchorPosition + 1;
+    int panelBeginypos = this.yAnchorPosition + bottomRightCornerY;
+    int panelEndxpos = this.xAnchorPosition + bottomRightCornerX;
     int panelEndypos = panelBeginypos;
     // merge cell
     mergeCells(panelBeginxpos, panelBeginypos, panelEndxpos, panelEndypos);
@@ -735,9 +741,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       int bottomRightCornerY, 
       int bottomRightCornerX) {
     // get the desired row and merge it
-    int panelBeginxpos = xAnchorPosition + 1;
-    int panelBeginypos = yAnchorPosition + bottomRightCornerY;
-    int panelEndxpos = xAnchorPosition + bottomRightCornerX;
+    int panelBeginxpos = this.xAnchorPosition + 1;
+    int panelBeginypos = this.yAnchorPosition + bottomRightCornerY;
+    int panelEndxpos = this.xAnchorPosition + bottomRightCornerX;
     int panelEndypos = panelBeginypos;
     // merge cell
 
@@ -756,7 +762,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     //panelTable.add(table , 3, 1);
     // now add the table in the row that was created by merging the cells of the last row
     	add(panelTable, panelBeginxpos, panelBeginypos);
-    	if (useExternalForm)	{
+    	if (this.useExternalForm)	{
     	  	HiddenInput hiddenInputRequestFrom = new HiddenInput(formKey + REQUEST_KEY);
     	  	add(hiddenInputRequestFrom);
     	}
@@ -772,9 +778,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       int bottomRightCornerY, 
       int bottomRightCornerX) {
     // get the desired row and merge it
-    int panelBeginxpos = xAnchorPosition + 1;
-    int panelBeginypos = yAnchorPosition + bottomRightCornerY;
-    int panelEndxpos = xAnchorPosition + bottomRightCornerX;
+    int panelBeginxpos = this.xAnchorPosition + 1;
+    int panelBeginypos = this.yAnchorPosition + bottomRightCornerY;
+    int panelEndxpos = this.xAnchorPosition + bottomRightCornerX;
     int panelEndypos = panelBeginypos;
     // merge cell
     mergeCells(panelBeginxpos, panelBeginypos, panelEndxpos, panelEndypos);
@@ -793,10 +799,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // now add the table in the row that was created by merging the cells of the last row
     Table surroundTable = new Table(1,1);
     surroundTable.setWidth(Table.HUNDRED_PERCENT);
-    surroundTable.setColor(colorForButtonTable);
+    surroundTable.setColor(this.colorForButtonTable);
     surroundTable.add(panelTable, 1, 1);
     add(surroundTable, panelBeginxpos, panelBeginypos);
-    if (useExternalForm)	{
+    if (this.useExternalForm)	{
     	  HiddenInput hiddenInputRequestFrom = new HiddenInput(formKey + REQUEST_KEY);
     	  add(hiddenInputRequestFrom);
     }
@@ -816,9 +822,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       int bottomRightCornerX,
       boolean showAdditionalPresentationObject)  {
     // get the desired row and merge it
-    int panelBeginxpos = xAnchorPosition + 1;
-    int panelBeginypos = yAnchorPosition + bottomRightCornerY;
-    int panelEndxpos = xAnchorPosition + bottomRightCornerX;
+    int panelBeginxpos = this.xAnchorPosition + 1;
+    int panelBeginypos = this.yAnchorPosition + bottomRightCornerY;
+    int panelEndxpos = this.xAnchorPosition + bottomRightCornerX;
     int panelEndypos = panelBeginypos;
     // merge cell
     mergeCells(panelBeginxpos, panelBeginypos, panelEndxpos, panelEndypos);
@@ -845,13 +851,14 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // add form 
     UIComponent panel;
     HiddenInput hiddenInputRequestFrom = new HiddenInput(formKey + REQUEST_KEY);
-    if (! useExternalForm)  {
+    if (! this.useExternalForm)  {
       HiddenInput hiddenInputLastUsedMyId = new HiddenInput(formKey + LAST_USED_MY_ID_KEY, getMyId());
       Form panelForm = new Form();
       panelForm.add(hiddenInputLastUsedMyId);
       panelForm.add(hiddenInputRequestFrom);
-      if (useEventSystem)
-        panelForm.addEventModel(getPresentationEvent(),iwc);
+      if (this.useEventSystem) {
+				panelForm.addEventModel(getPresentationEvent(),iwc);
+			}
       panelForm.add(panelTable);
       panel = panelForm;
     }
@@ -866,13 +873,15 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 
   private void setSize(int columns, int rows ) {
     // add the anchor positions
-    columns += xAnchorPosition;
-    rows += yAnchorPosition;
+    columns += this.xAnchorPosition;
+    rows += this.yAnchorPosition;
 		// set height and width if necessary
-		if (columns > getColumns())
-		  setColumns(columns);
-		if (rows > getRows())
-		  setRows(rows);
+		if (columns > getColumns()) {
+			setColumns(columns);
+		}
+		if (rows > getRows()) {
+			setRows(rows);
+		}
 	}
     
   private  void fillEntityTable(
@@ -888,69 +897,69 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     
     // set color for header
     int i = 1;
-    if (colorForHeader != null) {
-      if (showMirroredView) {
-        setColumnColor(xAnchorPosition + 1, colorForHeader);
+    if (this.colorForHeader != null) {
+      if (this.showMirroredView) {
+        setColumnColor(this.xAnchorPosition + 1, this.colorForHeader);
       }
       else {
-        setRowColor(yAnchorPosition + 2, colorForHeader);
+        setRowColor(this.yAnchorPosition + 2, this.colorForHeader);
       }
     }
     while (iterator.hasNext())  {
       EntityPath entityPath = (EntityPath) iterator.next();
       EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(entityPath); 
       PresentationObject presentation = converter.getHeaderPresentationObject(entityPath, this, iwc);
-      if (showMirroredView) {
-        add(presentation, xAnchorPosition + 1, yAnchorPosition + i);
+      if (this.showMirroredView) {
+        add(presentation, this.xAnchorPosition + 1, this.yAnchorPosition + i);
       }
       else {
-        add(presentation, xAnchorPosition + i , yAnchorPosition + 2);
+        add(presentation, this.xAnchorPosition + i , this.yAnchorPosition + 2);
       } 
       i++;    
     }
     
     // fill table
-    boolean colorForOddRowsIsSet = (colorForOddRows != null);
-    boolean colorForEvenRowsIsSet = (colorForEvenRows != null);
+    boolean colorForOddRowsIsSet = (this.colorForOddRows != null);
+    boolean colorForEvenRowsIsSet = (this.colorForEvenRows != null);
     int y = 3;
     while (entitySetIterator.hasNextInSet()) {
       Object genericEntity = entitySetIterator.next();
       Iterator visibleOrderedEntityPathesIterator = visibleOrderedEntityPathes.iterator();
       // set color of rows
-      if (showMirroredView) {
-        currentColumn = xAnchorPosition + y - 1;
+      if (this.showMirroredView) {
+        this.currentColumn = this.xAnchorPosition + y - 1;
       }
       else {
-        currentRow = yAnchorPosition + y;
+        this.currentRow = this.yAnchorPosition + y;
       }
-      setColorForRow(this, currentColumn, currentRow, colorForOddRowsIsSet, colorForEvenRowsIsSet);
+      setColorForRow(this, this.currentColumn, this.currentRow, colorForOddRowsIsSet, colorForEvenRowsIsSet);
       int x = 1;
       // fill columns
-      currentIndexOfEntities = entitySetIterator.currentIndexRelativeToZero();
+      this.currentIndexOfEntities = entitySetIterator.currentIndexRelativeToZero();
       while (visibleOrderedEntityPathesIterator.hasNext())  {
-        if (showMirroredView) {
-          currentRow = yAnchorPosition + x;
+        if (this.showMirroredView) {
+          this.currentRow = this.yAnchorPosition + x;
         }
         else {
-          currentColumn = xAnchorPosition + x;
+          this.currentColumn = this.xAnchorPosition + x;
         }
         EntityPath path = (EntityPath) visibleOrderedEntityPathesIterator.next();
         EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(path); 
         PresentationObject presentation = converter.getPresentationObject(genericEntity, path, this, iwc);
-        add(presentation, currentColumn, currentRow);
+        add(presentation, this.currentColumn, this.currentRow);
         // set some settings for the current column
         String shortKey = path.getShortKey();
-        setColorForColumn(this, shortKey, currentColumn, currentRow);
-        setAlignmentForColumn(this, shortKey, currentColumn, currentRow);
+        setColorForColumn(this, shortKey, this.currentColumn, this.currentRow);
+        setAlignmentForColumn(this, shortKey, this.currentColumn, this.currentRow);
         // next column
         x++;
       }
       // nextRow
       y++;
     }
-    currentColumn = -1;
-    currentRow = -1;
-    currentIndexOfEntities = -1;
+    this.currentColumn = -1;
+    this.currentRow = -1;
+    this.currentIndexOfEntities = -1;
   }
   
   private  void fillScrollableEntityTable(
@@ -965,8 +974,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   	scrollTable.setCellspacing(0);
   	scrollTable.setNumberOfHeaderRows(1);
 	scrollTable.setScrollLayerHeaderRowThickness(30);  // prior 47
-	scrollTable.setWidth(widthScrollTable);
-	scrollTable.setHeight(heightScrollTable);
+	scrollTable.setWidth(this.widthScrollTable);
+	scrollTable.setHeight(this.heightScrollTable);
   	
       Iterator iterator = visibleOrderedEntityPathes.iterator();
       
@@ -974,84 +983,84 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       
       // set color for header
       int i = 1;
-      if (colorForHeader != null) {
-        if (showMirroredView) {
-          scrollTable.setColumnColor(1, colorForHeader);
+      if (this.colorForHeader != null) {
+        if (this.showMirroredView) {
+          scrollTable.setColumnColor(1, this.colorForHeader);
         }
         else {
-          scrollTable.setRowColor(1, colorForHeader);
+          scrollTable.setRowColor(1, this.colorForHeader);
         }
       }
       while (iterator.hasNext())  {
         EntityPath entityPath = (EntityPath) iterator.next();
         EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(entityPath); 
         PresentationObject presentation = converter.getHeaderPresentationObject(entityPath, this, iwc);
-        if (showMirroredView) {
+        if (this.showMirroredView) {
           scrollTable.add(presentation, 1, i);
-          if (colorForHeader != null) {
-            scrollTable.setColor(1, i,colorForHeader);
+          if (this.colorForHeader != null) {
+            scrollTable.setColor(1, i,this.colorForHeader);
           }
 
         }
         else {
           scrollTable.add(presentation, i , 1);
-          if (colorForHeader != null) {
-            scrollTable.setColor(i, 1,colorForHeader);
+          if (this.colorForHeader != null) {
+            scrollTable.setColor(i, 1,this.colorForHeader);
           }
         } 
         i++;    
       }
       
       // fill table
-      boolean colorForOddRowsIsSet = (colorForOddRows != null);
-      boolean colorForEvenRowsIsSet = (colorForEvenRows != null);
+      boolean colorForOddRowsIsSet = (this.colorForOddRows != null);
+      boolean colorForEvenRowsIsSet = (this.colorForEvenRows != null);
       int y = 2;
       while (entitySetIterator.hasNextInSet()) {
         Object genericEntity = entitySetIterator.next();
         Iterator visibleOrderedEntityPathesIterator = visibleOrderedEntityPathes.iterator();
         // set color of rows
-        if (showMirroredView) {
-          currentColumn = y;
+        if (this.showMirroredView) {
+          this.currentColumn = y;
         }
         else {
-          currentRow = y;
+          this.currentRow = y;
         }
-        setColorForRow(scrollTable, currentColumn, currentRow, colorForOddRowsIsSet, colorForEvenRowsIsSet);
+        setColorForRow(scrollTable, this.currentColumn, this.currentRow, colorForOddRowsIsSet, colorForEvenRowsIsSet);
         int x = 1;
         // fill columns
-        currentIndexOfEntities = entitySetIterator.currentIndexRelativeToZero();
+        this.currentIndexOfEntities = entitySetIterator.currentIndexRelativeToZero();
         while (visibleOrderedEntityPathesIterator.hasNext())  {
-          if (showMirroredView) {
-            currentRow = x;
+          if (this.showMirroredView) {
+            this.currentRow = x;
           }
           else {
-            currentColumn = x;
+            this.currentColumn = x;
           }
           EntityPath path = (EntityPath) visibleOrderedEntityPathesIterator.next();
           EntityToPresentationObjectConverter converter = getEntityToPresentationConverter(path); 
           PresentationObject presentation = converter.getPresentationObject(genericEntity, path, this, iwc);
-          scrollTable.add(presentation, currentColumn, currentRow);
+          scrollTable.add(presentation, this.currentColumn, this.currentRow);
           // set some settings for the current column
           String shortKey = path.getShortKey();
-          setColorForColumn(scrollTable, shortKey, currentColumn, currentRow);
-          setAlignmentForColumn(scrollTable, shortKey, currentColumn, currentRow);
+          setColorForColumn(scrollTable, shortKey, this.currentColumn, this.currentRow);
+          setAlignmentForColumn(scrollTable, shortKey, this.currentColumn, this.currentRow);
           // next column
           x++;
         }
         // nextRow
         y++;
       }
-      currentColumn = -1;
-      currentRow = -1;
-      currentIndexOfEntities = -1;
-      add(scrollTable, xAnchorPosition + 1, yAnchorPosition + 2);
+      this.currentColumn = -1;
+      this.currentRow = -1;
+      this.currentIndexOfEntities = -1;
+      add(scrollTable, this.xAnchorPosition + 1, this.yAnchorPosition + 2);
     }
   
   private void setAlignmentForColumn(TableType table, String entityPathShortKey, int column, int row) {
-    if (entityPathShortKeyAlignmentMap == null) {
+    if (this.entityPathShortKeyAlignmentMap == null) {
       return;
     }
-    String alignment = (String) entityPathShortKeyAlignmentMap.get(entityPathShortKey);
+    String alignment = (String) this.entityPathShortKeyAlignmentMap.get(entityPathShortKey);
     if (alignment == null)  {
       return;
     }
@@ -1059,14 +1068,14 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
 
   private void setColorForColumn(TableType table, String entityPathShortKey, int column, int row) {
-    if (entityPathShortKeyColorMap == null) {
+    if (this.entityPathShortKeyColorMap == null) {
       return;
     }
-    String color = (String) entityPathShortKeyColorMap.get(entityPathShortKey);
+    String color = (String) this.entityPathShortKeyColorMap.get(entityPathShortKey);
     if (color == null)  {
       return; 
     }
-    if (showMirroredView) {
+    if (this.showMirroredView) {
       table.setRowColor(row, color);
     }
     else {
@@ -1075,22 +1084,22 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
 
   private void setColorForRow(TableType table, int column, int row, boolean colorForOddRowsIsSet, boolean colorForEvenRowsIsSet) {
-  	if (showMirroredView)  {
+  	if (this.showMirroredView)  {
       boolean oddColumn = ((column % 2) == 0);
       if (colorForOddRowsIsSet && oddColumn) { 
-        table.setColumnColor(column, colorForOddRows);
+        table.setColumnColor(column, this.colorForOddRows);
       }
       else if (colorForEvenRowsIsSet && !oddColumn)  {
-        table.setColumnColor(column, colorForEvenRows);
+        table.setColumnColor(column, this.colorForEvenRows);
       } 
     }
     else {
       boolean oddRow = ((row % 2) == 0);
   	  if (colorForOddRowsIsSet && oddRow) {
-        table.setRowColor(row, colorForOddRows);
+        table.setRowColor(row, this.colorForOddRows);
       }
       else if (colorForEvenRowsIsSet && (! oddRow))  {
-        table.setRowColor(row, colorForEvenRows);
+        table.setRowColor(row, this.colorForEvenRows);
       }
     }
   }
@@ -1099,7 +1108,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     String allEntitiesWereShownFromRequest;
     String allEntitiesString;
     if ((allEntitiesString = getAction(iwc, state, EXTERNAL_FORM_SHOW_ALL_ENTITIES_KEY)) != null) {
-        showAllEntities = (new Boolean(allEntitiesString)).booleanValue();
+        this.showAllEntities = (new Boolean(allEntitiesString)).booleanValue();
     }
     // handle external form
     else if ((allEntitiesWereShownFromRequest = getAction(iwc, state, REQUEST_FROM_EXTERNAL_FORM_SHOW_ALL_ENTITIES_KEY)) != null)  {
@@ -1109,44 +1118,45 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       boolean headerFormExists = (getAction(iwc, state,REQUEST_FROM_HEADER_FORM_KEY) != null);
       boolean bottomFormExists = (getAction(iwc, state,REQUEST_FROM_BOTTOM_FORM_KEY) != null);
       if (headerFormExists && !bottomFormExists && showAllEntitiesHeader) {
-        showAllEntities = true;
+        this.showAllEntities = true;
       }
       else if (!headerFormExists && bottomFormExists && showAllEntitiesBottom)  {
-        showAllEntities = true;
+        this.showAllEntities = true;
       }
       else if (!allEntitiesWereShown && (showAllEntitiesHeader || showAllEntitiesBottom)) {
-        showAllEntities = true;
+        this.showAllEntities = true;
       }
       else if (allEntitiesWereShown && showAllEntitiesHeader && showAllEntitiesBottom) {
-        showAllEntities = true;
+        this.showAllEntities = true;
       }
       else if( allEntitiesWereShown && !headerFormExists && showAllEntitiesBottom) {
-      	showAllEntities = true;
+      	this.showAllEntities = true;
       }
       else {
-        showAllEntities = false;
+        this.showAllEntities = false;
       }
     }
     else if (getAction(iwc, state,REQUEST_FROM_HEADER_FORM_KEY) != null)  {
       String allEntitiesWereShown = getAction(iwc, state, HEADER_FORM_KEY + SHOW_ALL_KEY);
-      showAllEntities = (allEntitiesWereShown != null);
+      this.showAllEntities = (allEntitiesWereShown != null);
     }
     else if (getAction(iwc, state,REQUEST_FROM_BOTTOM_FORM_KEY) != null)  {
       String allEntitiesWereShown = getAction(iwc, state, BOTTOM_FORM_KEY + SHOW_ALL_KEY);
-      showAllEntities = (allEntitiesWereShown != null);
+      this.showAllEntities = (allEntitiesWereShown != null);
     }
     else {
       String showAllEntitiesString = getAction(iwc, state, All_ENTITIES_WERE_SHOWN);
       if (showAllEntitiesString != null)  {
-        showAllEntities = new Boolean(showAllEntitiesString).booleanValue();
+        this.showAllEntities = new Boolean(showAllEntitiesString).booleanValue();
       }
     }
   } 
 
   
   private void parseAndDoAction(IWContext iwc, EntityBrowserPS state, String formerStateOfIterator, SetIterator setIterator)  {
-    if (! parseAndDoActionForForm(HEADER_FORM_KEY,iwc,state,formerStateOfIterator,setIterator))
-      parseAndDoActionForForm(BOTTOM_FORM_KEY,iwc,state,formerStateOfIterator,setIterator);
+    if (! parseAndDoActionForForm(HEADER_FORM_KEY,iwc,state,formerStateOfIterator,setIterator)) {
+			parseAndDoActionForForm(BOTTOM_FORM_KEY,iwc,state,formerStateOfIterator,setIterator);
+		}
     }
 
   private boolean parseAndDoActionForForm(
@@ -1170,11 +1180,13 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       setIterator.goToSetRelativeToCurrentSet(i);
     }  
     // action from buttons  
-    else if ( (NEXT_SUBSET).equals(forwardBackAction))
-      setIterator.nextSet();
-    else if ( (PREVIOUS_SUBSET).equals(forwardBackAction))
-      setIterator.previousSet();
-    else  {
+    else if ( (NEXT_SUBSET).equals(forwardBackAction)) {
+			setIterator.nextSet();
+		}
+		else if ( (PREVIOUS_SUBSET).equals(forwardBackAction)) {
+			setIterator.previousSet();
+		}
+		else  {
       setIterator.currentSet();
       // there was no action
       return false;
@@ -1204,16 +1216,19 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // EntityList has not implemented the toArray() method that is used 
     // during the execution of new ArrayList(Collection coll) method
     // therefore we simply try to get a list by casting.
-    if (entityColl instanceof List)
-      entityList = (List) entityColl;
-    else if (entityColl == null)
-      entityList = new ArrayList();
-    else 
-      entityList = new ArrayList(entityColl);
+    if (entityColl instanceof List) {
+			entityList = (List) entityColl;
+		}
+		else if (entityColl == null) {
+			entityList = new ArrayList();
+		}
+		else {
+			entityList = new ArrayList(entityColl);
+		}
     
     SetIterator setIterator = new SetIterator(entityList);
     // retrieve old state of setIterator, use session
-    setIterator.retrieveStateFromSession(iwc, keyForEntityCollection, getMyId());
+    setIterator.retrieveStateFromSession(iwc, this.keyForEntityCollection, getMyId());
     return setIterator;
   }
 
@@ -1227,8 +1242,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       boolean enableForward) {
  
     // if the list is completely shown do not show forward and backward buttons
-    if ((! enableBack) && (! enableForward))
-      return new Table();
+    if ((! enableBack) && (! enableForward)) {
+			return new Table();
+		}
     // show buttons  
     String uniqueKey = getUniqueKeyForSubmitButton(formKey, NEW_SUBSET_KEY, currentStateOfIterator);
     // use links
@@ -1236,7 +1252,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     Link goForwardLink = getLinkInstanceWithMandatoryParameters(resourceBundle.getLocalizedString("forward","Forward"));
 //    goBackLink.setFontStyle(FONT_STYLE_FOR_LINK);
 //    goForwardLink.setFontStyle(FONT_STYLE_FOR_LINK);
-    if (useEventSystem) {
+    if (this.useEventSystem) {
       goBackLink.addEventModel(getPresentationEvent(),iwc);
       goForwardLink.addEventModel(getPresentationEvent(),iwc);
     }
@@ -1252,8 +1268,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     */
     Table table = new Table(2,1);
     table.setHeight(7);
-    if (enableBack) 
-      table.add(goBackLink,1,1);
+    if (enableBack) {
+			table.add(goBackLink,1,1);
+		}
  
     Iterator iterator = getLinksToPage(formKey, iwc, setIterator, currentStateOfIterator).iterator();
     while (iterator.hasNext())  {
@@ -1324,13 +1341,15 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     int preNumber = setIterator.getNegativeNumberOfPreviousSetsRelativeToCurrentSet();
     int afterNumber = setIterator.getPositiveNumberOfNextSetsRelativeToCurrentSet();
     // adjust number of possible links previous and after current set
-    int numberOfLinksAfterCurrentSet = defaultNumberOfLinksAfterCurrentSet;
-    int numberOfLinksPreviousToCurrentSet = -defaultNumberOfLinksPreviousToCurrentSet;
+    int numberOfLinksAfterCurrentSet = this.defaultNumberOfLinksAfterCurrentSet;
+    int numberOfLinksPreviousToCurrentSet = -this.defaultNumberOfLinksPreviousToCurrentSet;
     //  prenumber is negative
-    if (preNumber >  -defaultNumberOfLinksPreviousToCurrentSet)
-      numberOfLinksAfterCurrentSet += ( defaultNumberOfLinksPreviousToCurrentSet + preNumber);
-    if (afterNumber < defaultNumberOfLinksAfterCurrentSet)
-      numberOfLinksPreviousToCurrentSet -= (defaultNumberOfLinksAfterCurrentSet - afterNumber);
+    if (preNumber >  -this.defaultNumberOfLinksPreviousToCurrentSet) {
+			numberOfLinksAfterCurrentSet += ( this.defaultNumberOfLinksPreviousToCurrentSet + preNumber);
+		}
+    if (afterNumber < this.defaultNumberOfLinksAfterCurrentSet) {
+			numberOfLinksPreviousToCurrentSet -= (this.defaultNumberOfLinksAfterCurrentSet - afterNumber);
+		}
     // prenumber is negative 
     preNumber = (preNumber <  numberOfLinksPreviousToCurrentSet) ? 
       numberOfLinksPreviousToCurrentSet : preNumber; 
@@ -1350,10 +1369,12 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       }
       Link link = getLinkInstanceWithMandatoryParameters(buffer.toString());
 //      link.setFontStyle(FONT_STYLE_FOR_LINK);
-      if (preNumber == 0)
-        link.setBold();
-      if (useEventSystem)
-        link.addEventModel(getPresentationEvent(),iwc);
+      if (preNumber == 0) {
+				link.setBold();
+			}
+      if (this.useEventSystem) {
+				link.addEventModel(getPresentationEvent(),iwc);
+			}
       link.addParameter(key, preNumber);
       listOfLinks.add(link);
       number += increment;
@@ -1367,16 +1388,17 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 	*/
   private Table getSettingsButton(IWResourceBundle resourceBundle) {
     // sometimes settings button is not desired
-    if (!showSettingsButton)
-      return new Table();
+    if (!this.showSettingsButton) {
+			return new Table();
+		}
     String settings = resourceBundle.getLocalizedString("Settings","Settings");
     GenericButton settingsButton = new GenericButton(settings);
     settingsButton.setWindowToOpen(EntityBrowserSettingsWindow.class);
-    settingsButton.addParameter(EntityBrowserSettingsWindow.LEADING_ENTITY_NAME_KEY, leadingEntityName);
+    settingsButton.addParameter(EntityBrowserSettingsWindow.LEADING_ENTITY_NAME_KEY, this.leadingEntityName);
     settingsButton.addParameter(ENTITY_BROWSER_IDENTIFICATION_NAME, getName());
-    Collection defaultColumnValues = (defaultColumns == null) ? null : defaultColumns.values();
-    Collection optionColumnValues = (optionColumns == null) ? null : optionColumns.values();
-    EntityBrowserSettingsWindow.setParameters(settingsButton, entityNames, defaultColumnValues , optionColumnValues, defaultNumberOfRowsPerPage );
+    Collection defaultColumnValues = (this.defaultColumns == null) ? null : this.defaultColumns.values();
+    Collection optionColumnValues = (this.optionColumns == null) ? null : this.optionColumns.values();
+    EntityBrowserSettingsWindow.setParameters(settingsButton, this.entityNames, defaultColumnValues , optionColumnValues, this.defaultNumberOfRowsPerPage );
     StyledButton styledSettingsButton = new StyledButton(settingsButton);    
     Table table = new Table();
     table.add(styledSettingsButton);
@@ -1384,18 +1406,18 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
   
   private Table getShowAllCheckBox(String formKey, boolean enableBack, boolean enableForward, IWResourceBundle resourceBundle)  {
-    if ( (! enableBack) && (!enableForward) && (!showAllEntities) ) {
+    if ( (! enableBack) && (!enableForward) && (!this.showAllEntities) ) {
       // all entities are shown, it makes no sense to offer the checkbox
       return null;
     } 
     Text showAll = new Text(resourceBundle.getLocalizedString("eb_show_all","show all"));
 //	changed to set the font style to match the new style:
-		showAll.setStyleClass(styledLink);
+		showAll.setStyleClass(this.styledLink);
  //   showAll.setFontStyle(FONT_STYLE_FOR_LINK);
     StringBuffer buffer = new StringBuffer(formKey);
     buffer.append(SHOW_ALL_KEY);
     CheckBox showAllCheckBox = new CheckBox(buffer.toString());
-    showAllCheckBox.setChecked(showAllEntities);
+    showAllCheckBox.setChecked(this.showAllEntities);
     showAllCheckBox.setToSubmit();
     Table table = new Table(2,1);
     table.add(showAllCheckBox, 1,1);
@@ -1415,7 +1437,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 
   private String getMyId() {
     // use object instance id if possible else compoundId
-    if (myId == null) {
+    if (this.myId == null) {
       int id;
       PresentationObject object = this;
       do {
@@ -1428,9 +1450,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
         }
        }
       while (id == 0 && object != null);
-      myId = (id != 0) ? Integer.toString(id) : getCompoundId();
+      this.myId = (id != 0) ? Integer.toString(id) : getCompoundId();
     }
-    return myId;
+    return this.myId;
   }
   
   private void setErrorContent()  {
@@ -1442,15 +1464,15 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private List getVisibleOrderedEntityPathes(MultiEntityPropertyHandler multiPropertyHandler)  {
     // if the user settings should not be accepted set the columns 
     // that are set by the user to an empty collection
-    List columnsSetByUserList = (acceptUserSettings) ? multiPropertyHandler.getVisibleOrderedEntityPathes(getName()) : null;
+    List columnsSetByUserList = (this.acceptUserSettings) ? multiPropertyHandler.getVisibleOrderedEntityPathes(getName()) : null;
     // use arrayList because the returned collection of a tree map does not support add operations
-     List tempMandatoryColumns = (mandatoryColumns == null) ? null : new ArrayList(mandatoryColumns.values());
+     List tempMandatoryColumns = (this.mandatoryColumns == null) ? null : new ArrayList(this.mandatoryColumns.values());
     // columnsSetByUserList is empty...  
     // there are no visible columns set by the user, therefore show the default columns  
     // default columns is a tree map values returns an ordered collection
     if ( (columnsSetByUserList == null || columnsSetByUserList.isEmpty())
-					&& defaultColumns != null) {
-      Collection tempDefaultColumns = defaultColumns.values();
+					&& this.defaultColumns != null) {
+      Collection tempDefaultColumns = this.defaultColumns.values();
       if (tempMandatoryColumns == null) {
       	tempMandatoryColumns = new ArrayList(tempDefaultColumns);
       }
@@ -1464,8 +1486,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     	while (mandatoryColumnsIterator.hasNext()) {
     		String shortKey = (String) mandatoryColumnsIterator.next();
     		EntityPath path = multiPropertyHandler.getEntityPath(shortKey);
-    		if (path != null)
-    			list.add(path);
+    		if (path != null) {
+					list.add(path);
+				}
     	}
     }
     if (columnsSetByUserList != null) {
@@ -1475,34 +1498,35 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }           
   
   private int getNumberOfRowsPerPage(MultiEntityPropertyHandler multiPropertyHandler, String identificationName) {
-    if (showAllEntities && entities != null)  {
+    if (this.showAllEntities && this.entities != null)  {
       int rowsPerPage;
-      return ((rowsPerPage = entities.size()) > MAX_ROWS_PER_PAGE) ? MAX_ROWS_PER_PAGE : rowsPerPage;
+      return ((rowsPerPage = this.entities.size()) > this.MAX_ROWS_PER_PAGE) ? this.MAX_ROWS_PER_PAGE : rowsPerPage;
     }
-    if (! acceptUserSettings) {
-      return defaultNumberOfRowsPerPage;
+    if (! this.acceptUserSettings) {
+      return this.defaultNumberOfRowsPerPage;
     }
     int rowsTemp = multiPropertyHandler.getNumberOfRowsPerPage(identificationName);
-    if (rowsTemp == EntityPropertyHandler.NUMBER_OF_ROWS_PER_PAGE_NOT_SET)
-      return defaultNumberOfRowsPerPage;
+    if (rowsTemp == EntityPropertyHandler.NUMBER_OF_ROWS_PER_PAGE_NOT_SET) {
+			return this.defaultNumberOfRowsPerPage;
+		}
     return rowsTemp;
   }
   
   
   public EntityToPresentationObjectConverter getDefaultConverter()  {
-    if (defaultConverter == null) 
-      defaultConverter = 
+    if (this.defaultConverter == null) {
+			this.defaultConverter = 
       new EntityToPresentationObjectConverter() {
         
         IWResourceBundle resourceBundle = null;
         
         public PresentationObject getHeaderPresentationObject(EntityPath entityPath, EntityBrowser browser, IWContext iwc)  {
           // get resource bundle
-          if (resourceBundle == null) {
-            resourceBundle = getResourceBundle(iwc);
+          if (this.resourceBundle == null) {
+            this.resourceBundle = getResourceBundle(iwc);
           }
-          String columnName = entityPath.getLocalizedDescription(resourceBundle);
-          Text text = (Text) columnTextProxy.clone();
+          String columnName = entityPath.getLocalizedDescription(this.resourceBundle);
+          Text text = (Text) EntityBrowser.this.columnTextProxy.clone();
           text.setText(columnName); 
           text.setBold();
           return text;
@@ -1521,7 +1545,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
             if (object == null) {
               // if the column is a number show zero if desired
               if (valueClass != null && Number.class.isAssignableFrom(valueClass)) {
-                object = nullValueForNumbers;
+                object = EntityBrowser.this.nullValueForNumbers;
               }
               else {
                 object = "";
@@ -1531,26 +1555,27 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
             // append white space
             displayValues.append(' ');  
           }
-          Text text = (Text) defaultTextProxy.clone();
+          Text text = (Text) EntityBrowser.this.defaultTextProxy.clone();
           text.setText(displayValues.toString());               
           return text;
         }
-      }; 
-    return defaultConverter;
+      };
+		} 
+    return this.defaultConverter;
   }
 
   /** this method is used for the event model */
   public IWPresentationState getPresentationState(IWUserContext iwuc){
-    if(presentationState == null){
+    if(this.presentationState == null){
       try {
         IWStateMachine stateMachine = (IWStateMachine)IBOLookup.getSessionInstance(iwuc,IWStateMachine.class);
-        presentationState = stateMachine.getStateFor(getCompoundId(),EntityBrowserPS.class);
+        this.presentationState = stateMachine.getStateFor(getCompoundId(),EntityBrowserPS.class);
       }
       catch (RemoteException re) {
         throw new RuntimeException(re.getMessage());
       }
     }
-    return presentationState;
+    return this.presentationState;
   }
 
 
@@ -1568,10 +1593,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
    * @param alignment
    */
   public void setAlignmentForColumn(String entityPathShortKey, String alignment)  {
-    if (entityPathShortKeyAlignmentMap == null) {
-      entityPathShortKeyAlignmentMap = new HashMap();
+    if (this.entityPathShortKeyAlignmentMap == null) {
+      this.entityPathShortKeyAlignmentMap = new HashMap();
     }
-    entityPathShortKeyAlignmentMap.put(entityPathShortKey, alignment);
+    this.entityPathShortKeyAlignmentMap.put(entityPathShortKey, alignment);
   }
   
   /** Sets the color for the specified column.
@@ -1579,10 +1604,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
    * @param colorForColumnr
    */
   public void setColorForColumn(String entityPathShortKey, String color)  {
-    if (entityPathShortKeyColorMap == null) {
-      entityPathShortKeyColorMap = new HashMap();
+    if (this.entityPathShortKeyColorMap == null) {
+      this.entityPathShortKeyColorMap = new HashMap();
     }
-    entityPathShortKeyColorMap.put(entityPathShortKey, color);
+    this.entityPathShortKeyColorMap.put(entityPathShortKey, color);
   }
   
   /** Sets the color for the specified columns.
@@ -1670,7 +1695,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 	 * @return int
 	 */
 	public int getCurrentColumn() {
-		return currentColumn;
+		return this.currentColumn;
 	}
 
 	/**
@@ -1680,7 +1705,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 	 * @return int
 	 */
 	public int getCurrentRow() {
-		return currentRow;
+		return this.currentRow;
 	}
   
   /** 
@@ -1690,7 +1715,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
    * Returns -1 if the browser is not printing the table.
    */
   public int getCurrentIndexOfEntities()  {
-    return currentIndexOfEntities;
+    return this.currentIndexOfEntities;
   }
 
 	/**
@@ -1711,10 +1736,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
    * @param parameter
    */ 
   public void addMandatoryParameter(Parameter parameter)  {
-    if (mandatoryParameters == null)  {
-      mandatoryParameters = new ArrayList();
+    if (this.mandatoryParameters == null)  {
+      this.mandatoryParameters = new ArrayList();
     }
-    mandatoryParameters.add(parameter);
+    this.mandatoryParameters.add(parameter);
   }
   
   public void addMandatoryParameter(String parameterName, String parameterValue)  {
@@ -1722,38 +1747,38 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   }
   
   public void removeAllMandatoryParameters()  {
-    mandatoryParameters = null;
+    this.mandatoryParameters = null;
   }
   
   public void addMandatoryParameters(Collection parameters) {
-    if (mandatoryParameters == null)  {
-      mandatoryParameters = new ArrayList(parameters);
+    if (this.mandatoryParameters == null)  {
+      this.mandatoryParameters = new ArrayList(parameters);
     }
-    mandatoryParameters.addAll(parameters);
+    this.mandatoryParameters.addAll(parameters);
   }
   
   public Parameter getShowAllEntriesParameter() {
-    Parameter parameter = new Parameter(EXTERNAL_FORM_SHOW_ALL_ENTITIES_KEY, String.valueOf(showAllEntities));
+    Parameter parameter = new Parameter(EXTERNAL_FORM_SHOW_ALL_ENTITIES_KEY, String.valueOf(this.showAllEntities));
     return parameter;
   }
   
   public void setScrollableWithHeightAndWidth(int height, int width) {
-  	heightScrollTable = height;
-  	widthScrollTable = width;
-  	useScrollbars = true;
+  	this.heightScrollTable = height;
+  	this.widthScrollTable = width;
+  	this.useScrollbars = true;
   }
       
   
   private Link getLinkInstanceWithMandatoryParameters(String text) {
     Link link = new Link(text);
     //added to match styled Links
-    link.setStyleClass(styledLink);
+    link.setStyleClass(this.styledLink);
     link.addParameter(HEADER_FORM_LAST_USED_MY_ID_KEY, getMyId());
-    link.addParameter(All_ENTITIES_WERE_SHOWN, (new Boolean(showAllEntities)).toString());
-    if (mandatoryParameters == null)  {
+    link.addParameter(All_ENTITIES_WERE_SHOWN, (new Boolean(this.showAllEntities)).toString());
+    if (this.mandatoryParameters == null)  {
        return link;
     }
-    Iterator iterator = mandatoryParameters.iterator();
+    Iterator iterator = this.mandatoryParameters.iterator();
     while (iterator.hasNext())  {
       Parameter parameter = (Parameter) iterator.next();
       link.addParameter(parameter);

@@ -75,46 +75,53 @@ public class EntityPath {
         columnNames.add(columnName);
       }
       int size;
-      if ((size = columnNames.size()) < 2)
-        throw new ClassNotFoundException("EntityPath could not be created from string: " + serialization); 
+      if ((size = columnNames.size()) < 2) {
+				throw new ClassNotFoundException("EntityPath could not be created from string: " + serialization);
+			} 
       String sourceName = (String) columnNames.get(0);
       Class sourceEntity = RefactorClassRegistry.forName(sourceName);
       // remove target name 
       columnNames.remove(size-1);
       EntityPath createdEntityPath;
-      if (size == 2)
-        createdEntityPath = new EntityPath(sourceEntity);
-      else
-        createdEntityPath = getEntityPath(new EntityPath(sourceEntity) , sourceEntity, 0 , columnNames);
-      if (lastEntityPath == null) 
-        // remember the first entity path
+      if (size == 2) {
+				createdEntityPath = new EntityPath(sourceEntity);
+			}
+			else {
+				createdEntityPath = getEntityPath(new EntityPath(sourceEntity) , sourceEntity, 0 , columnNames);
+			}
+      if (lastEntityPath == null) {
+				// remember the first entity path
         firstEntityPath = createdEntityPath;
-      else
-        // add the child 
+			}
+			else {
+				// add the child 
         lastEntityPath.add(createdEntityPath);
+			}
       lastEntityPath = createdEntityPath;  
     }
     return firstEntityPath;
   }
   
   public Class getSourceEntityClass() {
-    return sourceEntity;
+    return this.sourceEntity;
   }
   
   public void add(String aColumnName) {
-    pathToEntity.add(aColumnName);  
+    this.pathToEntity.add(aColumnName);  
   }
   
   public void add(EntityPath aPath) {
-    if (nextEntityPath == null) 
-      nextEntityPath = aPath;
-    else
-      nextEntityPath.add(aPath);
+    if (this.nextEntityPath == null) {
+			this.nextEntityPath = aPath;
+		}
+		else {
+			this.nextEntityPath.add(aPath);
+		}
   }
   
   /** @return my next entityPath or null */ 
   public EntityPath getNextEntityPath() {
-    return nextEntityPath;
+    return this.nextEntityPath;
   }
     
   
@@ -139,23 +146,24 @@ public class EntityPath {
   private void getSerialization(StringBuffer stringBuffer) {
     StringBuffer serialization = new StringBuffer();
       serialization
-        .append(sourceEntity.getName())
+        .append(this.sourceEntity.getName())
         .append(SERIALIZATION_DELIMITER);
       
-    Iterator iterator = pathToEntity.iterator();
+    Iterator iterator = this.pathToEntity.iterator();
     while (iterator.hasNext())  {
       serialization
         .append((String) iterator.next())  
         .append(SERIALIZATION_DELIMITER);
     }
       
-    serialization.append(targetEntity.getName());
+    serialization.append(this.targetEntity.getName());
     stringBuffer.append(serialization);
-    if (nextEntityPath == null)
-      return;
+    if (this.nextEntityPath == null) {
+			return;
+		}
     // put a delimiter between the two objects  
     stringBuffer.append(SERIALIZATION_NEXT_ENTITY_PATH_DELIMITER);
-    nextEntityPath.getSerialization(stringBuffer);
+    this.nextEntityPath.getSerialization(stringBuffer);
   }
   
   
@@ -180,29 +188,32 @@ public class EntityPath {
   }
   
   private void getShortKey(StringBuffer buffer, boolean getCompletePath) {
-    int lastIndex =  pathToEntity.size() - 1;
-    if (lastIndex < 0)
-      return;
+    int lastIndex =  this.pathToEntity.size() - 1;
+    if (lastIndex < 0) {
+			return;
+		}
     // add name of the target entity
     buffer
-      .append(targetEntity.getName())
+      .append(this.targetEntity.getName())
       .append(SHORT_KEY_ENTITY_NAME_COLUMN_NAME_DELIMITER);
     // add all column names of this entity path
-    Iterator iterator = pathToEntity.iterator();
+    Iterator iterator = this.pathToEntity.iterator();
     boolean notTheFirstTime = false;
     while (iterator.hasNext())  {
-      if (notTheFirstTime) 
-        // append this delimiter not the very first time
+      if (notTheFirstTime) {
+				// append this delimiter not the very first time
         buffer.append(SHORT_KEY_COLUMN_NAME_DELIMITER);
-      else
-        notTheFirstTime = true;  
+			}
+			else {
+				notTheFirstTime = true;
+			}  
       String columnName = (String) iterator.next();
       buffer.append(columnName); 
     }
     // go to the next entity path
-    if (nextEntityPath != null && getCompletePath) {
+    if (this.nextEntityPath != null && getCompletePath) {
       buffer.append(SHORT_KEY_NEXT_ENTITY_PATH_DELIMITER);
-      nextEntityPath.getShortKey(buffer, true);
+      this.nextEntityPath.getShortKey(buffer, true);
     }
   }
 
@@ -221,25 +232,25 @@ public class EntityPath {
   
   
   private void getDescription(StringBuffer buffer)  {
-  	if (targetEntity == null) {
+  	if (this.targetEntity == null) {
   		return;
   	}
     // add target name (without package path)
-    String targetClassName = targetEntity.getName();
+    String targetClassName = this.targetEntity.getName();
     String classNameWithoutPath = targetClassName.substring(targetClassName.lastIndexOf(".") + 1);
     buffer.append(classNameWithoutPath);
     // buffer.append('.').append(pathToEntity.get(pathToEntity.size()-1));
     // add all column names of this entity path
-    Iterator iterator = pathToEntity.iterator();
+    Iterator iterator = this.pathToEntity.iterator();
     while (iterator.hasNext())  {
       buffer.append(DESCRIPTION_COLUMN_DELIMITER);
       String columnName = (String) iterator.next();
       buffer.append(columnName); 
     }
     // add describtion of the next entity path
-    if (nextEntityPath != null) {
+    if (this.nextEntityPath != null) {
       buffer.append(DESCRIPTION_NEXT_ENTITY_PATH_DELIMITER);
-      nextEntityPath.getDescription(buffer);
+      this.nextEntityPath.getDescription(buffer);
     }
   }    
   
@@ -259,7 +270,7 @@ public class EntityPath {
    * @return the value of this entity path without the next entity path
    */
   public Object getValue(EntityRepresentation entity)  {
-    Iterator iterator = pathToEntity.iterator();
+    Iterator iterator = this.pathToEntity.iterator();
     // start 
     Object value = entity; 
     // sometimes you can not go down the complete path because some columns are null
@@ -289,7 +300,7 @@ public class EntityPath {
    * @return the class of the value or null if the class is not detectable
    */ 
   public Class getClassOfValue()  {
-    return classOfValue;
+    return this.classOfValue;
   }
   
   public List getClassesOfValues()  {
@@ -302,11 +313,12 @@ public class EntityPath {
     EntityPath entityPath = new EntityPath(this.sourceEntity);
     entityPath.setTargetEntity(this.targetEntity);
     entityPath.setClassOfValue(this.classOfValue);
-    Iterator iterator = pathToEntity.iterator();
-    while (iterator.hasNext()) 
-      entityPath.add((String) iterator.next());
-    if (nextEntityPath != null) {
-      EntityPath nextClone = (EntityPath) nextEntityPath.clone();
+    Iterator iterator = this.pathToEntity.iterator();
+    while (iterator.hasNext()) {
+			entityPath.add((String) iterator.next());
+		}
+    if (this.nextEntityPath != null) {
+      EntityPath nextClone = (EntityPath) this.nextEntityPath.clone();
       entityPath.add(nextClone);
     }
         
@@ -315,18 +327,18 @@ public class EntityPath {
   
   private void getClassesOfValues(List list) {
     list.add(getClassOfValue());
-    if (nextEntityPath == null) {
+    if (this.nextEntityPath == null) {
       return;
     }
-    nextEntityPath.getClassesOfValues(list);
+    this.nextEntityPath.getClassesOfValues(list);
   }
 
   private void getValues(List list, EntityRepresentation entity)  {
     list.add(getValue(entity));
-    if (nextEntityPath == null) {
+    if (this.nextEntityPath == null) {
       return;
     }
-    nextEntityPath.getValues(list, entity);
+    this.nextEntityPath.getValues(list, entity);
   }
 
 
@@ -341,8 +353,9 @@ public class EntityPath {
     //TODO thomas: change this by using IDOEntity and EntityDefinition classes       
     // entering a new layer....
 		GenericEntity entity = (GenericEntity) getEntity(currentEntityClass);
-    if (entity == null)
-      return new TreeMap();
+    if (entity == null) {
+			return new TreeMap();
+		}
     Collection coll = entity.getAttributes();
     Iterator iterator = coll.iterator();
     TreeMap pathes = new TreeMap();
@@ -377,8 +390,9 @@ public class EntityPath {
     // entering a new layer....
     currentLayer++;
     GenericEntity entity = (GenericEntity) getEntity(currentEntityClass);
-    if (entity == null)
-      return null;
+    if (entity == null) {
+			return null;
+		}
     EntityAttribute attribute = entity.getAttribute((String) columnNames.get(currentLayer));
     Class anEntityClass = attribute.getRelationShipClass();
     motherEntityPath.add(attribute.getColumnName());

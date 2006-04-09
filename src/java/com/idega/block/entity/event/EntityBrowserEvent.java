@@ -19,7 +19,7 @@ public class EntityBrowserEvent extends IWPresentationEvent {
 	 */
   public boolean initializeEvent(IWContext iwc) {
     // null if parameter is not set
-    eventName = iwc.getParameter(EVENT_NAME);
+    this.eventName = iwc.getParameter(EVENT_NAME);
     return true;
 	}
   
@@ -28,7 +28,7 @@ public class EntityBrowserEvent extends IWPresentationEvent {
 	 * @return String
 	 */
 	public String getEventName() {
-		return eventName;
+		return this.eventName;
 	}
 
 	/**

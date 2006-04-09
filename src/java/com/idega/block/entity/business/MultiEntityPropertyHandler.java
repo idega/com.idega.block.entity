@@ -58,55 +58,58 @@ public class MultiEntityPropertyHandler {
  
  
   public void addEntity(Class entityClass) {
-    if (entityClassesHandler.containsKey(entityClass))
-      return;
+    if (this.entityClassesHandler.containsKey(entityClass)) {
+			return;
+		}
     // allEntityPathes is not longer valid
-    allEntityPathes = null;
+    this.allEntityPathes = null;
     // set key (value is calculated later if necessary)
-    entityClassesHandler.put(entityClass, null);
+    this.entityClassesHandler.put(entityClass, null);
   }
  
   public void removeEntityClass(Class entityClass)  {
     // it is not allowed to remove the leading class
-    if (entityClass == leadingEntityClass)
-      return;
+    if (entityClass == this.leadingEntityClass) {
+			return;
+		}
     // it does not matter if there was no such entry
     // allEntityPathes is still valid! (it knows more than it needs to know)
-    allEntityPathes = null;
-    entityClassesHandler.remove(entityClass);
+    this.allEntityPathes = null;
+    this.entityClassesHandler.remove(entityClass);
   }
  
   public SortedMap getAllEntityPathes() {
     // use cached value if possible
-    if (allEntityPathes != null)
-      return allEntityPathes;
+    if (this.allEntityPathes != null) {
+			return this.allEntityPathes;
+		}
     // try do get the value from session
     SortedMap sortedMap = getCachedEntityPathesFromSession();
     if (sortedMap != null)  {
-      allEntityPathes = sortedMap;
-      return allEntityPathes;
+      this.allEntityPathes = sortedMap;
+      return this.allEntityPathes;
     }
     // okay...then calculate again...
-    allEntityPathes = new TreeMap(); 
-    Set entries = entityClassesHandler.entrySet();
+    this.allEntityPathes = new TreeMap(); 
+    Set entries = this.entityClassesHandler.entrySet();
     Iterator iterator = entries.iterator();
     while (iterator.hasNext())  {
       Map.Entry entry = (Map.Entry) iterator.next();
       EntityPropertyHandler handler = (EntityPropertyHandler) entry.getValue();
       if (handler == null)  {
-        handler = new EntityPropertyHandler(userContext, (Class) entry.getKey());
+        handler = new EntityPropertyHandler(this.userContext, (Class) entry.getKey());
         entry.setValue(handler);        
       }
-      allEntityPathes.putAll(handler.getAllEntityPathes());
+      this.allEntityPathes.putAll(handler.getAllEntityPathes());
     }
     // store in session
     setCachedEntityPathesIntoSession();
-    return allEntityPathes;
+    return this.allEntityPathes;
      
   }
   
   private String getKeyForCachedEntityPathes() {
-    Set set = entityClassesHandler.keySet();
+    Set set = this.entityClassesHandler.keySet();
     // we have to sort entries in order to get a unique key
     SortedSet sortedSet = new TreeSet();
     Iterator iterator = set.iterator();
@@ -126,21 +129,21 @@ public class MultiEntityPropertyHandler {
   
   private SortedMap getCachedEntityPathesFromSession() {
     String key = getKeyForCachedEntityPathes();
-    return (SortedMap) userContext.getSessionAttribute(key);
+    return (SortedMap) this.userContext.getSessionAttribute(key);
   }
     
   private void setCachedEntityPathesIntoSession() {
     String key = getKeyForCachedEntityPathes();
-    userContext.setSessionAttribute(key, allEntityPathes);
+    this.userContext.setSessionAttribute(key, this.allEntityPathes);
   }
   
   
   public String getLeadingEntityClassName() {
-    return leadingEntityClass.getName();
+    return this.leadingEntityClass.getName();
   }
   
   public Collection getEntityNames()  {
-    Set keys = entityClassesHandler.keySet();
+    Set keys = this.entityClassesHandler.keySet();
     Collection coll = new ArrayList();
     Iterator iterator = keys.iterator();
     while (iterator.hasNext())  {
@@ -175,10 +178,10 @@ public class MultiEntityPropertyHandler {
 
   private EntityPropertyHandler getLeadingEntityPropertyHandler()  {
     EntityPropertyHandler leadingHandler = (EntityPropertyHandler) 
-      entityClassesHandler.get(leadingEntityClass);
+      this.entityClassesHandler.get(this.leadingEntityClass);
     if (leadingHandler == null) {
-      leadingHandler = new EntityPropertyHandler(userContext, leadingEntityClass);
-      entityClassesHandler.put(leadingEntityClass, leadingHandler);
+      leadingHandler = new EntityPropertyHandler(this.userContext, this.leadingEntityClass);
+      this.entityClassesHandler.put(this.leadingEntityClass, leadingHandler);
     }
     return leadingHandler;
   }

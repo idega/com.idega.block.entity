@@ -108,7 +108,7 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
   }
   
   public String getKeyForCheckBox() {
-    return key;
+    return this.key;
   }
   
 
@@ -120,9 +120,9 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
     EntityBrowser browser,
     IWContext iwc) {
     CheckBox checkAllCheckBox = new CheckBox("checkAll");
-    String checkBoxKey = (useShortKeyAsKey) ? entityPath.getShortKey() : key;
+    String checkBoxKey = (this.useShortKeyAsKey) ? entityPath.getShortKey() : this.key;
     checkAllCheckBox.setToCheckOnClick(checkBoxKey, "this.checked");
-    if (showTitle) {
+    if (this.showTitle) {
     	PresentationObject presentation = browser.getDefaultConverter().getHeaderPresentationObject(entityPath, browser, iwc);
 			Table table = new Table(2,1);
 			table.add(checkAllCheckBox, 1, 1 );
@@ -143,9 +143,9 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
     EntityBrowser browser,
     IWContext iwc) {
     EntityRepresentation idoEntity = (EntityRepresentation) entity;
-    String checkBoxKey = (useShortKeyAsKey) ? path.getShortKey() : key; 
+    String checkBoxKey = (this.useShortKeyAsKey) ? path.getShortKey() : this.key; 
     CheckBox checkBox = new CheckBox(checkBoxKey, idoEntity.getPrimaryKey().toString());
-    if (! editable) {
+    if (! this.editable) {
       checkBox.setDisabled(true);
     }
     return checkBox;
@@ -155,7 +155,7 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
  * @return Returns the showTitle.
  */
 public boolean isShowTitle() {
-	return showTitle;
+	return this.showTitle;
 }
 
 /**

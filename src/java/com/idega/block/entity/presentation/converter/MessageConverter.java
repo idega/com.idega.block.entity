@@ -43,7 +43,7 @@ public class MessageConverter implements EntityToPresentationObjectConverter {
     IWContext iwc) {
     IDOEntity entity = (IDOEntity) value;
     Integer id = (Integer) entity.getPrimaryKey();
-    String message = (String) entityMessageMap.get(id);
+    String message = (String) this.entityMessageMap.get(id);
     if (message == null)  {
       message = "";
     }

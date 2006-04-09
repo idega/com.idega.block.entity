@@ -26,20 +26,20 @@ public class EntityValueHolder implements EntityRepresentation {
    * @see com.idega.data.EntityRepresentation#getColumnValue(java.lang.String)
    */
   public Object getColumnValue(String columnName) {
-    Object value = (columnValueMap == null) ? null : columnValueMap.get(columnName); 
+    Object value = (this.columnValueMap == null) ? null : this.columnValueMap.get(columnName); 
     return (value == null) ? DEFAULT_VALUE : value;
   }
   
   public void setColumnValue(String columnName, Object value) {
-    if (columnValueMap == null)   {
-      columnValueMap = new HashMap();
+    if (this.columnValueMap == null)   {
+      this.columnValueMap = new HashMap();
     }
-    columnValueMap.put(columnName, value);
+    this.columnValueMap.put(columnName, value);
   }
     
   
   public Object getPrimaryKey() {
-    return primaryKey;
+    return this.primaryKey;
   }
 
 }

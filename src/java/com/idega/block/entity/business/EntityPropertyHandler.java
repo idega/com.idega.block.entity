@@ -57,9 +57,10 @@ public class EntityPropertyHandler {
     SortedMap map = EntityPath.getInstances(entityClass);
     // add virtual entity pathes
     String[] virtualShortKeys = EntityPropertyDefaultValues.getVirtualShortKeys(entityClass.getName());
-    if (virtualShortKeys == null)
-      // nothing to add...( most likely )
+    if (virtualShortKeys == null) {
+			// nothing to add...( most likely )
       return map;
+		}
       
     // add virtual pathes (virtual pathes are pathes that have children)
     int i;
@@ -80,8 +81,9 @@ public class EntityPropertyHandler {
 
   public List getVisibleOrderedEntityPathes(String identificationName) {
     String keyName = VISIBLE_COLUMN_KEY;
-    if (identificationName != null && !identificationName.equals(""))
-      keyName = identificationName+"."+keyName;
+    if (identificationName != null && !identificationName.equals("")) {
+			keyName = identificationName+"."+keyName;
+		}
     List entityPathKeyNames = getListFromProperty(getRootProperties(), keyName);
     Iterator iterator = entityPathKeyNames.iterator();
     List entityPathes = new ArrayList();
@@ -107,38 +109,43 @@ public class EntityPropertyHandler {
       serializationList.add(serialization);
     }
     String keyName = VISIBLE_COLUMN_KEY;
-    if (identificationName != null && !identificationName.equals(""))
-        keyName = identificationName+"."+keyName;
+    if (identificationName != null && !identificationName.equals("")) {
+			keyName = identificationName+"."+keyName;
+		}
     setListIntoProperty(getRootProperties(), keyName, serializationList);
   }
  
   public void setNumberOfRowsPerPage(int numberOfRowsPerPage, String identificationName) {
       String keyName = NUMBER_OF_ROWS_PER_PAGE_KEY;
-      if (identificationName != null && !identificationName.equals(""))
-          keyName = identificationName+"."+keyName;
+      if (identificationName != null && !identificationName.equals("")) {
+				keyName = identificationName+"."+keyName;
+			}
       setValueIntoProperty(getRootProperties(), keyName, Integer.toString(numberOfRowsPerPage));
   }
  
   public int getNumberOfRowsPerPage(String identificationName) {
     String keyName = NUMBER_OF_ROWS_PER_PAGE_KEY;
-    if (identificationName != null && !identificationName.equals(""))
-        keyName = identificationName+"."+keyName;
+    if (identificationName != null && !identificationName.equals("")) {
+			keyName = identificationName+"."+keyName;
+		}
     String result = getValueFromProperty(getRootProperties(), keyName);
-    if (result == null)
-      return NUMBER_OF_ROWS_PER_PAGE_NOT_SET;
+    if (result == null) {
+			return NUMBER_OF_ROWS_PER_PAGE_NOT_SET;
+		}
     return Integer.parseInt(result);
   } 
  
   public SortedMap getAllEntityPathes() { 
     
-    if (allEntityPathes == null)
-      allEntityPathes = EntityPropertyHandler.getAllEntityPathes(entityClass);  
-    return allEntityPathes;
+    if (this.allEntityPathes == null) {
+			this.allEntityPathes = EntityPropertyHandler.getAllEntityPathes(this.entityClass);
+		}  
+    return this.allEntityPathes;
   }
       
 
   public String getEntityClassName() {
-    return entityClass.getName();
+    return this.entityClass.getName();
   }       
 
 
@@ -157,14 +164,17 @@ public class EntityPropertyHandler {
       EntityPath path = (EntityPath) shortKeyPathDic.get(singleShortKey);
       // sometimes the shortkey could not be resolved
       // return DummyEntityPath 
-      if (path == null)
-        return new DummyEntityPath(shortKey);
+      if (path == null) {
+				return new DummyEntityPath(shortKey);
+			}
       // do not use the original one !
       path = (EntityPath) path.clone();  
-      if (firstPath == null)
-        firstPath = path;
-      else 
-        lastPath.add(path);
+      if (firstPath == null) {
+				firstPath = path;
+			}
+			else {
+				lastPath.add(path);
+			}
       lastPath = path;
     }
     return firstPath;
@@ -183,9 +193,10 @@ public class EntityPropertyHandler {
     }
     // are there any changes?  
     List existingList = getListFromProperty(properties, keyName);
-    if (existingList.equals(list))
-      // nothing to do....
+    if (existingList.equals(list)) {
+			// nothing to do....
       return;
+		}
     // there are changes!  
     // delete old entry (if there was not a prior entry it does not matter)
     properties.removeProperty(keyName);
@@ -203,8 +214,9 @@ public class EntityPropertyHandler {
   private List getListFromProperty(IWPropertyList properties, String keyName) {
     IWPropertyList propertyList = properties.getIWPropertyList(keyName);
     // entry was not found
-    if (propertyList == null)
-      return new ArrayList();
+    if (propertyList == null) {
+			return new ArrayList();
+		}
     // get entries, use the IWPropertyListIterator    
     Iterator iterator = propertyList.iterator();
     ArrayList returnList = new ArrayList();
@@ -223,9 +235,10 @@ public class EntityPropertyHandler {
     }
     // is there a change?
     String existingValue = getValueFromProperty(properties, keyName);
-    if (existingValue != null && existingValue.equals(value)) 
-      // nothing to do...
+    if (existingValue != null && existingValue.equals(value)) {
+			// nothing to do...
       return;
+		}
     // remove old entry (if there was not a prior entry it does not matter)
     properties.removeProperty(keyName);
     // create new entry
@@ -235,25 +248,27 @@ public class EntityPropertyHandler {
   private String getValueFromProperty(IWPropertyList properties, String keyName) { 
     IWProperty property = properties.getIWProperty(keyName);
     // entry was not found
-    if (property == null)
-      return null;
+    if (property == null) {
+			return null;
+		}
     return property.getValue();
   }
     
   private IWPropertyList getRootProperties()  {
-    if (entityProperties == null) {
+    if (this.entityProperties == null) {
       // get the properties from session 
       // they are being stored when the user log off
       // !!!! do not use the wrong method IWBundle>>getUserProperties(IWUserContext)
       // because there the properties are stored with the bundle name as key !!!!
-      UserProperties userProperties = userContext.getUserProperties();  
+      UserProperties userProperties = this.userContext.getUserProperties();  
       IWPropertyList rootList = userProperties.getProperties(PROPERTIES_LIST_KEY);
-      String nameOfEntity = entityClass.getName();
-      entityProperties = rootList.getPropertyList(nameOfEntity);
-      if (entityProperties == null) 
-        entityProperties = rootList.getNewPropertyList(nameOfEntity);
+      String nameOfEntity = this.entityClass.getName();
+      this.entityProperties = rootList.getPropertyList(nameOfEntity);
+      if (this.entityProperties == null) {
+				this.entityProperties = rootList.getNewPropertyList(nameOfEntity);
+			}
     }
-    return entityProperties;
+    return this.entityProperties;
   }    
     
   

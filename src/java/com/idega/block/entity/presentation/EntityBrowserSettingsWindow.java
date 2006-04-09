@@ -163,54 +163,57 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     setTitle(iwrb.getLocalizedString("settings", "Settings"));
     addTitle(iwrb.getLocalizedString("settings", "Settings"), TITLE_STYLECLASS);
     
-    if (! initialize(iwc))
-      setErrorContent();
-    if (! doAction(iwc))
-      return;
+    if (! initialize(iwc)) {
+			setErrorContent();
+		}
+    if (! doAction(iwc)) {
+			return;
+		}
     setContent(iwc);
   }
   
   private boolean initialize(IWContext iwc)  {
     // this parameter is necessary    
-    if (! iwc.isParameterSet(LEADING_ENTITY_NAME_KEY))  
-      return false;
+    if (! iwc.isParameterSet(LEADING_ENTITY_NAME_KEY)) {
+			return false;
+		}
     // get the parameter  
     String leadingEntityName = iwc.getParameter(LEADING_ENTITY_NAME_KEY);
     try {
-      multiEntityPropertyHandler = new MultiEntityPropertyHandler(iwc, leadingEntityName);
+      this.multiEntityPropertyHandler = new MultiEntityPropertyHandler(iwc, leadingEntityName);
       // get the parameters of the foreign entities and
       // initialize the multiEntityPropertyHandler
       String key = ENTITY_NAME_KEY_PREFIX + "0";
       int i = 1;
       while (iwc.isParameterSet(key)) {
-        multiEntityPropertyHandler.addEntity(iwc.getParameter(key));
+        this.multiEntityPropertyHandler.addEntity(iwc.getParameter(key));
         StringBuffer buffer = new StringBuffer(ENTITY_NAME_KEY_PREFIX);
         buffer.append(i++);
         key = buffer.toString();
       }
       // get the option short keys
-      optionShortKeys = new ArrayList();
+      this.optionShortKeys = new ArrayList();
       key = OPTION_SHORT_KEY_KEY_PREFIX + "0";
       i = 1;
       while (iwc.isParameterSet(key)) {
-        optionShortKeys.add(iwc.getParameter(key));
+        this.optionShortKeys.add(iwc.getParameter(key));
         StringBuffer buffer = new StringBuffer(OPTION_SHORT_KEY_KEY_PREFIX);
         buffer.append(i++);
         key = buffer.toString();
       }
       // get the default short keys
-      defaultShortKeys = new ArrayList();
+      this.defaultShortKeys = new ArrayList();
       key = DEFAULT_SHORT_KEY_KEY_PREFIX + "0";
       i = 1;
       while (iwc.isParameterSet(key)) {
-        defaultShortKeys.add(iwc.getParameter(key));
+        this.defaultShortKeys.add(iwc.getParameter(key));
         StringBuffer buffer = new StringBuffer(DEFAULT_SHORT_KEY_KEY_PREFIX);
         buffer.append(i++);
         key = buffer.toString();
       }
       // get the default number of rows
       if (iwc.isParameterSet(DEFAULT_NUMBER_OF_ROWS_KEY))  {
-        defaultNumberOfRows = Integer.parseInt(iwc.getParameter(DEFAULT_NUMBER_OF_ROWS_KEY));
+        this.defaultNumberOfRows = Integer.parseInt(iwc.getParameter(DEFAULT_NUMBER_OF_ROWS_KEY));
       }
       
     }
@@ -221,23 +224,23 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     }
     // set available entity pathes
     // if option short keys are set do not fetch all entity pathes
-    if (optionShortKeys.isEmpty())  {
-    	allPathes = multiEntityPropertyHandler.getAllEntityPathes();
+    if (this.optionShortKeys.isEmpty())  {
+    	this.allPathes = this.multiEntityPropertyHandler.getAllEntityPathes();
     }
     else {
-    	allPathes = new TreeMap();
-    	Iterator optionShortKeysIterator = optionShortKeys.iterator();
+    	this.allPathes = new TreeMap();
+    	Iterator optionShortKeysIterator = this.optionShortKeys.iterator();
     	while (optionShortKeysIterator.hasNext())  {
     		String shortKey = (String) optionShortKeysIterator.next();
     		// do not add pathes that are default pathes (they are handled later)
-    		if (! defaultShortKeys.contains(shortKey)) {
-    			EntityPath path = multiEntityPropertyHandler.getEntityPath(shortKey);
-    			allPathes.put(shortKey, path);
+    		if (! this.defaultShortKeys.contains(shortKey)) {
+    			EntityPath path = this.multiEntityPropertyHandler.getEntityPath(shortKey);
+    			this.allPathes.put(shortKey, path);
     		}
     	}
     }
     // get the user settings for the columns
-    visibleColumns = multiEntityPropertyHandler.getVisibleOrderedEntityPathes(iwc.getParameter(EntityBrowser.ENTITY_BROWSER_IDENTIFICATION_NAME));
+    this.visibleColumns = this.multiEntityPropertyHandler.getVisibleOrderedEntityPathes(iwc.getParameter(EntityBrowser.ENTITY_BROWSER_IDENTIFICATION_NAME));
     return true;
   }
     
@@ -253,44 +256,46 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
   private void setContent(IWContext iwc) {
     // get all columns of the corresponding table
 
-    if (allPathes == null)  {
+    if (this.allPathes == null)  {
       setErrorContent();
       return; 
     }
     
-    int numberOfRowsPerPage = multiEntityPropertyHandler.getNumberOfRowsPerPage(iwc.getParameter(EntityBrowser.ENTITY_BROWSER_IDENTIFICATION_NAME));
+    int numberOfRowsPerPage = this.multiEntityPropertyHandler.getNumberOfRowsPerPage(iwc.getParameter(EntityBrowser.ENTITY_BROWSER_IDENTIFICATION_NAME));
     // if the user has not set the desired number of rows per page fetch default value 
-    if (numberOfRowsPerPage == EntityPropertyHandler.NUMBER_OF_ROWS_PER_PAGE_NOT_SET)
-      numberOfRowsPerPage = defaultNumberOfRows;
+    if (numberOfRowsPerPage == EntityPropertyHandler.NUMBER_OF_ROWS_PER_PAGE_NOT_SET) {
+			numberOfRowsPerPage = this.defaultNumberOfRows;
+		}
     
     List allColumnsColl = new ArrayList();
     // get existing settings of the user
 
     // if the user has not chosen any columns use default pathes else 
     // add the default values to the available columns list
-    List targetListForDefaultPathes = (visibleColumns.isEmpty()) ? visibleColumns : allColumnsColl; 
+    List targetListForDefaultPathes = (this.visibleColumns.isEmpty()) ? this.visibleColumns : allColumnsColl; 
     // get default columns
-    Iterator defaultShortKeysIterator = defaultShortKeys.iterator();
+    Iterator defaultShortKeysIterator = this.defaultShortKeys.iterator();
     while (defaultShortKeysIterator.hasNext())  {
       String shortKey = (String) defaultShortKeysIterator.next();
-      targetListForDefaultPathes.add(multiEntityPropertyHandler.getEntityPath(shortKey));
+      targetListForDefaultPathes.add(this.multiEntityPropertyHandler.getEntityPath(shortKey));
     }
     // get short keys
     List visibleColumnKeys = new ArrayList();
-    Iterator iteratorVisibleColumns = visibleColumns.iterator();
+    Iterator iteratorVisibleColumns = this.visibleColumns.iterator();
     while (iteratorVisibleColumns.hasNext())  {
       EntityPath path = (EntityPath) iteratorVisibleColumns.next();
       visibleColumnKeys.add(path.getShortKey());
     }
 
-    allColumnsColl.addAll(allPathes.values());
+    allColumnsColl.addAll(this.allPathes.values());
     List availableColumns = new ArrayList();
     // fill list of available columns without visible columns
     Iterator iterator = allColumnsColl.iterator();
     while (iterator.hasNext())  {
       EntityPath entityPath = (EntityPath) iterator.next();
-      if (! visibleColumnKeys.contains(entityPath.getShortKey()))
-        availableColumns.add(entityPath);
+      if (! visibleColumnKeys.contains(entityPath.getShortKey())) {
+				availableColumns.add(entityPath);
+			}
     }
     
     // get resourceBundle
@@ -299,7 +304,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     Help help = getHelp(HELP_TEXT_KEY);
         
     // choose visible columns and order of them 
-		SelectionDoubleBox selectionDoubleBox = getColumnsChooserDoubleSelectionBox(resourceBundle, availableColumns, visibleColumns);
+		SelectionDoubleBox selectionDoubleBox = getColumnsChooserDoubleSelectionBox(resourceBundle, availableColumns, this.visibleColumns);
     // how many rows per page
     IntegerInput rowsInput = getNumberPerPageInputField(numberOfRowsPerPage, iwc);
     // close Button
@@ -313,7 +318,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     // create form 
     // add selection double box
     Table formTable = new Table(2,3);
-    formTable.setStyleClass(mainStyleClass);
+    formTable.setStyleClass(this.mainStyleClass);
     formTable.mergeCells(1,1,2,1);
     formTable.mergeCells(1,2,2,2);
     formTable.add(selectionDoubleBox,1,1);
@@ -339,9 +344,9 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     Form form = new Form();  
     form.add(formTable);
     // the name of the entity is necessary for initializing this class
-    form.add(new HiddenInput(LEADING_ENTITY_NAME_KEY, multiEntityPropertyHandler.getLeadingEntityClassName()));
+    form.add(new HiddenInput(LEADING_ENTITY_NAME_KEY, this.multiEntityPropertyHandler.getLeadingEntityClassName()));
     form.add(new HiddenInput(EntityBrowser.ENTITY_BROWSER_IDENTIFICATION_NAME, iwc.getParameter(EntityBrowser.ENTITY_BROWSER_IDENTIFICATION_NAME)));
-    EntityBrowserSettingsWindow.setParameters(form, multiEntityPropertyHandler.getEntityNames(),defaultShortKeys, optionShortKeys,defaultNumberOfRows); 
+    EntityBrowserSettingsWindow.setParameters(form, this.multiEntityPropertyHandler.getEntityNames(),this.defaultShortKeys, this.optionShortKeys,this.defaultNumberOfRows); 
     //get the iwcontext for the add-method in StyledIWAdminWindow
     // finally add form        
     add(form,iwc);
@@ -414,8 +419,9 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
           String numberOfRowsPerPage = iwc.getParameter(INPUTFIELD_KEY);
           // get absolute value
           int numberOfRows = Math.abs(Integer.parseInt(numberOfRowsPerPage));
-          if (numberOfRows > 0)
-            multiEntityPropertyHandler.setNumberOfRowsPerPage(numberOfRows,iwc.getParameter(EntityBrowser.ENTITY_BROWSER_IDENTIFICATION_NAME));
+          if (numberOfRows > 0) {
+						this.multiEntityPropertyHandler.setNumberOfRowsPerPage(numberOfRows,iwc.getParameter(EntityBrowser.ENTITY_BROWSER_IDENTIFICATION_NAME));
+					}
         }
       }
     }
@@ -426,17 +432,18 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
   private void setVisibleColumns(String[] selectedKeys, String identificationName) {
     // if the selected keys equals to the default keys do nothing
     List selectedKeysList = Arrays.asList(selectedKeys);
-    if (defaultShortKeys.equals(selectedKeysList) && visibleColumns.isEmpty())
-      return;
+    if (this.defaultShortKeys.equals(selectedKeysList) && this.visibleColumns.isEmpty()) {
+			return;
+		}
     List entityPathes = new ArrayList();
     Iterator iterator = selectedKeysList.iterator();
     while (iterator.hasNext())  {
       String shortKey = (String) iterator.next();
-      EntityPath path = multiEntityPropertyHandler.getEntityPath(shortKey);
+      EntityPath path = this.multiEntityPropertyHandler.getEntityPath(shortKey);
       entityPathes.add(path);
     }
-    multiEntityPropertyHandler.setVisibleOrderedEntityPathes(entityPathes, identificationName); 
-    visibleColumns = entityPathes;
+    this.multiEntityPropertyHandler.setVisibleOrderedEntityPathes(entityPathes, identificationName); 
+    this.visibleColumns = entityPathes;
   }
  
   

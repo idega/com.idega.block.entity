@@ -35,7 +35,7 @@ public class EditOkayButtonConverter implements EntityToPresentationObjectConver
 	 * @return
 	 */
 	public List getParametersToMaintain() {
-		return maintainParametersList;
+		return this.maintainParametersList;
 	}
 
 	/**
@@ -77,13 +77,13 @@ public class EditOkayButtonConverter implements EntityToPresentationObjectConver
           SubmitButton button = new SubmitButton(iwrb.getLocalizedString("ok.button","ok"), ConverterConstants.EDIT_ENTITY_SUBMIT_KEY, id.toString());
           button.setAsImageButton(true);
 		  table.add(button,1,1);
-          if(addCancel){
+          if(this.addCancel){
             Parameter showAllEntries = browser.getShowAllEntriesParameter();
            	Link cancel = new Link(iwrb.getLocalizedImageButton("cancel.button","cancel"));
             cancel.addParameter(showAllEntries);
           	cancel.addParameter(ConverterConstants.SUBMIT_CANCEL_KEY,"true");
-          	if(maintainParametersList!=null && !maintainParametersList.isEmpty()){
-          		Iterator iter = maintainParametersList.iterator();
+          	if(this.maintainParametersList!=null && !this.maintainParametersList.isEmpty()){
+          		Iterator iter = this.maintainParametersList.iterator();
           		while (iter.hasNext()) {
 			      String param = (String) iter.next();
  				  cancel.maintainParameter(param,iwc);

@@ -50,18 +50,18 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
   }
   
   private void initializePostalCodeMaps(IWContext iwc) {
-    if (idPostalAddressMap == null || countryHasChanged) {
-      idPostalAddressMap = new TreeMap();
-      postalCodeNumberIdMap = new HashMap();
+    if (this.idPostalAddressMap == null || this.countryHasChanged) {
+      this.idPostalAddressMap = new TreeMap();
+      this.postalCodeNumberIdMap = new HashMap();
       // add null value
-      postalCodeNumberIdMap.put("", ConverterConstants.NULL_ENTITY_ID);
-      idPostalAddressMap.put(ConverterConstants.NULL_ENTITY_ID, "");
+      this.postalCodeNumberIdMap.put("", ConverterConstants.NULL_ENTITY_ID);
+      this.idPostalAddressMap.put(ConverterConstants.NULL_ENTITY_ID, "");
       try {
-        if( countryName!=null && country == null) {
-          country = getAddressBusiness(iwc).getCountryHome().findByCountryName(countryName);      
+        if( this.countryName!=null && this.country == null) {
+          this.country = getAddressBusiness(iwc).getCountryHome().findByCountryName(this.countryName);      
         }
-        if( country!=null ){
-          Collection postals = getAddressBusiness(iwc).getPostalCodeHome().findAllByCountryIdOrderedByPostalCode(((Integer)country.getPrimaryKey()).intValue());
+        if( this.country!=null ){
+          Collection postals = getAddressBusiness(iwc).getPostalCodeHome().findAllByCountryIdOrderedByPostalCode(((Integer)this.country.getPrimaryKey()).intValue());
           Iterator iter = postals.iterator();
           while (iter.hasNext()) {
             PostalCode element = (PostalCode) iter.next();
@@ -69,12 +69,12 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
             String code = element.getPostalAddress();
             String postalCodeNumber = element.getPostalCode();
             if( code!=null && postalCodeNumber != null) {
-              idPostalAddressMap.put(id,code);
-              postalCodeNumberIdMap.put(postalCodeNumber, id);
+              this.idPostalAddressMap.put(id,code);
+              this.postalCodeNumberIdMap.put(postalCodeNumber, id);
             }           
           }
         }
-        countryHasChanged = false;
+        this.countryHasChanged = false;
       }
       catch (RemoteException ex) {
         System.err.println(
@@ -107,7 +107,7 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
       IWContext iwc)  {
     initializePostalCodeMaps(iwc);
     DropdownMenu dropdownMenu = new DropdownMenu(name);
-    Iterator iterator = idPostalAddressMap.entrySet().iterator();
+    Iterator iterator = this.idPostalAddressMap.entrySet().iterator();
     while (iterator.hasNext()) {
       Map.Entry option = (Map.Entry) iterator.next();
       String value = option.getKey().toString();
@@ -120,7 +120,7 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
       // the id of the postal code. Therefore get the corresponding id of the postal code element first and
       // then set the preselection 
       //String preselectionAsString = preselection.toString();
-      Integer id = (Integer) postalCodeNumberIdMap.get(preselection);
+      Integer id = (Integer) this.postalCodeNumberIdMap.get(preselection);
       if (id != null) {
         dropdownMenu.setSelectedElement(id.toString());
       }
@@ -166,7 +166,7 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
         ex.printStackTrace(System.err);
         throw new RuntimeException("[DropDownPostalCodeConverter]: Can't retrieve name of country.");
       }
-*/      countryHasChanged = true;
+*/      this.countryHasChanged = true;
     }
     
   }
@@ -175,7 +175,7 @@ public class DropDownPostalCodeConverter extends DropDownMenuConverter {
     if (this.countryName == null || (! this.countryName.equals(countryName))) {
       this.countryName = countryName;
       this.country = null;
-      countryHasChanged = true;
+      this.countryHasChanged = true;
     }
   }
 }

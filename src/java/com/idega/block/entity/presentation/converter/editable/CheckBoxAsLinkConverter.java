@@ -90,7 +90,7 @@ public class CheckBoxAsLinkConverter extends CheckBoxConverter {
     else {
       text = "_";
     }
-    if (! editable) {
+    if (! this.editable) {
       return new Text(text);
     }
     Link link = new Link(text);
@@ -98,7 +98,7 @@ public class CheckBoxAsLinkConverter extends CheckBoxConverter {
     link.addParameter(showAllEntries);
     link.addParameter(ConverterConstants.EDIT_ENTITY_KEY, id.toString());
      // add maintain parameters
-    Iterator iteratorList = maintainParameterList.iterator();
+    Iterator iteratorList = this.maintainParameterList.iterator();
     while (iteratorList.hasNext())  {
       String parameter = (String) iteratorList.next();
       link.maintainParameter(parameter, iwc);
@@ -109,10 +109,10 @@ public class CheckBoxAsLinkConverter extends CheckBoxConverter {
   /** Overwrite this method if necessary */
   protected boolean shouldEntityBeChecked(Object entity, Integer primaryKey) {
     
-    if (primaryKeyShouldBeChecked == null) {
+    if (this.primaryKeyShouldBeChecked == null) {
       return false;
     }
-    Boolean shouldBeChecked = (Boolean) primaryKeyShouldBeChecked.get(primaryKey);
+    Boolean shouldBeChecked = (Boolean) this.primaryKeyShouldBeChecked.get(primaryKey);
     return (shouldBeChecked == null) ? false : shouldBeChecked.booleanValue();
   } 
   
