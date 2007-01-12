@@ -287,18 +287,18 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   public void addEntity(String entityName)  {
     if (this.entityNames == null) {
-			this.entityNames = new ArrayList();
-		}
+		this.entityNames = new ArrayList();
+	}
     if (this.entityNames.contains(entityName)) {
-			return;
-		}
+		return;
+	}
     this.entityNames.add(entityName);
   }
   
   public void removeEntity(String entityName) {
     if (this.entityNames == null) {
-			return;
-		}
+		return;
+	}
     // it does not matter if it does not exist
     this.entityNames.remove(entityName);
   }
@@ -323,10 +323,10 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       // get the set property value from the handler
       anEntityClassName = propertyHandler.getPropertyValue(iwc, ICObjectInstanceID, SET_ENTIY_METHOD_IDENTIFIER);
     }
-		else {
-			// the specified method is not handled here
-      return new ArrayList();
-		}
+	else {
+		// the specified method is not handled here
+		  return new ArrayList();
+	}
     // create the desired collection   
     try {
       entityClass = RefactorClassRegistry.forName(anEntityClassName);
@@ -474,8 +474,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   public void setEntityToPresentationConverter(String pathShortKey, EntityToPresentationObjectConverter converter) {
     // lazy initialization (in most cases you do not need this map)
     if (this.entityToPresentationConverters == null) {
-			this.entityToPresentationConverters = new HashMap();
-		}
+		this.entityToPresentationConverters = new HashMap();
+	}
     this.entityToPresentationConverters.put(pathShortKey, converter);
   }
   
@@ -490,9 +490,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       // the key was not found, try to get a converter for the class
         && (( converter = (EntityToPresentationObjectConverter)
            this.entityToPresentationConverters.get(path.getSourceEntityClass().getName())) == null ))) {
-			// okay we give up! return default converter
-			return getDefaultConverter();
-		} 
+		// okay we give up! return default converter
+        return getDefaultConverter();
+	} 
     return converter;
   }
 
@@ -857,8 +857,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       panelForm.add(hiddenInputLastUsedMyId);
       panelForm.add(hiddenInputRequestFrom);
       if (this.useEventSystem) {
-				panelForm.addEventModel(getPresentationEvent(),iwc);
-			}
+		panelForm.addEventModel(getPresentationEvent(),iwc);
+	}
       panelForm.add(panelTable);
       panel = panelForm;
     }
@@ -1155,8 +1155,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   private void parseAndDoAction(IWContext iwc, EntityBrowserPS state, String formerStateOfIterator, SetIterator setIterator)  {
     if (! parseAndDoActionForForm(HEADER_FORM_KEY,iwc,state,formerStateOfIterator,setIterator)) {
-			parseAndDoActionForForm(BOTTOM_FORM_KEY,iwc,state,formerStateOfIterator,setIterator);
-		}
+		parseAndDoActionForForm(BOTTOM_FORM_KEY,iwc,state,formerStateOfIterator,setIterator);
+	}
     }
 
   private boolean parseAndDoActionForForm(
@@ -1181,12 +1181,12 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     }  
     // action from buttons  
     else if ( (NEXT_SUBSET).equals(forwardBackAction)) {
-			setIterator.nextSet();
-		}
-		else if ( (PREVIOUS_SUBSET).equals(forwardBackAction)) {
-			setIterator.previousSet();
-		}
-		else  {
+		setIterator.nextSet();
+	}
+	else if ( (PREVIOUS_SUBSET).equals(forwardBackAction)) {
+		setIterator.previousSet();
+	}
+	else  {
       setIterator.currentSet();
       // there was no action
       return false;
@@ -1217,14 +1217,14 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     // during the execution of new ArrayList(Collection coll) method
     // therefore we simply try to get a list by casting.
     if (entityColl instanceof List) {
-			entityList = (List) entityColl;
-		}
-		else if (entityColl == null) {
-			entityList = new ArrayList();
-		}
-		else {
-			entityList = new ArrayList(entityColl);
-		}
+		entityList = (List) entityColl;
+	}
+	else if (entityColl == null) {
+		entityList = new ArrayList();
+	}
+	else {
+		entityList = new ArrayList(entityColl);
+	}
     
     SetIterator setIterator = new SetIterator(entityList);
     // retrieve old state of setIterator, use session
@@ -1243,8 +1243,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
  
     // if the list is completely shown do not show forward and backward buttons
     if ((! enableBack) && (! enableForward)) {
-			return new Table();
-		}
+		return new Table();
+	}
     // show buttons  
     String uniqueKey = getUniqueKeyForSubmitButton(formKey, NEW_SUBSET_KEY, currentStateOfIterator);
     // use links
@@ -1269,8 +1269,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     Table table = new Table(2,1);
     table.setHeight(7);
     if (enableBack) {
-			table.add(goBackLink,1,1);
-		}
+		table.add(goBackLink,1,1);
+	}
  
     Iterator iterator = getLinksToPage(formKey, iwc, setIterator, currentStateOfIterator).iterator();
     while (iterator.hasNext())  {
@@ -1345,11 +1345,11 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     int numberOfLinksPreviousToCurrentSet = -this.defaultNumberOfLinksPreviousToCurrentSet;
     //  prenumber is negative
     if (preNumber >  -this.defaultNumberOfLinksPreviousToCurrentSet) {
-			numberOfLinksAfterCurrentSet += ( this.defaultNumberOfLinksPreviousToCurrentSet + preNumber);
-		}
+		numberOfLinksAfterCurrentSet += ( this.defaultNumberOfLinksPreviousToCurrentSet + preNumber);
+	}
     if (afterNumber < this.defaultNumberOfLinksAfterCurrentSet) {
-			numberOfLinksPreviousToCurrentSet -= (this.defaultNumberOfLinksAfterCurrentSet - afterNumber);
-		}
+		numberOfLinksPreviousToCurrentSet -= (this.defaultNumberOfLinksAfterCurrentSet - afterNumber);
+	}
     // prenumber is negative 
     preNumber = (preNumber <  numberOfLinksPreviousToCurrentSet) ? 
       numberOfLinksPreviousToCurrentSet : preNumber; 
@@ -1370,11 +1370,11 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
       Link link = getLinkInstanceWithMandatoryParameters(buffer.toString());
 //      link.setFontStyle(FONT_STYLE_FOR_LINK);
       if (preNumber == 0) {
-				link.setBold();
-			}
+		link.setBold();
+	}
       if (this.useEventSystem) {
-				link.addEventModel(getPresentationEvent(),iwc);
-			}
+		link.addEventModel(getPresentationEvent(),iwc);
+	}
       link.addParameter(key, preNumber);
       listOfLinks.add(link);
       number += increment;
@@ -1389,8 +1389,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private Table getSettingsButton(IWResourceBundle resourceBundle) {
     // sometimes settings button is not desired
     if (!this.showSettingsButton) {
-			return new Table();
-		}
+		return new Table();
+	}
     String settings = resourceBundle.getLocalizedString("Settings","Settings");
     GenericButton settingsButton = new GenericButton(settings);
     settingsButton.setWindowToOpen(EntityBrowserSettingsWindow.class);
@@ -1487,8 +1487,8 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     		String shortKey = (String) mandatoryColumnsIterator.next();
     		EntityPath path = multiPropertyHandler.getEntityPath(shortKey);
     		if (path != null) {
-					list.add(path);
-				}
+				list.add(path);
+			}
     	}
     }
     if (columnsSetByUserList != null) {
@@ -1507,60 +1507,60 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
     }
     int rowsTemp = multiPropertyHandler.getNumberOfRowsPerPage(identificationName);
     if (rowsTemp == EntityPropertyHandler.NUMBER_OF_ROWS_PER_PAGE_NOT_SET) {
-			return this.defaultNumberOfRowsPerPage;
-		}
+		return this.defaultNumberOfRowsPerPage;
+	}
     return rowsTemp;
   }
   
   
   public EntityToPresentationObjectConverter getDefaultConverter()  {
     if (this.defaultConverter == null) {
-			this.defaultConverter = 
-      new EntityToPresentationObjectConverter() {
-        
-        IWResourceBundle resourceBundle = null;
-        
-        public PresentationObject getHeaderPresentationObject(EntityPath entityPath, EntityBrowser browser, IWContext iwc)  {
-          // get resource bundle
-          if (this.resourceBundle == null) {
-            this.resourceBundle = getResourceBundle(iwc);
-          }
-          String columnName = entityPath.getLocalizedDescription(this.resourceBundle);
-          Text text = (Text) EntityBrowser.this.columnTextProxy.clone();
-          text.setText(columnName); 
-          text.setBold();
-          return text;
-        }              
-            
-        public PresentationObject getPresentationObject(Object genericEntity, EntityPath path, EntityBrowser browser, IWContext iwc)  {
-          StringBuffer displayValues = new StringBuffer();
-          List list = path.getValues((EntityRepresentation) genericEntity);
-          List classes = path.getClassesOfValues();
-          Iterator valueIterator = list.iterator();
-          Iterator classIterator = classes.iterator();
-          while (valueIterator.hasNext()) {
-            Object object = valueIterator.next();
-            Class valueClass = (Class) classIterator.next();
-            // if there is no entry the object is null
-            if (object == null) {
-              // if the column is a number show zero if desired
-              if (valueClass != null && Number.class.isAssignableFrom(valueClass)) {
-                object = EntityBrowser.this.nullValueForNumbers;
-              }
-              else {
-                object = "";
-              }
-            }
-            displayValues.append(object.toString());
-            // append white space
-            displayValues.append(' ');  
-          }
-          Text text = (Text) EntityBrowser.this.defaultTextProxy.clone();
-          text.setText(displayValues.toString());               
-          return text;
-        }
-      };
-		} 
+		this.defaultConverter = 
+		  new EntityToPresentationObjectConverter() {
+		    
+		    IWResourceBundle resourceBundle = null;
+		    
+		    public PresentationObject getHeaderPresentationObject(EntityPath entityPath, EntityBrowser browser, IWContext iwc)  {
+		      // get resource bundle
+		      if (this.resourceBundle == null) {
+		        this.resourceBundle = getResourceBundle(iwc);
+		      }
+		      String columnName = entityPath.getLocalizedDescription(this.resourceBundle);
+		      Text text = (Text) EntityBrowser.this.columnTextProxy.clone();
+		      text.setText(columnName); 
+		      text.setBold();
+		      return text;
+		    }              
+		        
+		    public PresentationObject getPresentationObject(Object genericEntity, EntityPath path, EntityBrowser browser, IWContext iwc)  {
+		      StringBuffer displayValues = new StringBuffer();
+		      List list = path.getValues((EntityRepresentation) genericEntity);
+		      List classes = path.getClassesOfValues();
+		      Iterator valueIterator = list.iterator();
+		      Iterator classIterator = classes.iterator();
+		      while (valueIterator.hasNext()) {
+		        Object object = valueIterator.next();
+		        Class valueClass = (Class) classIterator.next();
+		        // if there is no entry the object is null
+		        if (object == null) {
+		          // if the column is a number show zero if desired
+		          if (valueClass != null && Number.class.isAssignableFrom(valueClass)) {
+		            object = EntityBrowser.this.nullValueForNumbers;
+		          }
+		          else {
+		            object = "";
+		          }
+		        }
+		        displayValues.append(object.toString());
+		        // append white space
+		        displayValues.append(' ');  
+		      }
+		      Text text = (Text) EntityBrowser.this.defaultTextProxy.clone();
+		      text.setText(displayValues.toString());               
+		      return text;
+		    }
+		  };
+	} 
     return this.defaultConverter;
   }
 

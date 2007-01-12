@@ -164,19 +164,19 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     addTitle(iwrb.getLocalizedString("settings", "Settings"), TITLE_STYLECLASS);
     
     if (! initialize(iwc)) {
-			setErrorContent();
-		}
+		setErrorContent();
+	}
     if (! doAction(iwc)) {
-			return;
-		}
+		return;
+	}
     setContent(iwc);
   }
   
   private boolean initialize(IWContext iwc)  {
     // this parameter is necessary    
     if (! iwc.isParameterSet(LEADING_ENTITY_NAME_KEY)) {
-			return false;
-		}
+		return false;
+	}
     // get the parameter  
     String leadingEntityName = iwc.getParameter(LEADING_ENTITY_NAME_KEY);
     try {
@@ -264,8 +264,8 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     int numberOfRowsPerPage = this.multiEntityPropertyHandler.getNumberOfRowsPerPage(iwc.getParameter(EntityBrowser.ENTITY_BROWSER_IDENTIFICATION_NAME));
     // if the user has not set the desired number of rows per page fetch default value 
     if (numberOfRowsPerPage == EntityPropertyHandler.NUMBER_OF_ROWS_PER_PAGE_NOT_SET) {
-			numberOfRowsPerPage = this.defaultNumberOfRows;
-		}
+		numberOfRowsPerPage = this.defaultNumberOfRows;
+	}
     
     List allColumnsColl = new ArrayList();
     // get existing settings of the user
@@ -294,8 +294,8 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     while (iterator.hasNext())  {
       EntityPath entityPath = (EntityPath) iterator.next();
       if (! visibleColumnKeys.contains(entityPath.getShortKey())) {
-				availableColumns.add(entityPath);
-			}
+		availableColumns.add(entityPath);
+	}
     }
     
     // get resourceBundle
@@ -420,8 +420,8 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
           // get absolute value
           int numberOfRows = Math.abs(Integer.parseInt(numberOfRowsPerPage));
           if (numberOfRows > 0) {
-						this.multiEntityPropertyHandler.setNumberOfRowsPerPage(numberOfRows,iwc.getParameter(EntityBrowser.ENTITY_BROWSER_IDENTIFICATION_NAME));
-					}
+			this.multiEntityPropertyHandler.setNumberOfRowsPerPage(numberOfRows,iwc.getParameter(EntityBrowser.ENTITY_BROWSER_IDENTIFICATION_NAME));
+		}
         }
       }
     }
@@ -433,8 +433,8 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
     // if the selected keys equals to the default keys do nothing
     List selectedKeysList = Arrays.asList(selectedKeys);
     if (this.defaultShortKeys.equals(selectedKeysList) && this.visibleColumns.isEmpty()) {
-			return;
-		}
+		return;
+	}
     List entityPathes = new ArrayList();
     Iterator iterator = selectedKeysList.iterator();
     while (iterator.hasNext())  {

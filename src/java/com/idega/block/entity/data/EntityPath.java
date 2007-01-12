@@ -76,27 +76,27 @@ public class EntityPath {
       }
       int size;
       if ((size = columnNames.size()) < 2) {
-				throw new ClassNotFoundException("EntityPath could not be created from string: " + serialization);
-			} 
+		throw new ClassNotFoundException("EntityPath could not be created from string: " + serialization);
+	} 
       String sourceName = (String) columnNames.get(0);
       Class sourceEntity = RefactorClassRegistry.forName(sourceName);
       // remove target name 
       columnNames.remove(size-1);
       EntityPath createdEntityPath;
       if (size == 2) {
-				createdEntityPath = new EntityPath(sourceEntity);
-			}
-			else {
-				createdEntityPath = getEntityPath(new EntityPath(sourceEntity) , sourceEntity, 0 , columnNames);
-			}
+		createdEntityPath = new EntityPath(sourceEntity);
+	}
+	else {
+		createdEntityPath = getEntityPath(new EntityPath(sourceEntity) , sourceEntity, 0 , columnNames);
+	}
       if (lastEntityPath == null) {
-				// remember the first entity path
+		// remember the first entity path
         firstEntityPath = createdEntityPath;
-			}
-			else {
-				// add the child 
+	}
+	else {
+		// add the child 
         lastEntityPath.add(createdEntityPath);
-			}
+	}
       lastEntityPath = createdEntityPath;  
     }
     return firstEntityPath;
@@ -112,11 +112,11 @@ public class EntityPath {
   
   public void add(EntityPath aPath) {
     if (this.nextEntityPath == null) {
-			this.nextEntityPath = aPath;
-		}
-		else {
-			this.nextEntityPath.add(aPath);
-		}
+		this.nextEntityPath = aPath;
+	}
+	else {
+		this.nextEntityPath.add(aPath);
+	}
   }
   
   /** @return my next entityPath or null */ 
@@ -159,8 +159,8 @@ public class EntityPath {
     serialization.append(this.targetEntity.getName());
     stringBuffer.append(serialization);
     if (this.nextEntityPath == null) {
-			return;
-		}
+		return;
+	}
     // put a delimiter between the two objects  
     stringBuffer.append(SERIALIZATION_NEXT_ENTITY_PATH_DELIMITER);
     this.nextEntityPath.getSerialization(stringBuffer);
@@ -190,8 +190,8 @@ public class EntityPath {
   private void getShortKey(StringBuffer buffer, boolean getCompletePath) {
     int lastIndex =  this.pathToEntity.size() - 1;
     if (lastIndex < 0) {
-			return;
-		}
+		return;
+	}
     // add name of the target entity
     buffer
       .append(this.targetEntity.getName())
@@ -201,12 +201,12 @@ public class EntityPath {
     boolean notTheFirstTime = false;
     while (iterator.hasNext())  {
       if (notTheFirstTime) {
-				// append this delimiter not the very first time
+		// append this delimiter not the very first time
         buffer.append(SHORT_KEY_COLUMN_NAME_DELIMITER);
-			}
-			else {
-				notTheFirstTime = true;
-			}  
+	}
+	else {
+		notTheFirstTime = true;
+	}  
       String columnName = (String) iterator.next();
       buffer.append(columnName); 
     }
@@ -315,8 +315,8 @@ public class EntityPath {
     entityPath.setClassOfValue(this.classOfValue);
     Iterator iterator = this.pathToEntity.iterator();
     while (iterator.hasNext()) {
-			entityPath.add((String) iterator.next());
-		}
+		entityPath.add((String) iterator.next());
+	}
     if (this.nextEntityPath != null) {
       EntityPath nextClone = (EntityPath) this.nextEntityPath.clone();
       entityPath.add(nextClone);
@@ -354,8 +354,8 @@ public class EntityPath {
     // entering a new layer....
 		GenericEntity entity = (GenericEntity) getEntity(currentEntityClass);
     if (entity == null) {
-			return new TreeMap();
-		}
+		return new TreeMap();
+	}
     Collection coll = entity.getAttributes();
     Iterator iterator = coll.iterator();
     TreeMap pathes = new TreeMap();
@@ -391,8 +391,8 @@ public class EntityPath {
     currentLayer++;
     GenericEntity entity = (GenericEntity) getEntity(currentEntityClass);
     if (entity == null) {
-			return null;
-		}
+		return null;
+	}
     EntityAttribute attribute = entity.getAttribute((String) columnNames.get(currentLayer));
     Class anEntityClass = attribute.getRelationShipClass();
     motherEntityPath.add(attribute.getColumnName());

@@ -59,8 +59,8 @@ public class MultiEntityPropertyHandler {
  
   public void addEntity(Class entityClass) {
     if (this.entityClassesHandler.containsKey(entityClass)) {
-			return;
-		}
+		return;
+	}
     // allEntityPathes is not longer valid
     this.allEntityPathes = null;
     // set key (value is calculated later if necessary)
@@ -70,8 +70,8 @@ public class MultiEntityPropertyHandler {
   public void removeEntityClass(Class entityClass)  {
     // it is not allowed to remove the leading class
     if (entityClass == this.leadingEntityClass) {
-			return;
-		}
+		return;
+	}
     // it does not matter if there was no such entry
     // allEntityPathes is still valid! (it knows more than it needs to know)
     this.allEntityPathes = null;
@@ -81,8 +81,8 @@ public class MultiEntityPropertyHandler {
   public SortedMap getAllEntityPathes() {
     // use cached value if possible
     if (this.allEntityPathes != null) {
-			return this.allEntityPathes;
-		}
+		return this.allEntityPathes;
+	}
     // try do get the value from session
     SortedMap sortedMap = getCachedEntityPathesFromSession();
     if (sortedMap != null)  {

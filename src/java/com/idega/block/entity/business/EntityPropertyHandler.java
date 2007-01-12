@@ -10,6 +10,9 @@ import java.util.StringTokenizer;
 import com.idega.block.entity.data.DummyEntityPath;
 import com.idega.block.entity.data.EntityPath;
 import com.idega.block.entity.data.EntityPropertyDefaultValues;
+import com.idega.block.entity.presentation.EntityBrowser;
+
+import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWProperty;
 import com.idega.idegaweb.IWPropertyList;
 import com.idega.idegaweb.IWUserContext;
@@ -41,9 +44,13 @@ public class EntityPropertyHandler {
   // cached value
   private IWUserContext userContext = null;
   
+  private IWBundle bundle = null;
+  
+  
   public EntityPropertyHandler(IWUserContext userContext, Class entityClass)  {
     this.entityClass = entityClass;
     this.userContext = userContext;
+    this.bundle = userContext.getApplicationContext().getIWMainApplication().getBundle(EntityBrowser.IW_BUNDLE_IDENTIFIER);
   }
   
       
@@ -58,9 +65,9 @@ public class EntityPropertyHandler {
     // add virtual entity pathes
     String[] virtualShortKeys = EntityPropertyDefaultValues.getVirtualShortKeys(entityClass.getName());
     if (virtualShortKeys == null) {
-			// nothing to add...( most likely )
-      return map;
-		}
+		// nothing to add...( most likely )
+		  return map;
+	}
       
     // add virtual pathes (virtual pathes are pathes that have children)
     int i;
@@ -82,8 +89,8 @@ public class EntityPropertyHandler {
   public List getVisibleOrderedEntityPathes(String identificationName) {
     String keyName = VISIBLE_COLUMN_KEY;
     if (identificationName != null && !identificationName.equals("")) {
-			keyName = identificationName+"."+keyName;
-		}
+		keyName = identificationName+"."+keyName;
+	}
     List entityPathKeyNames = getListFromProperty(getRootProperties(), keyName);
     Iterator iterator = entityPathKeyNames.iterator();
     List entityPathes = new ArrayList();
@@ -110,36 +117,36 @@ public class EntityPropertyHandler {
     }
     String keyName = VISIBLE_COLUMN_KEY;
     if (identificationName != null && !identificationName.equals("")) {
-			keyName = identificationName+"."+keyName;
-		}
+		keyName = identificationName+"."+keyName;
+	}
     setListIntoProperty(getRootProperties(), keyName, serializationList);
   }
  
   public void setNumberOfRowsPerPage(int numberOfRowsPerPage, String identificationName) {
       String keyName = NUMBER_OF_ROWS_PER_PAGE_KEY;
       if (identificationName != null && !identificationName.equals("")) {
-				keyName = identificationName+"."+keyName;
-			}
+		keyName = identificationName+"."+keyName;
+	}
       setValueIntoProperty(getRootProperties(), keyName, Integer.toString(numberOfRowsPerPage));
   }
  
   public int getNumberOfRowsPerPage(String identificationName) {
     String keyName = NUMBER_OF_ROWS_PER_PAGE_KEY;
     if (identificationName != null && !identificationName.equals("")) {
-			keyName = identificationName+"."+keyName;
-		}
+		keyName = identificationName+"."+keyName;
+	}
     String result = getValueFromProperty(getRootProperties(), keyName);
     if (result == null) {
-			return NUMBER_OF_ROWS_PER_PAGE_NOT_SET;
-		}
+		return NUMBER_OF_ROWS_PER_PAGE_NOT_SET;
+	}
     return Integer.parseInt(result);
   } 
  
   public SortedMap getAllEntityPathes() { 
     
     if (this.allEntityPathes == null) {
-			this.allEntityPathes = EntityPropertyHandler.getAllEntityPathes(this.entityClass);
-		}  
+		this.allEntityPathes = EntityPropertyHandler.getAllEntityPathes(this.entityClass);
+	}  
     return this.allEntityPathes;
   }
       
@@ -165,16 +172,16 @@ public class EntityPropertyHandler {
       // sometimes the shortkey could not be resolved
       // return DummyEntityPath 
       if (path == null) {
-				return new DummyEntityPath(shortKey);
-			}
+		return new DummyEntityPath(shortKey);
+	}
       // do not use the original one !
       path = (EntityPath) path.clone();  
       if (firstPath == null) {
-				firstPath = path;
-			}
-			else {
-				lastPath.add(path);
-			}
+		firstPath = path;
+	}
+	else {
+		lastPath.add(path);
+	}
       lastPath = path;
     }
     return firstPath;
@@ -194,9 +201,9 @@ public class EntityPropertyHandler {
     // are there any changes?  
     List existingList = getListFromProperty(properties, keyName);
     if (existingList.equals(list)) {
-			// nothing to do....
-      return;
-		}
+		// nothing to do....
+		  return;
+	}
     // there are changes!  
     // delete old entry (if there was not a prior entry it does not matter)
     properties.removeProperty(keyName);
@@ -215,8 +222,8 @@ public class EntityPropertyHandler {
     IWPropertyList propertyList = properties.getIWPropertyList(keyName);
     // entry was not found
     if (propertyList == null) {
-			return new ArrayList();
-		}
+		return new ArrayList();
+	}
     // get entries, use the IWPropertyListIterator    
     Iterator iterator = propertyList.iterator();
     ArrayList returnList = new ArrayList();
@@ -236,9 +243,9 @@ public class EntityPropertyHandler {
     // is there a change?
     String existingValue = getValueFromProperty(properties, keyName);
     if (existingValue != null && existingValue.equals(value)) {
-			// nothing to do...
-      return;
-		}
+		// nothing to do...
+		  return;
+	}
     // remove old entry (if there was not a prior entry it does not matter)
     properties.removeProperty(keyName);
     // create new entry
@@ -249,8 +256,8 @@ public class EntityPropertyHandler {
     IWProperty property = properties.getIWProperty(keyName);
     // entry was not found
     if (property == null) {
-			return null;
-		}
+		return null;
+	}
     return property.getValue();
   }
     
@@ -265,8 +272,8 @@ public class EntityPropertyHandler {
       String nameOfEntity = this.entityClass.getName();
       this.entityProperties = rootList.getPropertyList(nameOfEntity);
       if (this.entityProperties == null) {
-				this.entityProperties = rootList.getNewPropertyList(nameOfEntity);
-			}
+		this.entityProperties = rootList.getNewPropertyList(nameOfEntity);
+	}
     }
     return this.entityProperties;
   }    

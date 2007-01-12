@@ -42,8 +42,8 @@ public class EntityBrowserPS extends IWPresentationStateImpl implements IWAction
       while (enumeration.hasMoreElements()) {
         String parameter = (String) enumeration.nextElement();
         if (mainIwc.isParameterSet(parameter)) {
-					this.parameterValues.put(parameter, mainIwc.getParameter(parameter));
-				}
+			this.parameterValues.put(parameter, mainIwc.getParameter(parameter));
+		}
       }
       this.fireStateChanged();
     }
