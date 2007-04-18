@@ -14,6 +14,11 @@
   <version>4.0-SNAPSHOT</version>
   <inceptionYear>2000</inceptionYear>
   <description>Entity Block is a plug-in into the User Application to present a custimizable column list view</description>
+  <scm>
+    <connection>scm:cvs:ext:${user.name}@code.idega.com:/idega/cvs:${groupId}/${artifactId}/</connection>
+    <developerConnection>scm:cvs:ext:${user.name}@code.idega.com:/idega/cvs:${groupId}/${artifactId}/</developerConnection>
+  </scm>
+
   <developers>
     <developer>
       <name>Tryggvi Larusson</name>
