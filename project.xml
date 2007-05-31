@@ -85,7 +85,7 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.builder</artifactId>
-      <version>3.1.0</version>
+      <version>3.1.6</version>
       <type>jar</type>
       <url>http://www.idega.com/</url>
       <properties>
