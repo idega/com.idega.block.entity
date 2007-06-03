@@ -56,13 +56,13 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   
   private final static String NEW_SUBSET_FROM_LIST_KEY = "new_subset_from_list_key";
   
-  private final static String HEADER_FORM_KEY = "header_form_key";
+  public final static String HEADER_FORM_KEY = "header_form_key";
   
-  private final static String BOTTOM_FORM_KEY = "bottom_form_key";
+  public final static String BOTTOM_FORM_KEY = "bottom_form_key";
   
   private final static String EXTERNAL_FORM_KEY = "external_form_key";
   
-  private final static String SHOW_ALL_KEY = "show_all_key";
+  public final static String SHOW_ALL_KEY = "show_all_key";
   
   private final static String All_ENTITIES_WERE_SHOWN = "all_entities_were_shown";
   
