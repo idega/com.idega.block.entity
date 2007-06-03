@@ -316,6 +316,7 @@ com.idega.core.data.Address.STREET_NAME\:com.idega.core.data.Address.STREET_NUMB
 com.idega.core.data.Email.ADDRESS=com.idega.core.data.Email.ADDRESS
 com.idega.core.data.PhoneType.IC_PHONE_TYPE_ID|TYPE_DISPLAY_NAME\:com.idega.core.data.Phone.PHONE_NUMBER=com.idega.core.data.PhoneType.IC_PHONE_TYPE_ID|TYPE_DISPLAY_NAME\:com.idega.core.data.Phone.PHONE_NUMBER
 com.idega.user.data.Group.DISTANCE=Vegalengd
+com.idega.user.data.User.DATE_OF_BIRTH_SHORT=F\u00E6\u00F0ingardags.
 create=Stofna undirh\u00F3pa/f\u00E9laga
 create_new_group=Stofna n\u00FDjan h\u00F3p
 delete=Ey\u00F0a f\u00E9l\u00F6gum
