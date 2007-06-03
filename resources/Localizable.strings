@@ -277,6 +277,7 @@ com.idega.core.contact.data.PhoneType.IC_PHONE_TYPE_ID|TYPE_DISPLAY_NAME\:com.id
 com.idega.core.location.data.Address.STREET_NAME\:com.idega.core.location.data.Address.STREET_NUMBER\:com.idega.core.location.data.Address.P_O_BOX\:com.idega.core.location.data.PostalCode.POSTAL_CODE_ID|POSTAL_CODE\:com.idega.core.location.data.Address.CITY\:com.idega.core.location.data.Country.IC_COUNTRY_ID|COUNTRY_NAME=com.idega.core.location.data.Address.STREET_NAME\:com.idega.core.location.data.Address.STREET_NUMBER\:com.idega.core.location.data.Address.P_O_BOX\:com.idega.core.location.data.PostalCode.POSTAL_CODE_ID|POSTAL_CODE\:com.idega.core.location.data.Address.CITY\:com.idega.core.location.data.Country.IC_COUNTRY_ID|COUNTRY_NAME
 com.idega.user.data.Group.DISTANCE=com.idega.user.data.Group.DISTANCE
 com.idega.user.data.Status.STATUS_KEY=com.idega.user.data.Status.STATUS_KEY
+com.idega.user.data.User.DATE_OF_BIRTH_SHORT=com.idega.user.data.User.DATE_OF_BIRTH_SHORT
 create=
 create_new_group=
 delete=
