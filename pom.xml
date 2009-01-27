@@ -5,12 +5,12 @@
   <parent>
   	<groupId>com.idega.block.platform</groupId>
   	<artifactId>com.idega.block.platform</artifactId>
-  	<version>4.0.2-SNAPSHOT</version>
+  	<version>4.1.0</version>
   </parent>
   <packaging>jar</packaging>
   <groupId>com.idega.block.platform</groupId>
   <artifactId>com.idega.block.entity</artifactId>
-  <version>4.0.2-SNAPSHOT</version>
+  <version>4.1.0</version>
   <name>idegaWeb Entity Block</name>
   <inceptionYear>2000</inceptionYear>
   <description>Entity Block is a plug-in into the User Application to present a custimizable column list view</description>
@@ -23,6 +23,7 @@
     <connection>scm:cvs:ext:idegaweb@code.idega.com:/idega/cvs:com.idega.block.platform/com.idega.block.entity/</connection>
     <developerConnection>scm:cvs:ext:idegaweb@code.idega.com:/idega/cvs:com.idega.block.platform/com.idega.block.entity/</developerConnection>
     -->
+    <tag>com_idega_block_platform-4_1_0</tag>
   </scm>
 
   <developers>
