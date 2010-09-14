@@ -47,7 +47,7 @@ public class EntityBrowserSettingsWindow extends StyledIWAdminWindow {
   private final static String ACTION_CLOSE = "close_form";
   
   private final static String RIGHT_SELECTION_BOX_KEY = "right_selection_box_key";
-  private final static String INPUTFIELD_KEY = "input_field";
+  private final static String INPUTFIELD_KEY = "zz_input_field";
   
   // view settings
   private final static int SIZE_OF_INPUTFIELD = 3;
