@@ -1,5 +1,6 @@
 package com.idega.block.entity.presentation.converter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +15,7 @@ import com.idega.presentation.ui.CheckBox;
 
 /**
  * <p>Title: idegaWeb</p>
- * <p>Description: 
+ * <p>Description:
  * Provides a checkbox for the column and a "check all" checkbox in the header.
  * Instanciate this converter with the desired key for the checkbox and parse the request with this key.
  * The parsing returns a collection of ids (primary keys) of those entities that are checked.
@@ -26,50 +27,50 @@ import com.idega.presentation.ui.CheckBox;
  * Created on Apr 14, 2003
  */
 public class CheckBoxConverter implements EntityToPresentationObjectConverter {
-  
+
   protected static final String DEFAULT_KEY = "selected";
-  
+
   protected String key = DEFAULT_KEY;
-  
+
   protected boolean editable = true;
   protected boolean useShortKeyAsKey = false;
   protected boolean showTitle = false;
-  
+
   public static CheckBoxConverter getInstanceUsesShortKeyAsKeyShowsTitle()	{
   	CheckBoxConverter converter = new CheckBoxConverter();
   	converter.showTitle = true;
   	converter.useShortKeyAsKey = true;
   	return converter;
   }
-  
-  
+
+
   public CheckBoxConverter() {
   }
-    
+
   public CheckBoxConverter(String key) {
     setKey(key);
-  }  
-  
+  }
+
   public void setEditable(boolean editable) {
     this.editable = editable;
   }
-  
+
   /** Gets all ids of the entities that are checked.
    *  This method should only be used if the checkbox converter was instanciated using the default key.
    * @param iwc - Context
    * @return a list of primary keys (Integer) or an empty list (is never null)
    */
-  public static List getResultByParsingUsingDefaultKey(IWContext iwc) {
+  public static List<Serializable> getResultByParsingUsingDefaultKey(IWContext iwc) {
     return getResultByParsing(iwc, DEFAULT_KEY);
-  } 
-  
+  }
+
   /** Gets all ids of the entities that are checked.
    * @param iwc - Context
    * @param key - the key that was used during instanciation of the checkbox converter
    * @return a list of primary keys (Integer or Strings) or an empty list (is never null)
    */
-  public static List getResultByParsing(IWContext iwc, String key) {
-    List result = new ArrayList();
+  public static List<Serializable> getResultByParsing(IWContext iwc, String key) {
+    List<Serializable> result = new ArrayList<Serializable>();
     key = (key == null || key.length() == 0) ? DEFAULT_KEY : key;
     if (iwc.isParameterSet(key))  {
       String[] id = iwc.getParameterValues(key);
@@ -87,7 +88,7 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
     return result;
   }
 
-  
+
   /** Checks if the specified entity is checked or not.
    * @param iwc - Context
    * @param key - the key that was used during instanciation of the checkbox converter
@@ -97,25 +98,26 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
   public static boolean isEntityChecked(IWContext iwc, String key, Object id) {
     return getResultByParsing(iwc, key).contains(id);
   }
-  
+
   public static boolean isEntityCheckedUsingDefaultKey(IWContext iwc, Object id)  {
     return getResultByParsingUsingDefaultKey(iwc).contains(id);
   }
-  
-  
+
+
   public void setKey(String key) {
-    this.key = (key == null || key.length() == 0) ? DEFAULT_KEY : key;      
+    this.key = (key == null || key.length() == 0) ? DEFAULT_KEY : key;
   }
-  
+
   public String getKeyForCheckBox() {
     return this.key;
   }
-  
+
 
   /* (non-Javadoc)
    * @see com.idega.block.entity.business.EntityToPresentationObjectConverter#getHeaderPresentationObject(com.idega.block.entity.data.EntityPath, com.idega.block.entity.presentation.EntityBrowser, com.idega.presentation.IWContext)
    */
-  public PresentationObject getHeaderPresentationObject(
+  @Override
+public PresentationObject getHeaderPresentationObject(
     EntityPath entityPath,
     EntityBrowser browser,
     IWContext iwc) {
@@ -129,7 +131,7 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
 			table.add(presentation, 2,1);
 			return table;
     }
-    else {			
+    else {
     	return checkAllCheckBox;
     }
   }
@@ -137,13 +139,14 @@ public class CheckBoxConverter implements EntityToPresentationObjectConverter {
   /* (non-Javadoc)
    * @see com.idega.block.entity.business.EntityToPresentationObjectConverter#getPresentationObject(java.lang.Object, com.idega.block.entity.data.EntityPath, com.idega.block.entity.presentation.EntityBrowser, com.idega.presentation.IWContext)
    */
-  public PresentationObject getPresentationObject(
+  @Override
+public PresentationObject getPresentationObject(
     Object entity,
     EntityPath path,
     EntityBrowser browser,
     IWContext iwc) {
     EntityRepresentation idoEntity = (EntityRepresentation) entity;
-    String checkBoxKey = (this.useShortKeyAsKey) ? path.getShortKey() : this.key; 
+    String checkBoxKey = (this.useShortKeyAsKey) ? path.getShortKey() : this.key;
     CheckBox checkBox = new CheckBox(checkBoxKey, idoEntity.getPrimaryKey().toString());
     if (! this.editable) {
       checkBox.setDisabled(true);
