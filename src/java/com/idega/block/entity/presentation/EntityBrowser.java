@@ -719,6 +719,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private void setOnlyAdditionalPresentationObjects(int bottomRightCornerY, int bottomRightCornerX)  {
     // create table
     Table panelTable = getAdditionalPresentationObjects();
+    panelTable.setStyleClass("bottomToolbar");
     if (panelTable == null) {
       return;
     }
