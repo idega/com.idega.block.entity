@@ -14,53 +14,54 @@ import com.idega.data.GenericEntity;
 import com.idega.data.IDOEntity;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.repository.data.RefactorClassRegistry;
+import com.idega.util.CoreConstants;
 
 /**
  *@author     <a href="mailto:thomas@idega.is">Thomas Hilbig</a>
  *@version    1.0
  */
 public class EntityPath {
-  
+
   public final static String SERIALIZATION_DELIMITER = "@";
-  
-  public final static String SERIALIZATION_NEXT_ENTITY_PATH_DELIMITER = "#";
-  
+
+  public final static String SERIALIZATION_NEXT_ENTITY_PATH_DELIMITER = CoreConstants.HASH;
+
   public final static String SHORT_KEY_NEXT_ENTITY_PATH_DELIMITER = ":";
-  
+
   public final static String SHORT_KEY_ENTITY_NAME_COLUMN_NAME_DELIMITER = ".";
-  
+
   public final static String SHORT_KEY_COLUMN_NAME_DELIMITER = "|";
-  
+
   public final static String DESCRIPTION_NEXT_ENTITY_PATH_DELIMITER = "+";
-  
+
   public final static String DESCRIPTION_COLUMN_DELIMITER = ".";
-  
-  private static int DEFAULT_SEARCH_DEPTH = 2; 
-  
+
+  private static int DEFAULT_SEARCH_DEPTH = 2;
+
   private Class sourceEntity = null;
-  
+
   private Class targetEntity = null;
-  
+
   private Class classOfValue = null;
-  
+
   private ArrayList pathToEntity = new ArrayList();
-  
+
   private EntityPath nextEntityPath = null;
-  
+
   public EntityPath(Class sourceEntity) {
     this.sourceEntity = sourceEntity;
   }
-  
-  
+
+
   public static SortedMap getInstances(Class sourceEntity) {
     return getInstances(DEFAULT_SEARCH_DEPTH, sourceEntity);
   }
-  
+
   public static SortedMap getInstances(int maximumSearchDepth, Class sourceEntity)  {
     return getAllEntityPathes( new EntityPath(sourceEntity) , sourceEntity, 0 , maximumSearchDepth);
   }
-  
-  
+
+
   public static EntityPath getInstance(String serialization) throws ClassNotFoundException  {
     EntityPath lastEntityPath = null;
     EntityPath firstEntityPath = null;
@@ -77,10 +78,10 @@ public class EntityPath {
       int size;
       if ((size = columnNames.size()) < 2) {
 				throw new ClassNotFoundException("EntityPath could not be created from string: " + serialization);
-			} 
+			}
       String sourceName = (String) columnNames.get(0);
       Class sourceEntity = RefactorClassRegistry.forName(sourceName);
-      // remove target name 
+      // remove target name
       columnNames.remove(size-1);
       EntityPath createdEntityPath;
       if (size == 2) {
@@ -94,22 +95,22 @@ public class EntityPath {
         firstEntityPath = createdEntityPath;
 			}
 			else {
-				// add the child 
+				// add the child
         lastEntityPath.add(createdEntityPath);
 			}
-      lastEntityPath = createdEntityPath;  
+      lastEntityPath = createdEntityPath;
     }
     return firstEntityPath;
   }
-  
+
   public Class getSourceEntityClass() {
     return this.sourceEntity;
   }
-  
+
   public void add(String aColumnName) {
-    this.pathToEntity.add(aColumnName);  
+    this.pathToEntity.add(aColumnName);
   }
-  
+
   public void add(EntityPath aPath) {
     if (this.nextEntityPath == null) {
 			this.nextEntityPath = aPath;
@@ -118,75 +119,75 @@ public class EntityPath {
 			this.nextEntityPath.add(aPath);
 		}
   }
-  
-  /** @return my next entityPath or null */ 
+
+  /** @return my next entityPath or null */
   public EntityPath getNextEntityPath() {
     return this.nextEntityPath;
   }
-    
-  
-  
+
+
+
   private void setTargetEntity(Class targetEntityClass)  {
     this.targetEntity = targetEntityClass;
   }
-  
+
   private void setClassOfValue(Class classOfValue)  {
     this.classOfValue = classOfValue;
   }
-  
-  
+
+
   public String getSerialization()  {
     StringBuffer serialization = new StringBuffer();
     getSerialization(serialization);
     return serialization.toString();
   }
-    
-  
-  
+
+
+
   private void getSerialization(StringBuffer stringBuffer) {
     StringBuffer serialization = new StringBuffer();
       serialization
         .append(this.sourceEntity.getName())
         .append(SERIALIZATION_DELIMITER);
-      
+
     Iterator iterator = this.pathToEntity.iterator();
     while (iterator.hasNext())  {
       serialization
-        .append((String) iterator.next())  
+        .append((String) iterator.next())
         .append(SERIALIZATION_DELIMITER);
     }
-      
+
     serialization.append(this.targetEntity.getName());
     stringBuffer.append(serialization);
     if (this.nextEntityPath == null) {
 			return;
 		}
-    // put a delimiter between the two objects  
+    // put a delimiter between the two objects
     stringBuffer.append(SERIALIZATION_NEXT_ENTITY_PATH_DELIMITER);
     this.nextEntityPath.getSerialization(stringBuffer);
   }
-  
-  
-  
-  /** Gets a shortkey that is used as key in the hash map 
+
+
+
+  /** Gets a shortkey that is used as key in the hash map
    * that is returned by the method getInstances
    * @return shortKey e.g. "com.idega.user.data.User.MIDDLE_NAME"
    * or e.g. "com.idega.user.data.User.FIRST_NAME:com.idega.user.data.User.Last_NAME"
    * (if this path consists of two pathes)
-   */  
+   */
   public String getShortKey() {
     StringBuffer buffer = new StringBuffer();
     getShortKey(buffer, true);
     return buffer.toString();
   }
-    
+
   /** Gets only the section of the short key of this instance */
   public String getShortKeySection() {
   	StringBuffer buffer = new StringBuffer();
   	getShortKey(buffer, false);
   	return buffer.toString();
   }
-  
+
   private void getShortKey(StringBuffer buffer, boolean getCompletePath) {
     int lastIndex =  this.pathToEntity.size() - 1;
     if (lastIndex < 0) {
@@ -206,9 +207,9 @@ public class EntityPath {
 			}
 			else {
 				notTheFirstTime = true;
-			}  
+			}
       String columnName = (String) iterator.next();
-      buffer.append(columnName); 
+      buffer.append(columnName);
     }
     // go to the next entity path
     if (this.nextEntityPath != null && getCompletePath) {
@@ -218,19 +219,19 @@ public class EntityPath {
   }
 
 
-  
+
   /** Gets the original description, do get a localized description use
-   *  getLocalizedDescription.   
+   *  getLocalizedDescription.
    *  @return a description of the value that is representated by this instance
    */
   public String getDescription()  {
     StringBuffer buffer = new StringBuffer();
     getDescription(buffer);
     return buffer.toString();
-  }    
-  
-  
-  
+  }
+
+
+
   private void getDescription(StringBuffer buffer)  {
   	if (this.targetEntity == null) {
   		return;
@@ -245,15 +246,15 @@ public class EntityPath {
     while (iterator.hasNext())  {
       buffer.append(DESCRIPTION_COLUMN_DELIMITER);
       String columnName = (String) iterator.next();
-      buffer.append(columnName); 
+      buffer.append(columnName);
     }
     // add describtion of the next entity path
     if (this.nextEntityPath != null) {
       buffer.append(DESCRIPTION_NEXT_ENTITY_PATH_DELIMITER);
       this.nextEntityPath.getDescription(buffer);
     }
-  }    
-  
+  }
+
   /** Gets the localized description.
    * @param resourceBundle the resourceBundle that serves as a source for the localization
    * @return String a localized description of the value that is representated by this
@@ -271,20 +272,20 @@ public class EntityPath {
    */
   public Object getValue(EntityRepresentation entity)  {
     Iterator iterator = this.pathToEntity.iterator();
-    // start 
-    Object value = entity; 
+    // start
+    Object value = entity;
     // sometimes you can not go down the complete path because some columns are null
     while (iterator.hasNext() && value != null )  {
       String currentColumnName = (String) iterator.next();
-      // that is a little bit tricky: the column can be 
+      // that is a little bit tricky: the column can be
       // a reference to another entity or a real value like a String, Integer, Date and so on.
-      // If the path is well-defined, there will be no CastException, because the very last value 
+      // If the path is well-defined, there will be no CastException, because the very last value
       // is not casted to EntityRepresentation.
-      value = ((EntityRepresentation) value).getColumnValue(currentColumnName);    
+      value = ((EntityRepresentation) value).getColumnValue(currentColumnName);
     }
     return value;
   }
-  
+
   /** @return values of this entity path plus all the values of the next
    * entity pathes
    */
@@ -293,23 +294,24 @@ public class EntityPath {
     getValues(list, entity);
     return list;
   }
-  
+
   /** Returns the class of the value or if not detectable null (e.g. if this is an artificial path).
    * This is the class of the value of this instance without considering the next entity pathes.
    * Do not use this method in convertes, use rather getClassesOfValues(EntityRepresentation).
    * @return the class of the value or null if the class is not detectable
-   */ 
+   */
   public Class getClassOfValue()  {
     return this.classOfValue;
   }
-  
+
   public List getClassesOfValues()  {
     List list = new ArrayList();
     getClassesOfValues(list);
-    return list;    
+    return list;
   }
-  
-  public Object clone() {
+
+  @Override
+public Object clone() {
     EntityPath entityPath = new EntityPath(this.sourceEntity);
     entityPath.setTargetEntity(this.targetEntity);
     entityPath.setClassOfValue(this.classOfValue);
@@ -321,10 +323,10 @@ public class EntityPath {
       EntityPath nextClone = (EntityPath) this.nextEntityPath.clone();
       entityPath.add(nextClone);
     }
-        
+
     return entityPath;
-  } 
-  
+  }
+
   private void getClassesOfValues(List list) {
     list.add(getClassOfValue());
     if (this.nextEntityPath == null) {
@@ -342,15 +344,15 @@ public class EntityPath {
   }
 
 
-   
+
   private static SortedMap getAllEntityPathes
-    ( EntityPath motherEntityPath, 
-      Class currentEntityClass,  
-      int currentLayer, 
-      int maximumSearchDepth) {       
+    ( EntityPath motherEntityPath,
+      Class currentEntityClass,
+      int currentLayer,
+      int maximumSearchDepth) {
     // entering a new layer....
     currentLayer++;
-    //TODO thomas: change this by using IDOEntity and EntityDefinition classes       
+    //TODO thomas: change this by using IDOEntity and EntityDefinition classes
     // entering a new layer....
 		GenericEntity entity = (GenericEntity) getEntity(currentEntityClass);
     if (entity == null) {
@@ -375,18 +377,18 @@ public class EntityPath {
         // go further!
         SortedMap PathesOfChild = EntityPath.getAllEntityPathes(currentPath, anEntityClass, currentLayer, maximumSearchDepth);
         pathes.putAll(PathesOfChild);
-      }  
+      }
     }
     return pathes;
   }
 
-  
+
   private static EntityPath getEntityPath
-    ( EntityPath motherEntityPath, 
-      Class currentEntityClass, 
-      int currentLayer, 
-      List columnNames) {    
-    //TODO thomas: change this by using IDOEntity and EntityDefinition classes       
+    ( EntityPath motherEntityPath,
+      Class currentEntityClass,
+      int currentLayer,
+      List columnNames) {
+    //TODO thomas: change this by using IDOEntity and EntityDefinition classes
     // entering a new layer....
     currentLayer++;
     GenericEntity entity = (GenericEntity) getEntity(currentEntityClass);
@@ -404,13 +406,13 @@ public class EntityPath {
     else if (currentLayer < columnNames.size()) {
         // go further!
       motherEntityPath = EntityPath.getEntityPath(motherEntityPath, anEntityClass, currentLayer, columnNames);
-    }  
+    }
     return motherEntityPath;
-  }  
+  }
 
 
   private static IDOEntity getEntity(Class currentEntityClass) {
     return GenericEntity.getStaticInstanceIDO(currentEntityClass);
-	}  
+	}
 
 }
