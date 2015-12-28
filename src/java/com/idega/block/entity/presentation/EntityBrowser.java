@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.logging.Level;
 
 import javax.faces.component.UIComponent;
 
@@ -117,7 +118,7 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
   private String leadingEntityName = null;
 
   // foreign entities
-  private List entityNames = null;
+  private List<String> entityNames = null;
 
   private int xAnchorPosition = 0;
 
@@ -290,9 +291,9 @@ public class EntityBrowser extends Table implements SpecifiedChoiceProvider, Sta
 
   public void addEntity(String entityName)  {
     if (this.entityNames == null) {
-			this.entityNames = new ArrayList();
-		}
-    if (this.entityNames.contains(entityName)) {
+			this.entityNames = new ArrayList<>();
+	}
+    if (StringUtil.isEmpty(entityName) || this.entityNames.contains(entityName)) {
 			return;
 		}
     this.entityNames.add(entityName);
@@ -319,7 +320,8 @@ public Collection getSpecifiedChoice(
       IWContext iwc,
       String ICObjectInstanceID,
       String methodIdentifier,
-      IBPropertyHandler propertyHandler)  {
+      IBPropertyHandler propertyHandler
+	)  {
       Class entityClass;
       String anEntityClassName;
     // is the method correct?
@@ -335,23 +337,22 @@ public Collection getSpecifiedChoice(
     try {
       entityClass = RefactorClassRegistry.forName(anEntityClassName);
 
+      SortedMap pathes = EntityPropertyHandler.getAllEntityPathes(entityClass);
+      Collection entitiesTemp = pathes.values();
+      List list = new ArrayList();
+      Iterator iterator = entitiesTemp.iterator();
+      while (iterator.hasNext())  {
+        String shortKey = ((EntityPath) iterator.next()).getShortKey();
+        list.add(shortKey);
+      }
+      return list;
+    } catch (Exception e)  {
+    	String message = "[EntityBrowser] The class with the specified name: "
+    		      + anEntityClassName +
+    		        " was not found. Message is " + e.getMessage();
+      getLogger().log(Level.WARNING, message, e);
     }
-    catch (ClassNotFoundException e)  {
-      System.err.println("[EntityBrowser] The class with the specified name: "
-      + anEntityClassName +
-        " was not found. Message is " + e.getMessage());
-      e.printStackTrace(System.err);
-      return new ArrayList();
-    }
-    SortedMap pathes = EntityPropertyHandler.getAllEntityPathes(entityClass);
-    Collection entitiesTemp = pathes.values();
-    List list = new ArrayList();
-    Iterator iterator = entitiesTemp.iterator();
-    while (iterator.hasNext())  {
-      String shortKey = ((EntityPath) iterator.next()).getShortKey();
-      list.add(shortKey);
-    }
-    return list;
+    return new ArrayList();
   }
 
   /**Sets an option column, that is the column is shown in the settings window
@@ -517,6 +518,7 @@ public String getBundleIdentifier(){
 
   @Override
 public void main(IWContext iwc) throws Exception {
+	  try {
     super.main(iwc);
     // event model stuff
     EntityBrowserPS state = (EntityBrowserPS) getPresentationState( iwc);
@@ -705,6 +707,9 @@ public void main(IWContext iwc) throws Exception {
     if (showHeaderNavigationPanel && !showBottomNavigationPanel)  {
       setOnlyAdditionalPresentationObjects(necessaryRows, necessaryColumns);
     }
+	  } catch (Exception e) {
+		  getLogger().log(Level.WARNING, "Error in entity browser", e);
+	  }
   }
 
   private Table getAdditionalPresentationObjects() {
